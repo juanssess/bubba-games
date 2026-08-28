@@ -1,0 +1,40 @@
+/* ============================================================
+   CRASH — pantalla del multiplicador, curva y panel de apuesta.
+   ============================================================ */
+
+.crash-layout{display:grid;grid-template-columns:1fr 268px;gap:18px}
+.crash-main{min-width:0}
+
+.crash-history{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;min-height:26px}
+.ch-item{padding:4px 10px;border-radius:99px;font-size:11.5px;font-weight:800;background:var(--bg-3);border:1px solid var(--line)}
+.ch-item.low{color:#7f8aa3}
+.ch-item.mid{color:var(--accent-2)}
+.ch-item.high{color:var(--green)}
+.ch-item.epic{color:var(--gold);border-color:rgba(245,196,81,.4)}
+
+.crash-screen{
+  position:relative;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);
+  background:radial-gradient(circle at 20% 90%, rgba(216,30,52,.22), transparent 60%), #0b0708;
+}
+#crashCanvas{display:block;width:100%;height:auto}
+.crash-mult{
+  position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);pointer-events:none;
+  font-family:var(--font-display);font-size:clamp(42px,7vw,76px);letter-spacing:2px;
+  text-shadow:0 0 34px rgba(216,30,52,.55);
+}
+.crash-mult.cashed{color:var(--green);text-shadow:0 0 34px rgba(23,201,100,.6)}
+.crash-mult.bust{color:var(--red);text-shadow:0 0 34px rgba(255,90,95,.6);animation:bump .4s ease}
+.crash-state{position:absolute;left:0;right:0;bottom:14px;text-align:center;font-size:13px;color:var(--txt-dim)}
+
+.crash-panel{
+  background:var(--bg-3);border:1px solid var(--line);border-radius:var(--r-md);
+  padding:16px;height:fit-content;
+}
+.crash-info{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.crash-info div{background:var(--bg-2);border-radius:var(--r-sm);padding:9px 11px}
+.crash-info span{display:block;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt-dim)}
+.crash-info strong{font-size:16px;font-variant-numeric:tabular-nums}
+
+@media(max-width:1100px){
+  .crash-layout{grid-template-columns:1fr}
+}

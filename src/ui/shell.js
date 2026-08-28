@@ -1,0 +1,91 @@
+/* ============================================================
+   UI / ARMAZÓN — barra lateral y barra superior.
+   Es el único módulo que sabe cómo se abre y cierra el menú en
+   móvil, y qué botón enciende cada cosa.
+   ============================================================ */
+window.MCShell = (function () {
+  'use strict';
+
+  function init() {
+    wireSidebar();
+    wireTopbar();
+  }
+
+  /* ---------------- barra lateral ---------------- */
+  function wireSidebar() {
+    var sidebar = document.getElementById('sidebar');
+    var scrim = document.getElementById('sbScrim');
+
+    function closeMobile() {
+      sidebar.classList.remove('open');
+      scrim.classList.remove('show');
+    }
+
+    document.getElementById('menuToggle').onclick = function () {
+      sidebar.classList.toggle('open');
+      scrim.classList.toggle('show');
+    };
+    scrim.onclick = closeMobile;
+
+    document.querySelector('.sb-brand').onclick = function () {
+      MC.sound.click();
+      MC.showView('lobby');
+      closeMobile();
+    };
+
+    document.getElementById('sbCount').textContent = MCCatalog.size;
+
+    // Los ítems con data-rail vuelven al lobby y bajan hasta ese riel.
+    document.querySelectorAll('[data-rail]').forEach(function (btn) {
+      btn.onclick = function () {
+        MC.sound.click();
+        markActive(btn);
+        MC.showView('lobby');
+        closeMobile();
+        MCRails.scrollTo(btn.dataset.rail);
+      };
+    });
+
+    document.getElementById('sbCatalog').onclick = function () {
+      markActive(document.getElementById('sbCatalog'));
+      MCActions.run('catalog');
+      closeMobile();
+    };
+    document.getElementById('sbSports').onclick = function () {
+      markActive(document.getElementById('sbSports'));
+      MCActions.run('game:sports');
+      closeMobile();
+    };
+    document.getElementById('sbMissions').onclick = function () {
+      markActive(document.getElementById('sbMissions'));
+      MCActions.run('missions');
+      closeMobile();
+    };
+    document.getElementById('sbBonus').onclick = function () { MC.claimBonus(); closeMobile(); };
+    document.getElementById('sbStats').onclick = function () { MCModals.openAccount(); closeMobile(); };
+    document.getElementById('sbHelp').onclick = function () { MCModals.openHelp(); closeMobile(); };
+  }
+
+  function markActive(btn) {
+    document.querySelectorAll('.sb-item').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  }
+
+  /* ---------------- barra superior ---------------- */
+  function wireTopbar() {
+    var soundBtn = document.getElementById('soundBtn');
+    soundBtn.textContent = MC.state.soundOn ? '🔊' : '🔇';
+    soundBtn.onclick = function () { MC.toggleSound(); };
+
+    document.getElementById('menuBtn').onclick = MCModals.openAccount;
+    document.getElementById('walletBox').onclick = MCModals.openAccount;
+    document.getElementById('depositBtn').onclick = function () { MC.claimBonus(); };
+
+    document.getElementById('stageBack').onclick = function () {
+      MC.sound.click();
+      MC.showView('lobby');
+    };
+  }
+
+  return { init: init };
+})();

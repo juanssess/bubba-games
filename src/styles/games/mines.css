@@ -1,0 +1,41 @@
+/* ============================================================
+   MINES — panel de control y tablero de 5x5.
+   ============================================================ */
+
+.mines-layout{display:grid;grid-template-columns:262px 1fr;gap:18px}
+.mines-panel{
+  background:var(--bg-3);border:1px solid var(--line);border-radius:var(--r-md);
+  padding:16px;height:fit-content;
+}
+.mines-panel .btn-block + .btn-block{margin-top:8px}
+
+.mines-info{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.mines-info div{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--bg-2);border-radius:var(--r-sm);padding:9px 12px;
+}
+.mines-info span{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt-dim)}
+.mines-info strong{font-size:15px;font-variant-numeric:tabular-nums}
+
+.mines-board-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.mines-board{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;width:100%;max-width:520px}
+.tile{
+  aspect-ratio:1;border-radius:var(--r-md);cursor:pointer;border:1px solid var(--line);
+  background:linear-gradient(180deg,var(--bg-4),#16203450);
+  display:grid;place-items:center;font-size:28px;
+  transition:transform .14s, background .2s, box-shadow .2s;
+}
+.tile:hover:not(.done){transform:translateY(-3px);box-shadow:0 8px 18px rgba(0,0,0,.4);border-color:var(--line-2)}
+.tile.idle{cursor:default;opacity:.55}
+.tile.gem{background:linear-gradient(180deg,rgba(23,201,100,.28),rgba(23,201,100,.1));border-color:rgba(23,201,100,.45);animation:bump .35s ease}
+.tile.mine{background:linear-gradient(180deg,rgba(255,90,95,.34),rgba(255,90,95,.12));border-color:rgba(255,90,95,.5);animation:bump .35s ease}
+/* Casillas que se muestran al cerrar la ronda, para ver dónde estaba todo. */
+.tile.revealed{opacity:.45}
+
+.mines-msg{font-size:14px;color:var(--txt-dim);text-align:center;min-height:22px}
+.mines-msg.win{color:var(--green);font-weight:700}
+.mines-msg.lose{color:var(--red);font-weight:700}
+
+@media(max-width:1100px){
+  .mines-layout{grid-template-columns:1fr}
+}

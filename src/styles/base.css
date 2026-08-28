@@ -1,0 +1,85 @@
+/* ============================================================
+   BASE — botones, campos y piezas reutilizables por todo el sitio.
+   Nada acá conoce a un juego ni a una sección en particular.
+   ============================================================ */
+
+/* ---------------- botones ---------------- */
+.btn{
+  font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;
+  padding:11px 18px;border-radius:var(--r-sm);border:1px solid transparent;color:var(--txt);
+  background:var(--bg-4);transition:transform .14s, filter .2s, background .2s, opacity .2s;
+}
+.btn:hover:not(:disabled){filter:brightness(1.15)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+
+.btn-accent{
+  background:linear-gradient(135deg,var(--accent),#8c0f1f);color:#fff;
+  box-shadow:0 8px 22px rgba(216,30,52,.35);
+}
+.btn-gold{
+  background:linear-gradient(135deg,#ffe08a,var(--gold) 45%,var(--gold-2));color:#241a02;
+  box-shadow:0 8px 22px rgba(245,196,81,.28);
+}
+.btn-ghost{background:rgba(255,255,255,.06);border-color:var(--line)}
+.btn-block{width:100%;display:block}
+
+/* El botón grande de acción de cada juego (girar, repartir, apostar). */
+.btn-spin{
+  font-family:var(--font-display);letter-spacing:3px;font-size:19px;padding:13px 40px;border-radius:99px;
+  background:linear-gradient(135deg,var(--brand-red),var(--brand-red-dark));color:#fff;
+  box-shadow:0 10px 28px rgba(216,30,52,.45);
+}
+
+.icon-btn{
+  width:40px;height:40px;flex:0 0 auto;border-radius:var(--r-sm);cursor:pointer;font-size:16px;
+  background:var(--bg-3);border:1px solid var(--line);color:var(--txt);transition:.16s;
+}
+.icon-btn:hover{background:var(--bg-4)}
+
+/* ---------------- contenedores ---------------- */
+.panel{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
+
+/* ---------------- campos de formulario ---------------- */
+.field{display:block;margin-bottom:12px}
+.field span{
+  display:block;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--txt-dim);margin-bottom:6px;
+}
+.field input,.field select{
+  width:100%;padding:11px 13px;border-radius:var(--r-sm);font-size:15px;font-weight:700;
+  background:var(--bg-3);border:1px solid var(--line);color:var(--txt);outline:none;
+}
+.field input:focus,.field select:focus{border-color:var(--accent)}
+
+/* Fila de importes rápidos que comparten crash y mines. */
+.quick-bets{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.quick-bets button{
+  flex:1;min-width:52px;padding:7px 4px;font-size:12px;font-weight:700;cursor:pointer;
+  border-radius:8px;background:var(--bg-3);border:1px solid var(--line);color:var(--txt-dim);
+}
+.quick-bets button:hover{background:var(--bg-4);color:var(--txt)}
+
+/* Control de apuesta con − / valor / + que usan slots y blackjack. */
+.bet-control{display:flex;align-items:center;gap:7px}
+.bet-control .btn-ghost{width:40px;padding:11px 0;text-align:center;font-size:17px}
+.bet-display{
+  display:flex;flex-direction:column;align-items:center;min-width:92px;padding:6px 12px;
+  border-radius:var(--r-sm);background:rgba(0,0,0,.4);border:1px solid var(--line);
+}
+.bet-display span{font-size:9.5px;letter-spacing:1.8px;text-transform:uppercase;color:var(--txt-dim)}
+.bet-display strong{font-size:18px;font-variant-numeric:tabular-nums}
+
+/* ---------------- texto auxiliar ---------------- */
+.hint{font-size:11.5px;color:var(--txt-dim);line-height:1.6;margin-top:12px}
+.empty-msg{color:var(--txt-dim);font-size:13.5px;padding:8px 2px}
+
+/* ---------------- animaciones compartidas ---------------- */
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.09)}100%{transform:scale(1)}}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes winPop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.16)}100%{transform:scale(1);opacity:1}}
+@keyframes pulse{50%{opacity:.25}}
+
+@media(max-width:560px){
+  .btn-spin{font-size:16px;padding:12px 26px}
+}

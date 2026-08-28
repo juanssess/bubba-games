@@ -1,0 +1,58 @@
+/* ============================================================
+   BLACKJACK — paño, cartas y controles de la mano.
+   ============================================================ */
+
+.felt{
+  padding:clamp(18px,3vw,34px);border-radius:var(--r-lg);min-height:400px;
+  display:flex;flex-direction:column;justify-content:space-between;gap:18px;
+  background:radial-gradient(circle at 50% 28%, rgba(255,255,255,.07), transparent 60%),
+             linear-gradient(160deg,#0e5c3a,#07301f);
+  border:2px solid var(--gold-2);box-shadow:var(--shadow);
+}
+.bj-row{display:flex;flex-direction:column;gap:11px;align-items:center}
+.bj-label{font-size:10.5px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.62)}
+.score{
+  display:inline-block;margin-left:8px;padding:2px 9px;border-radius:99px;
+  background:rgba(0,0,0,.45);color:var(--gold);font-size:12px;letter-spacing:0;
+}
+
+.hand{display:flex;gap:9px;min-height:124px;align-items:center;justify-content:center;flex-wrap:wrap}
+.hands-wrap{display:flex;gap:22px;justify-content:center;flex-wrap:wrap}
+/* Con manos divididas, la activa queda marcada en dorado. */
+.hand-box{padding:9px;border-radius:var(--r-md);border:2px solid transparent;transition:.2s}
+.hand-box.active{border-color:var(--gold);background:rgba(0,0,0,.22)}
+.hand-box .hand-bet{text-align:center;font-size:12px;color:var(--gold);margin-top:7px;font-weight:700}
+
+/* ---------------- cartas ---------------- */
+.card{
+  width:86px;height:122px;border-radius:10px;position:relative;flex-shrink:0;padding:8px;
+  background:linear-gradient(160deg,#fffdf6,#e9e5d8);color:#14141c;
+  box-shadow:0 10px 24px rgba(0,0,0,.5);animation:dealIn .35s cubic-bezier(.2,.9,.3,1.4);
+}
+@keyframes dealIn{from{transform:translateY(-56px) rotate(-13deg);opacity:0}to{transform:none;opacity:1}}
+.card .c-rank{font-size:21px;font-weight:800;line-height:1}
+.card .c-suit-sm{font-size:14px;line-height:1}
+.card .c-suit-big{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:42px;opacity:.92}
+.card .c-corner-b{position:absolute;right:8px;bottom:8px;transform:rotate(180deg);text-align:left}
+.card.red{color:#d1213f}
+.card.back{background:repeating-linear-gradient(45deg,#4a1017 0 7px,#6b1a24 7px 14px);border:3px solid #eef1f7}
+.card.back::after{
+  content:"B";position:absolute;inset:0;display:grid;place-items:center;
+  font-family:var(--font-display);font-size:42px;color:var(--gold);opacity:.85;
+}
+
+.bj-banner{
+  text-align:center;font-family:var(--font-display);letter-spacing:2px;
+  font-size:clamp(17px,3vw,26px);color:var(--gold);min-height:32px;
+  text-shadow:0 0 18px rgba(245,196,81,.4);
+}
+.bj-banner.flash{animation:winPop .5s ease}
+
+.bj-controls{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:20px;flex-wrap:wrap}
+.bj-actions{display:none;gap:9px;flex-wrap:wrap;justify-content:center}
+.bj-actions.show{display:flex}
+
+@media(max-width:560px){
+  .card{width:62px;height:90px}
+  .card .c-suit-big{font-size:30px}
+}

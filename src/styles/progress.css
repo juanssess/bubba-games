@@ -1,0 +1,73 @@
+/* ============================================================
+   PROGRESO — barra de rango, tarjeta VIP, misiones y escala.
+   ============================================================ */
+
+/* ---------------- barra de nivel (se reusa en varios lados) ---------------- */
+.lvl-bar{
+  height:6px;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.09);
+}
+.lvl-fill{
+  height:100%;border-radius:99px;transition:width .45s ease;
+  background:linear-gradient(90deg,var(--gold-2),var(--gold));
+}
+
+/* ---------------- bloque del sidebar ---------------- */
+.sb-level{
+  padding:11px 12px;border-radius:var(--r-md);margin-bottom:10px;
+  background:var(--bg-3);border:1px solid var(--line);
+}
+.lvl-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-size:12px}
+.lvl-top span{font-weight:700}
+.lvl-top strong{color:var(--gold);font-variant-numeric:tabular-nums}
+.lvl-next{margin-top:7px;font-size:10.5px;color:var(--txt-dim);line-height:1.4}
+
+/* ---------------- pantalla de misiones ---------------- */
+.rank-card{
+  display:flex;align-items:center;gap:18px;padding:22px;margin-bottom:24px;
+  border-radius:var(--r-lg);border:1px solid rgba(245,196,81,.28);
+  background:linear-gradient(120deg,rgba(245,196,81,.14),rgba(139,92,246,.14));
+}
+.rank-ico{font-size:46px;flex:0 0 auto}
+.rank-body{flex:1;min-width:0}
+.rank-label{font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.rank-body h3{font-size:24px;margin:2px 0 12px}
+.rank-body p{margin-top:9px;font-size:12.5px;color:var(--txt-dim)}
+.rank-perk{
+  flex:0 0 auto;text-align:center;padding:12px 18px;border-radius:var(--r-md);
+  background:rgba(0,0,0,.3);border:1px solid var(--line);
+}
+.rank-perk span{display:block;font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--txt-dim)}
+.rank-perk strong{font-size:22px;color:var(--gold)}
+
+.mission-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:28px}
+.mission{
+  padding:16px;border-radius:var(--r-md);
+  background:var(--bg-2);border:1px solid var(--line);transition:.2s;
+}
+.mission.is-ready{border-color:rgba(245,196,81,.5);box-shadow:0 0 0 1px rgba(245,196,81,.2)}
+.mission.is-claimed{opacity:.55}
+.mission-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.mission-top strong{font-size:14px;line-height:1.4}
+.mission-top .btn{padding:7px 14px;font-size:12.5px}
+.mission-pending{font-size:13px;font-weight:800;color:var(--txt-dim);flex:0 0 auto}
+.mission-done{font-size:12px;font-weight:700;color:var(--green);flex:0 0 auto}
+.mission-foot{display:flex;justify-content:space-between;gap:10px;margin-top:9px;font-size:11.5px;color:var(--txt-dim)}
+
+.tier-list{display:flex;flex-direction:column;gap:6px}
+.tier{
+  display:grid;grid-template-columns:34px 1fr auto auto;gap:12px;align-items:center;
+  padding:11px 14px;border-radius:var(--r-sm);font-size:13px;
+  background:rgba(255,255,255,.03);border:1px solid transparent;
+}
+.tier.is-reached .tier-name{color:var(--txt)}
+.tier-name{color:var(--txt-dim);font-weight:600}
+.tier.is-current{border-color:rgba(245,196,81,.45);background:rgba(245,196,81,.08)}
+.tier-ico{font-size:20px;text-align:center}
+.tier-xp,.tier-bonus{font-size:11.5px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
+.tier.is-current .tier-bonus{color:var(--gold);font-weight:700}
+
+@media(max-width:640px){
+  .rank-card{flex-wrap:wrap}
+  .tier{grid-template-columns:28px 1fr auto;font-size:12px}
+  .tier-xp{display:none}
+}

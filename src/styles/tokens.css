@@ -1,0 +1,57 @@
+/* ============================================================
+   TOKENS — variables de diseño, reset y ajustes del documento.
+   Es lo primero que carga: todo lo demás consume estas variables.
+   ============================================================ */
+
+:root{
+  /* Superficies: negros cálidos, para que el rojo y el oro del
+     logo no queden flotando sobre un azul que no es de la marca. */
+  --bg:#0b0708;
+  --bg-2:#15100f;
+  --bg-3:#1d1614;
+  --bg-4:#2a201d;
+  --line:rgba(255,255,255,.08);
+  --line-2:rgba(255,255,255,.14);
+
+  /* Marca: los tres colores de la ficha. */
+  --brand-red:#d81e34;      /* el rojo de los gajos del logo */
+  --brand-red-dark:#8c0f1f;
+  --accent:#d81e34;         /* acción primaria y estado activo */
+  --accent-2:#ff7a86;
+  --gold:#f5c451;
+  --gold-2:#c9922b;
+
+  /* Estados. El rojo de "perdiste" es más claro que el de marca
+     para que no se confundan cuando aparecen juntos. */
+  --green:#17c964;
+  --red:#ff5a5f;
+  --violet:#8b5cf6;
+
+  /* texto */
+  --txt:#f5efe9;
+  --txt-dim:#9c9089;
+
+  /* medidas */
+  --sb-w:238px;
+  --r-sm:10px;
+  --r-md:14px;
+  --r-lg:20px;
+  --shadow:0 20px 50px rgba(0,0,0,.5);
+
+  /* tipografía */
+  --font:"Segoe UI","Inter",system-ui,-apple-system,sans-serif;
+  --font-display:"Impact","Haettenschweiler","Arial Narrow Bold",sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font);color:var(--txt);background:var(--bg);
+  min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+input,select,button{font-family:inherit}
+
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg-4);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:#3a2b27}

@@ -1,0 +1,92 @@
+/* ============================================================
+   RULETA — rueda, historial de números, fichas y paño de apuestas.
+   ============================================================ */
+
+.roulette-layout{display:grid;grid-template-columns:minmax(260px,330px) 1fr;gap:26px;align-items:start}
+
+/* ---------------- rueda ---------------- */
+.wheel-wrap{position:relative;width:100%;aspect-ratio:1;max-width:320px;margin:0 auto}
+.wheel{
+  position:absolute;inset:0;border-radius:50%;border:8px solid var(--gold-2);background:#0c0a12;
+  box-shadow:0 0 0 4px #12101c, 0 20px 50px rgba(0,0,0,.6), inset 0 0 40px rgba(0,0,0,.7);
+  transition:transform 5.2s cubic-bezier(.14,.72,.13,1);
+}
+/* Cada etiqueta ocupa toda la rueda y se rota sobre su centro:
+   así el número queda pegado al borde del sector que le toca. */
+.wheel-num{
+  position:absolute;inset:0;display:flex;justify-content:center;padding-top:5px;pointer-events:none;
+  font-size:10px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.9);
+}
+.wheel-hub{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:34%;aspect-ratio:1;
+  border-radius:50%;display:grid;place-items:center;z-index:5;
+  background:radial-gradient(circle at 35% 30%,#2b3350,#12101c);
+  border:3px solid var(--gold);box-shadow:0 0 24px rgba(0,0,0,.8);
+  font-size:29px;font-weight:800;color:var(--gold);
+}
+.wheel-pointer{
+  position:absolute;left:50%;top:-6px;transform:translateX(-50%);z-index:6;width:0;height:0;
+  border-left:11px solid transparent;border-right:11px solid transparent;border-top:22px solid var(--gold);
+  filter:drop-shadow(0 3px 6px rgba(0,0,0,.7));
+}
+
+.history-strip{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:18px;min-height:30px}
+.hs-num{
+  width:29px;height:29px;border-radius:50%;display:grid;place-items:center;
+  font-size:11.5px;font-weight:800;border:1px solid rgba(255,255,255,.16);
+}
+.hs-num.red{background:var(--red)}
+.hs-num.black{background:#1a1413}
+.hs-num.green{background:#0f7a45}
+
+/* ---------------- fichas ---------------- */
+.chip-rack{display:flex;gap:9px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.chip{
+  width:48px;height:48px;border-radius:50%;cursor:pointer;font-weight:800;font-size:12.5px;color:#fff;
+  border:3px dashed rgba(255,255,255,.6);display:grid;place-items:center;
+  box-shadow:0 6px 16px rgba(0,0,0,.5);transition:.16s;
+}
+.chip:hover{transform:translateY(-3px)}
+.chip.active{outline:3px solid var(--gold);outline-offset:3px;transform:translateY(-3px) scale(1.06)}
+.chip-5{background:radial-gradient(circle at 35% 30%,#3f8dd6,#1c4f80)}
+.chip-25{background:radial-gradient(circle at 35% 30%,#4bbf7a,#186b42)}
+.chip-100{background:radial-gradient(circle at 35% 30%,#f5556a,#8d1d29)}
+.chip-500{background:radial-gradient(circle at 35% 30%,#a98cff,#4a2fa8)}
+.chip-1000{background:radial-gradient(circle at 35% 30%,#ffe9a8,#c9922b);color:#241a02}
+
+/* ---------------- paño ---------------- */
+.roulette-table{
+  display:grid;gap:4px;padding:13px;border-radius:var(--r-md);
+  background:linear-gradient(160deg,#0f5c3c,#083b27);border:2px solid var(--gold-2);box-shadow:var(--shadow);
+  grid-template-columns:44px repeat(12,1fr) 54px;grid-template-rows:repeat(3,40px) 32px 32px;
+}
+.bet-cell{
+  position:relative;display:grid;place-items:center;border:1px solid rgba(255,255,255,.2);
+  border-radius:5px;cursor:pointer;font-weight:800;font-size:12.5px;user-select:none;transition:.14s;
+}
+.bet-cell:hover{filter:brightness(1.4);box-shadow:0 0 0 2px var(--gold) inset}
+.bet-cell.red{background:#d1213f}
+.bet-cell.black{background:#1a1413}
+.bet-cell.green{background:#0a6b3d;grid-row:1/4}
+.bet-cell.outside{background:rgba(0,0,0,.24);font-size:11px;letter-spacing:.4px}
+.bet-cell.win-flash{animation:winFlash 1.4s ease 2}
+@keyframes winFlash{50%{box-shadow:0 0 0 3px var(--gold) inset, 0 0 22px rgba(245,196,81,.9)}}
+
+.cell-chip{
+  position:absolute;right:-6px;top:-7px;min-width:23px;height:23px;padding:0 4px;border-radius:99px;
+  display:grid;place-items:center;font-size:10px;font-weight:800;color:#241a02;
+  background:linear-gradient(180deg,#ffe9a8,var(--gold));border:2px solid #8a6316;
+  box-shadow:0 3px 8px rgba(0,0,0,.6);z-index:2;
+}
+
+.roulette-actions{display:flex;align-items:center;gap:11px;margin-top:16px;flex-wrap:wrap}
+.staked{margin-right:auto;color:var(--txt-dim);font-size:13px}
+.staked strong{color:var(--gold);font-size:16px;font-variant-numeric:tabular-nums}
+
+@media(max-width:1100px){
+  .roulette-layout{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .roulette-table{grid-template-columns:30px repeat(12,1fr) 38px;grid-template-rows:repeat(3,30px) 28px 28px;font-size:10px}
+  .bet-cell{font-size:10px}
+}

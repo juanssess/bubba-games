@@ -1,0 +1,128 @@
+/* ============================================================
+   LAYOUT — el armazón: barra lateral, barra superior y contenido.
+   Acá vive también el colapso a móvil del armazón.
+   ============================================================ */
+
+/* ---------------- barra lateral ---------------- */
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:var(--sb-w);z-index:50;
+  display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#181110,#090506);
+  border-right:1px solid var(--line);
+}
+.sb-brand{
+  display:flex;align-items:center;gap:10px;padding:18px 18px 16px;cursor:pointer;
+  border-bottom:1px solid var(--line);
+}
+/* ---------------- logo: la ficha de casino ----------------
+   Los gajos rojos salen de un stroke-dasharray sobre la
+   circunferencia (2π·42 = 263,9 → ocho tramos de 32,99). */
+.sb-mark{width:38px;height:38px;flex:0 0 auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
+.foot-mark{width:32px;height:32px}
+.chip-base{fill:none;stroke:#15100f;stroke-width:16}
+.chip-red{fill:none;stroke:var(--brand-red);stroke-width:16;stroke-dasharray:32.99 32.99}
+.chip-edge{fill:none;stroke:var(--gold-2);stroke-width:1.6}
+.chip-ring{fill:none;stroke:var(--gold);stroke-width:2.6}
+.chip-face{fill:#15100f}
+.chip-ring-thin{fill:none;stroke:var(--gold-2);stroke-width:1}
+.chip-letter{
+  fill:var(--gold);font-family:var(--font-display);font-size:40px;
+  text-anchor:middle;dominant-baseline:central;
+}
+
+.sb-brand-text{
+  display:flex;flex-direction:column;line-height:1;
+  font-family:var(--font-display);font-size:22px;letter-spacing:2px;
+  background:linear-gradient(180deg,#fff8e2,var(--gold) 50%,var(--gold-2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+/* Color propio y sólido: si dependiera del degradado recortado del
+   padre, con el color heredado en transparent podría no pintarse. */
+.sb-brand-text small{
+  font-size:8.5px;letter-spacing:3.6px;margin-top:3px;
+  color:var(--gold-2);-webkit-text-fill-color:var(--gold-2);
+}
+
+.sb-nav{flex:1;overflow-y:auto;padding:14px 10px}
+.sb-label{
+  font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:var(--txt-dim);
+  padding:14px 10px 8px;
+}
+.sb-item{
+  position:relative;display:flex;align-items:center;gap:11px;width:100%;
+  padding:11px 12px;margin-bottom:3px;border:none;border-radius:var(--r-sm);
+  background:transparent;color:var(--txt-dim);font-size:14px;font-weight:600;
+  cursor:pointer;text-align:left;transition:.16s;
+}
+.sb-item:hover{background:var(--bg-3);color:var(--txt)}
+.sb-item.active{background:rgba(216,30,52,.16);color:#fff}
+.sb-item.active::before{
+  content:"";position:absolute;left:-10px;top:9px;bottom:9px;width:3px;
+  border-radius:0 3px 3px 0;background:var(--accent);
+}
+.sb-ico{font-size:17px;width:22px;text-align:center}
+.sb-badge{
+  margin-left:auto;min-width:9px;height:9px;border-radius:99px;background:var(--red);
+  font-size:0;box-shadow:0 0 0 3px rgba(255,90,95,.22);
+}
+.sb-badge.off{display:none}
+.sb-count{
+  margin-left:auto;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:99px;
+  background:var(--bg-4);color:var(--txt-dim);
+}
+
+.sb-foot{padding:14px;border-top:1px solid var(--line)}
+.sb-jackpot{
+  padding:12px;border-radius:var(--r-md);text-align:center;margin-bottom:10px;
+  background:linear-gradient(135deg,rgba(245,196,81,.16),rgba(139,92,246,.16));
+  border:1px solid rgba(245,196,81,.28);
+}
+.sb-jp-label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+.sb-jackpot strong{font-size:19px;font-variant-numeric:tabular-nums}
+.sb-legal{font-size:10.5px;color:var(--txt-dim);text-align:center;line-height:1.5}
+.sb-scrim{display:none}
+
+/* ---------------- barra superior ---------------- */
+.main-col{margin-left:var(--sb-w);min-height:100vh;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:14px;
+  padding:12px clamp(14px,2.4vw,28px);
+  background:rgba(11,7,8,.93);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.search{position:relative;flex:1;max-width:420px}
+.search-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.6}
+.search input{
+  width:100%;padding:11px 14px 11px 38px;border-radius:var(--r-sm);
+  background:var(--bg-3);border:1px solid var(--line);color:var(--txt);font-size:14px;outline:none;
+}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(216,30,52,.18)}
+
+.top-actions{display:flex;align-items:center;gap:10px;margin-left:auto}
+.wallet{
+  display:flex;align-items:center;gap:9px;padding:7px 14px;border-radius:var(--r-sm);
+  background:var(--bg-3);border:1px solid var(--line);cursor:pointer;
+}
+.wallet-ico{font-size:16px}
+.wallet-txt{display:flex;flex-direction:column;line-height:1.15}
+.wallet-txt span{font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--txt-dim)}
+.wallet-txt strong{font-size:16px;font-variant-numeric:tabular-nums}
+.wallet.bump{animation:bump .45s ease}
+
+/* ---------------- contenido y vistas ---------------- */
+.content{flex:1;padding:clamp(16px,2.4vw,28px);max-width:1440px;width:100%;margin:0 auto}
+.view{display:none}
+.view.active{display:block;animation:fade .3s ease}
+
+/* Sólo se ve en móvil: abre la barra lateral. */
+.only-mobile{display:none}
+
+@media(max-width:860px){
+  .only-mobile{display:grid;place-items:center}
+  .sidebar{transform:translateX(-100%);transition:transform .28s ease}
+  .sidebar.open{transform:none;box-shadow:0 0 60px rgba(0,0,0,.7)}
+  .sb-scrim.show{display:block;position:fixed;inset:0;z-index:45;background:rgba(6,3,4,.62)}
+  .main-col{margin-left:0}
+  .wallet-txt span{display:none}
+  #depositBtn{padding:11px 13px}
+}

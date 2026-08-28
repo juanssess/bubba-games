@@ -1,0 +1,110 @@
+/* ============================================================
+   CASA DE APUESTAS — fixture, cuotas, cupón, resultados y tabla.
+   Prefijo .sp- para no chocar con .sb- de la barra lateral.
+   ============================================================ */
+
+.sp-layout{display:grid;grid-template-columns:1fr 290px;gap:18px;align-items:start}
+.sp-main{min-width:0}
+
+.sp-round-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.sp-round-head h3{font-size:17px}
+.sp-round-head .btn{margin-left:auto}
+.sp-note{font-size:11.5px;color:var(--txt-dim);width:100%;line-height:1.5}
+
+/* ---------------- partidos ---------------- */
+.sp-match{
+  padding:13px 15px;margin-bottom:10px;border-radius:var(--r-md);
+  background:var(--bg-3);border:1px solid var(--line);
+}
+.sp-teams{display:flex;align-items:center;gap:10px;margin-bottom:11px;font-size:13.5px;font-weight:600}
+.sp-team{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-team:last-child{text-align:right}
+.sp-vs{flex:0 0 auto;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--txt-dim)}
+
+.sp-markets{display:flex;gap:16px;flex-wrap:wrap}
+.sp-group{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.sp-glabel{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt-dim);margin-right:3px}
+
+.sp-odd{
+  display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;
+  min-width:56px;padding:6px 9px;border-radius:8px;
+  background:var(--bg-2);border:1px solid var(--line);color:var(--txt);transition:.14s;
+}
+.sp-odd:hover{background:var(--bg-4);border-color:var(--line-2)}
+.sp-odd b{font-size:10.5px;color:var(--txt-dim);font-weight:700}
+.sp-odd span{font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.sp-odd.active{
+  background:linear-gradient(135deg,var(--accent),#8c0f1f);border-color:transparent;
+  box-shadow:0 6px 16px rgba(216,30,52,.4);
+}
+.sp-odd.active b{color:rgba(255,255,255,.75)}
+
+/* ---------------- cupón ---------------- */
+.sp-slip{
+  position:sticky;top:78px;padding:16px;border-radius:var(--r-md);
+  background:var(--bg-3);border:1px solid var(--line);
+}
+.sp-slip h4{font-size:13px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.slip-item{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;
+  padding:9px 11px;margin-bottom:6px;border-radius:var(--r-sm);
+  background:var(--bg-2);border:1px solid var(--line);
+}
+.slip-item:hover{border-color:var(--red)}
+.slip-item strong{display:block;font-size:12.5px}
+.slip-item span{font-size:10.5px;color:var(--txt-dim)}
+.slip-item b{color:var(--gold);font-variant-numeric:tabular-nums;flex:0 0 auto}
+
+.sp-summary{margin:12px 0}
+.sp-summary div{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 11px;margin-bottom:5px;border-radius:var(--r-sm);background:var(--bg-2);
+}
+.sp-summary span{font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt-dim)}
+.sp-summary strong{font-size:15px;font-variant-numeric:tabular-nums}
+
+.sp-ticket{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:9px 11px;margin-bottom:6px;border-radius:var(--r-sm);
+  background:rgba(245,196,81,.08);border:1px solid rgba(245,196,81,.25);
+}
+.sp-ticket strong{display:block;font-size:12.5px}
+.sp-ticket span{font-size:10.5px;color:var(--txt-dim)}
+.sp-ticket b{color:var(--gold);flex:0 0 auto}
+
+/* ---------------- resultados y tabla ---------------- */
+.sp-subtitle{
+  font-size:12px;letter-spacing:1.6px;text-transform:uppercase;
+  color:var(--txt-dim);margin:22px 0 11px;
+}
+.sp-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
+.sp-result{
+  display:flex;align-items:center;gap:10px;padding:9px 12px;font-size:12.5px;
+  border-radius:var(--r-sm);background:var(--bg-3);border:1px solid var(--line);
+}
+.sp-result span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-result span:last-child{text-align:right}
+.sp-result b{flex:0 0 auto;color:var(--gold);font-variant-numeric:tabular-nums}
+
+.sp-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.sp-table th{
+  text-align:right;padding:8px 9px;font-size:10px;letter-spacing:1.2px;
+  text-transform:uppercase;color:var(--txt-dim);border-bottom:1px solid var(--line);
+}
+.sp-table th:nth-child(1),.sp-table th:nth-child(2){text-align:left}
+.sp-table td{padding:8px 9px;text-align:right;font-variant-numeric:tabular-nums}
+.sp-table td:nth-child(1){color:var(--txt-dim);text-align:left;width:28px}
+.sp-tname{text-align:left !important;font-weight:600}
+.sp-table tbody tr:nth-child(odd){background:rgba(255,255,255,.03)}
+.sp-table tbody tr:nth-child(-n+4) .sp-tname{color:var(--green)}
+
+@media(max-width:1100px){
+  .sp-layout{grid-template-columns:1fr}
+  .sp-slip{position:static}
+}
+@media(max-width:560px){
+  .sp-markets{gap:10px}
+  .sp-odd{min-width:48px;padding:5px 7px}
+  .sp-table th:nth-child(4),.sp-table th:nth-child(5),.sp-table th:nth-child(6),
+  .sp-table td:nth-child(4),.sp-table td:nth-child(5),.sp-table td:nth-child(6){display:none}
+}

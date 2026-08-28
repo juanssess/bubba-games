@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bubba Games</title>
+
+<!-- Hojas de estilo, de lo general a lo particular.
+     El orden importa: tokens define las variables que usa todo lo demás. -->
+<link rel="stylesheet" href="src/styles/tokens.css">
+<link rel="stylesheet" href="src/styles/base.css">
+<link rel="stylesheet" href="src/styles/layout.css">
+<link rel="stylesheet" href="src/styles/portal.css">
+<link rel="stylesheet" href="src/styles/components.css">
+<link rel="stylesheet" href="src/styles/progress.css">
+<link rel="stylesheet" href="src/styles/games/slots.css">
+<link rel="stylesheet" href="src/styles/games/sportsbook.css">
+<link rel="stylesheet" href="src/styles/games/crash.css">
+<link rel="stylesheet" href="src/styles/games/mines.css">
+<link rel="stylesheet" href="src/styles/games/roulette.css">
+<link rel="stylesheet" href="src/styles/games/blackjack.css">
+</head>
+<body>
+
+<!-- ============================ SIDEBAR ============================ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-brand" data-nav="lobby">
+    <!-- LOGO. Para usar el PNG real en vez de esta ficha vectorial,
+         reemplazá este <svg>…</svg> por:
+         <img class="sb-mark" src="assets/logo.png" alt="Bubba Games"> -->
+    <svg class="sb-mark" viewBox="0 0 100 100" aria-hidden="true">
+      <circle class="chip-base"      cx="50" cy="50" r="42"/>
+      <circle class="chip-red"       cx="50" cy="50" r="42" transform="rotate(-90 50 50)"/>
+      <circle class="chip-edge"      cx="50" cy="50" r="49"/>
+      <circle class="chip-ring"      cx="50" cy="50" r="33.5"/>
+      <circle class="chip-face"      cx="50" cy="50" r="32"/>
+      <circle class="chip-ring-thin" cx="50" cy="50" r="28"/>
+      <text   class="chip-letter"    x="50" y="51">B</text>
+    </svg>
+    <span class="sb-brand-text">BUBBA<small>G A M E S</small></span>
+  </div>
+
+  <nav class="sb-nav">
+    <p class="sb-label">Casino</p>
+    <button class="sb-item active" data-rail="populares"><span class="sb-ico">🔥</span>Populares</button>
+    <button class="sb-item" id="sbCatalog"><span class="sb-ico">🎰</span>Todos los juegos<span class="sb-count" id="sbCount"></span></button>
+    <button class="sb-item" data-rail="crash"><span class="sb-ico">🚀</span>Crash</button>
+    <button class="sb-item" data-rail="nuevos"><span class="sb-ico">✨</span>Novedades</button>
+    <button class="sb-item" data-rail="jackpots"><span class="sb-ico">💰</span>Los que más pagan</button>
+    <button class="sb-item" data-rail="mesa"><span class="sb-ico">🃏</span>Juegos de mesa</button>
+
+    <p class="sb-label">Deportes</p>
+    <button class="sb-item" id="sbSports"><span class="sb-ico">⚽</span>Liga Bubba</button>
+
+    <p class="sb-label">Cuenta</p>
+    <button class="sb-item" id="sbMissions"><span class="sb-ico">🏅</span>Misiones<span class="sb-badge off" id="sbMissionBadge">•</span></button>
+    <button class="sb-item" id="sbBonus"><span class="sb-ico">🎁</span>Bono<span class="sb-badge" id="sbBonusBadge">•</span></button>
+    <button class="sb-item" id="sbStats"><span class="sb-ico">📊</span>Estadísticas</button>
+    <button class="sb-item" id="sbHelp"><span class="sb-ico">❔</span>Cómo funciona</button>
+  </nav>
+
+  <div class="sb-foot">
+    <div class="sb-level" id="sbLevel"></div>
+    <div class="sb-jackpot">
+      <span class="sb-jp-label">Bote Bubba</span>
+      <strong id="jackpotTicker">0</strong>
+    </div>
+    <p class="sb-legal">Fichas virtuales. Sin dinero real. +18</p>
+  </div>
+</aside>
+<div class="sb-scrim" id="sbScrim"></div>
+
+<!-- ============================ COLUMNA PRINCIPAL ============================ -->
+<div class="main-col">
+
+  <header class="topbar">
+    <button class="icon-btn only-mobile" id="menuToggle" aria-label="Menú">☰</button>
+
+    <div class="search">
+      <span class="search-ico">🔍</span>
+      <input type="text" id="searchInput" placeholder="Buscar juego..." autocomplete="off">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <div class="top-actions">
+      <div class="wallet" id="walletBox">
+        <span class="wallet-ico">🪙</span>
+        <div class="wallet-txt">
+          <span>Saldo</span>
+          <strong id="balanceValue">0</strong>
+        </div>
+      </div>
+      <button class="btn btn-accent" id="depositBtn">Recargar</button>
+      <button class="icon-btn" id="soundBtn" title="Sonido">🔊</button>
+      <button class="icon-btn" id="menuBtn" title="Cuenta">👤</button>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- ======================= LOBBY ======================= -->
+    <section class="view active" id="view-lobby">
+
+      <!-- carrusel de promos -->
+      <div class="carousel" id="carousel">
+        <div class="carousel-track" id="carouselTrack"></div>
+        <div class="carousel-dots" id="carouselDots"></div>
+      </div>
+
+      <!-- accesos rápidos -->
+      <div class="quick-row" id="quickRow"></div>
+
+      <!-- carruseles de juegos -->
+      <div id="rails"></div>
+
+      <!-- ganancias recientes (datos reales de tus partidas) -->
+      <section class="panel wins-panel">
+        <div class="rail-head">
+          <h2>Tus últimas jugadas</h2>
+          <span class="rail-sub">solo tus resultados, sin datos inventados</span>
+        </div>
+        <div class="wins-table" id="winsTable">
+          <p class="empty-msg">Todavía no jugaste nada. Elegí una mesa y arrancá.</p>
+        </div>
+      </section>
+
+      <footer class="site-foot" id="lobbyFoot">
+        <div class="foot-brand">
+          <svg class="sb-mark foot-mark" viewBox="0 0 100 100" aria-hidden="true">
+            <circle class="chip-base"      cx="50" cy="50" r="42"/>
+            <circle class="chip-red"       cx="50" cy="50" r="42" transform="rotate(-90 50 50)"/>
+            <circle class="chip-edge"      cx="50" cy="50" r="49"/>
+            <circle class="chip-ring"      cx="50" cy="50" r="33.5"/>
+            <circle class="chip-face"      cx="50" cy="50" r="32"/>
+            <circle class="chip-ring-thin" cx="50" cy="50" r="28"/>
+            <text   class="chip-letter"    x="50" y="51">B</text>
+          </svg>
+          <strong>BUBBA GAMES</strong>
+        </div>
+        <p>Juego de entretenimiento con fichas virtuales. No se apuesta ni se gana dinero real.
+           Tu progreso se guarda únicamente en este navegador. Solo para mayores de 18 años.</p>
+      </footer>
+    </section>
+
+    <!-- ======================= CATÁLOGO COMPLETO ======================= -->
+    <section class="view" id="view-catalog">
+      <div class="cat-head">
+        <button class="btn btn-ghost" id="catBack">← Lobby</button>
+        <h2>Todos los juegos <span class="cat-count" id="catCount"></span></h2>
+      </div>
+
+      <div class="filters">
+        <input type="text" id="catSearch" class="filter-input" placeholder="Buscar por nombre..." autocomplete="off">
+        <select id="catStudio" class="filter-input"></select>
+        <select id="catVol" class="filter-input">
+          <option value="">Toda volatilidad</option>
+          <option value="Baja">Baja</option>
+          <option value="Media">Media</option>
+          <option value="Alta">Alta</option>
+          <option value="Extrema">Extrema</option>
+        </select>
+        <select id="catSort" class="filter-input">
+          <option value="destacados">Destacados</option>
+          <option value="nombre">Nombre A-Z</option>
+          <option value="pago">Premio máximo</option>
+          <option value="rtp">Mejor RTP</option>
+        </select>
+        <button class="btn btn-ghost" id="catReset">Limpiar</button>
+      </div>
+
+      <div class="cat-grid" id="catGrid"></div>
+      <div class="cat-more">
+        <button class="btn btn-ghost" id="catMore">Cargar más juegos</button>
+      </div>
+    </section>
+
+    <!-- ======================= MISIONES Y RANGO ======================= -->
+    <section class="view" id="view-missions">
+      <div class="cat-head">
+        <button class="btn btn-ghost" id="missionsBack">← Lobby</button>
+        <h2>Misiones y rango</h2>
+      </div>
+
+      <div class="rank-card" id="rankCard"></div>
+
+      <h3 class="sp-subtitle">Objetivos de hoy</h3>
+      <div class="mission-grid" id="missionList"></div>
+
+      <h3 class="sp-subtitle">Escala de rangos</h3>
+      <div class="tier-list" id="tierList"></div>
+    </section>
+
+    <!-- ======================= ESCENARIO DE JUEGO ======================= -->
+    <div class="stage" id="stage">
+      <div class="stage-head">
+        <button class="btn btn-ghost" id="stageBack">← Volver</button>
+        <h2 id="stageTitle">Juego</h2>
+        <div class="stage-head-right">
+          <span class="stage-tag" id="stageTag"></span>
+        </div>
+      </div>
+
+      <div class="stage-body">
+
+        <!-- ---------- CASA DE APUESTAS ---------- -->
+        <section class="view" id="view-sportsbook">
+          <div class="sp-layout">
+            <div class="sp-main">
+              <div class="sp-round-head">
+                <h3>Jornada <span id="spRound">1</span></h3>
+                <button class="btn btn-accent" id="spSimulate">Simular jornada</button>
+                <p class="sp-note">Las cuotas salen de un modelo Poisson por equipo, y los goles se
+                   simulan con ese mismo modelo. Margen de la casa: 5%.</p>
+              </div>
+
+              <div id="spMatches"></div>
+              <div id="spResults"></div>
+              <div id="spTable"></div>
+            </div>
+
+            <aside class="sp-slip">
+              <h4>Tu cupón</h4>
+              <div id="spSlip"></div>
+              <div class="sp-summary" id="spSummary"></div>
+              <label class="field">
+                <span>Importe</span>
+                <input type="number" id="spStake" value="100" min="10" step="10">
+              </label>
+              <button class="btn btn-accent btn-block" id="spPlace" disabled>APOSTAR</button>
+              <button class="btn btn-ghost btn-block" id="spClear" style="margin-top:8px">Vaciar cupón</button>
+              <div id="spTickets"></div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ---------- CRASH ---------- -->
+        <section class="view" id="view-crash">
+          <div class="crash-layout">
+            <div class="crash-main">
+              <div class="crash-history" id="crashHistory"></div>
+              <div class="crash-screen">
+                <canvas id="crashCanvas" width="900" height="420"></canvas>
+                <div class="crash-mult" id="crashMult">1.00x</div>
+                <div class="crash-state" id="crashState">Apostá para el próximo despegue</div>
+              </div>
+            </div>
+
+            <aside class="crash-panel">
+              <label class="field">
+                <span>Apuesta</span>
+                <input type="number" id="crashBet" value="100" min="10" step="10">
+              </label>
+              <div class="quick-bets" id="crashQuick"></div>
+
+              <label class="field">
+                <span>Retiro automático</span>
+                <input type="number" id="crashAuto" value="2.00" min="1.01" step="0.1">
+              </label>
+
+              <button class="btn btn-accent btn-block" id="crashAction">APOSTAR</button>
+              <div class="crash-info">
+                <div><span>Ganancia</span><strong id="crashProfit">0</strong></div>
+                <div><span>Máx. histórico</span><strong id="crashBest">1.00x</strong></div>
+              </div>
+              <p class="hint">Retirá antes de que el multiplicador reviente. Si no llegás, perdés la apuesta.</p>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ---------- MINES ---------- -->
+        <section class="view" id="view-mines">
+          <div class="mines-layout">
+            <aside class="mines-panel">
+              <label class="field">
+                <span>Apuesta</span>
+                <input type="number" id="minesBet" value="100" min="10" step="10">
+              </label>
+              <div class="quick-bets" id="minesQuick"></div>
+
+              <label class="field">
+                <span>Minas</span>
+                <select id="minesCount"></select>
+              </label>
+
+              <button class="btn btn-accent btn-block" id="minesAction">JUGAR</button>
+              <button class="btn btn-ghost btn-block" id="minesCashout" disabled>RETIRAR</button>
+
+              <div class="mines-info">
+                <div><span>Multiplicador</span><strong id="minesMult">1.00x</strong></div>
+                <div><span>Cobrás</span><strong id="minesPayout">0</strong></div>
+                <div><span>Próxima casilla</span><strong id="minesNext">–</strong></div>
+              </div>
+            </aside>
+
+            <div class="mines-board-wrap">
+              <div class="mines-board" id="minesBoard"></div>
+              <div class="mines-msg" id="minesMsg">Elegí tu apuesta y la cantidad de minas</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- SLOTS ---------- -->
+        <section class="view" id="view-slots">
+          <div class="slot-machine">
+            <div class="slot-marquee"><span id="slotMessage">Elegí tu apuesta y girá</span></div>
+            <div class="reels">
+              <div class="reel"><div class="reel-strip" data-reel="0"></div></div>
+              <div class="reel"><div class="reel-strip" data-reel="1"></div></div>
+              <div class="reel"><div class="reel-strip" data-reel="2"></div></div>
+              <div class="payline"></div>
+            </div>
+            <div class="slot-controls">
+              <div class="bet-control">
+                <button class="btn btn-ghost" id="slotBetDown">−</button>
+                <div class="bet-display"><span>Apuesta</span><strong id="slotBet">50</strong></div>
+                <button class="btn btn-ghost" id="slotBetUp">+</button>
+              </div>
+              <button class="btn btn-spin" id="spinBtn">GIRAR</button>
+              <button class="btn btn-ghost" id="slotMaxBet">Máx.</button>
+            </div>
+            <div class="slot-win" id="slotWin"></div>
+          </div>
+
+          <div class="paytable panel">
+            <h3>Tabla de pagos <small id="paytableHead">(x apuesta)</small></h3>
+            <div class="paytable-grid" id="paytableGrid"></div>
+          </div>
+        </section>
+
+        <!-- ---------- RULETA ---------- -->
+        <section class="view" id="view-roulette">
+          <div class="roulette-layout">
+            <div class="wheel-side">
+              <div class="wheel-wrap">
+                <div class="wheel-pointer"></div>
+                <div class="wheel" id="wheel"></div>
+                <div class="wheel-hub"><span id="wheelResult">–</span></div>
+              </div>
+              <div class="history-strip" id="rouletteHistory"></div>
+            </div>
+
+            <div class="table-side">
+              <div class="chip-rack" id="chipRack"></div>
+              <div class="roulette-table" id="rouletteTable"></div>
+              <div class="roulette-actions">
+                <div class="staked">Apostado: <strong id="rouletteStaked">0</strong></div>
+                <button class="btn btn-ghost" id="rouletteUndo">Deshacer</button>
+                <button class="btn btn-ghost" id="rouletteClear">Limpiar</button>
+                <button class="btn btn-spin" id="rouletteSpin">GIRAR</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- BLACKJACK ---------- -->
+        <section class="view" id="view-blackjack">
+          <div class="felt">
+            <div class="bj-row">
+              <div class="bj-label">Crupier <span id="dealerScore" class="score"></span></div>
+              <div class="hand" id="dealerHand"></div>
+            </div>
+            <div class="bj-banner" id="bjBanner">Elegí tu apuesta para repartir</div>
+            <div class="bj-row">
+              <div class="bj-label">Vos <span id="playerScore" class="score"></span></div>
+              <div class="hands-wrap" id="playerHands"></div>
+            </div>
+          </div>
+
+          <div class="bj-controls">
+            <div class="bet-control" id="bjBetControl">
+              <button class="btn btn-ghost" id="bjBetDown">−</button>
+              <div class="bet-display"><span>Apuesta</span><strong id="bjBet">100</strong></div>
+              <button class="btn btn-ghost" id="bjBetUp">+</button>
+            </div>
+            <button class="btn btn-spin" id="bjDeal">REPARTIR</button>
+            <div class="bj-actions" id="bjActions">
+              <button class="btn btn-accent" id="bjHit">Pedir</button>
+              <button class="btn btn-accent" id="bjStand">Plantarse</button>
+              <button class="btn btn-ghost" id="bjDouble">Doblar</button>
+              <button class="btn btn-ghost" id="bjSplit">Dividir</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ============================ OVERLAYS ============================ -->
+<div class="toasts" id="toasts"></div>
+
+<div class="modal-backdrop" id="modal">
+  <div class="modal-box">
+    <h3 id="modalTitle">Opciones</h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
+
+<!-- Sin build ni módulos ES: scripts planos, para que index.html abra
+     con doble clic desde el disco. El orden es la única dependencia. -->
+
+<!-- 1. Núcleo -->
+<script src="src/core/format.js"></script>
+<script src="src/core/rng.js"></script>
+<script src="src/core/state.js"></script>
+<script src="src/core/audio.js"></script>
+<script src="src/core/ui.js"></script>
+<script src="src/core/wallet.js"></script>
+<script src="src/core/router.js"></script>
+
+<!-- 2. Progresión (rango VIP y misiones diarias) -->
+<script src="src/progress/levels.js"></script>
+<script src="src/progress/missions.js"></script>
+
+<!-- 3. Liga simulada (equipos → modelo → liga) -->
+<script src="src/sports/teams.js"></script>
+<script src="src/sports/poisson.js"></script>
+<script src="src/sports/league.js"></script>
+
+<!-- 4. Motores de juego -->
+<script src="src/games/slots.js"></script>
+<script src="src/games/roulette.js"></script>
+<script src="src/games/blackjack.js"></script>
+<script src="src/games/crash.js"></script>
+<script src="src/games/mines.js"></script>
+<script src="src/games/sportsbook.js"></script>
+
+<!-- 5. Catálogo (themes → matemática → generador → armado) -->
+<script src="src/catalog/themes.js"></script>
+<script src="src/catalog/slot-math.js"></script>
+<script src="src/catalog/generator.js"></script>
+<script src="src/catalog/catalog.js"></script>
+
+<!-- 6. Interfaz del portal -->
+<script src="src/ui/game-card.js"></script>
+<script src="src/ui/actions.js"></script>
+<script src="src/ui/carousel.js"></script>
+<script src="src/ui/rails.js"></script>
+<script src="src/ui/catalog-view.js"></script>
+<script src="src/ui/search.js"></script>
+<script src="src/ui/portal.js"></script>
+<script src="src/ui/shell.js"></script>
+<script src="src/ui/modals.js"></script>
+<script src="src/ui/missions-view.js"></script>
+
+<!-- 7. Arranque -->
+<script src="src/main.js"></script>
+</body>
+</html>
