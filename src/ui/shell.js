@@ -37,6 +37,12 @@ window.MCShell = (function () {
 
     // Los ítems con data-rail vuelven al lobby y bajan hasta ese riel.
     document.querySelectorAll('[data-rail]').forEach(function (btn) {
+      // Si todos los juegos de ese riel están ocultos, el riel no existe:
+      // se esconde el botón en vez de dejarlo llevando a la nada.
+      if (!document.getElementById('rail-' + btn.dataset.rail)) {
+        btn.style.display = 'none';
+        return;
+      }
       btn.onclick = function () {
         MC.sound.click();
         markActive(btn);

@@ -10,7 +10,13 @@
 
   var BONUS_REFRESH_MS = 60000;   // relojea el aviso del bono
 
-  var ENGINES = [MCSlots, MCRoulette, MCBlackjack, MCCrash, MCMines, MCSportsbook];
+  // Todos los motores se inicializan aunque su juego esté oculto: el
+  // registro es barato y así basta con sacarlo de OCULTOS en el
+  // catálogo para que vuelva a estar jugable, sin tocar nada acá.
+  var ENGINES = [
+    MCSlots, MCRoulette, MCBlackjack, MCCrash, MCMines,
+    MCSportsbook, MCPlantilla
+  ];
 
   function start() {
     // 1. Portal
@@ -51,14 +57,16 @@
   /* ---------------- accesos rápidos del lobby ---------------- */
   function buildQuickRow() {
     var row = document.getElementById('quickRow');
+    // Tres accesos fijos + un atajo por cada juego VISIBLE. Se arma
+    // desde el catálogo para que la fila nunca ofrezca un juego oculto.
     var items = [
-      { ico: '🏅', title: 'Misiones',  sub: 'objetivos del día',        action: 'missions' },
-      { ico: '⚽', title: 'Deportes',  sub: 'Liga Bubba',            action: 'game:sports' },
-      { ico: '🎁', title: 'Bono',      sub: 'fichas gratis',            action: 'bonus' },
-      { ico: '🎰', title: 'Catálogo',  sub: MCCatalog.size + ' juegos', action: 'catalog' },
-      { ico: '🚀', title: 'Crash',     sub: 'hasta 1000x',              action: 'game:crash' },
-      { ico: '💣', title: 'Mines',     sub: '5x5',                      action: 'game:mines' }
-    ];
+      { ico: '🏅', title: 'Misiones', sub: 'objetivos del día', action: 'missions' },
+      { ico: '🎁', title: 'Bono',     sub: 'fichas gratis',     action: 'bonus' },
+      { ico: '🎲', title: 'Catálogo',
+        sub: MCCatalog.size + (MCCatalog.size === 1 ? ' juego' : ' juegos'), action: 'catalog' }
+    ].concat(MCCatalog.all.slice(0, 5).map(function (g) {
+      return { ico: g.emoji, title: g.name, sub: g.kind, action: 'game:' + g.id };
+    }));
 
     row.innerHTML = items.map(function (q) {
       return '<div class="quick" data-action="' + q.action + '">' +

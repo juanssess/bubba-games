@@ -7,7 +7,21 @@
 window.MCCatalog = (function () {
   'use strict';
 
-  var CATALOG_SIZE = 120;
+  /* ============================================================
+     QUÉ SE MUESTRA EN EL SALÓN
+     Este es el único lugar que hay que tocar para prender o apagar
+     juegos. El código de los motores queda intacto: sirve de
+     referencia para escribir los juegos propios de Bubba.
+
+     Para volver a mostrar uno, sacalo de OCULTOS.
+     Para traer de nuevo las 120 tragamonedas, poné true abajo.
+     ============================================================ */
+  var OCULTOS = ['crash', 'mines', 'slots777', 'roulette', 'blackjack'];
+  var MOSTRAR_TRAGAMONEDAS_GENERADAS = false;
+
+  // Si están ocultas ni siquiera se generan: no tiene sentido
+  // calcular 120 modelos matemáticos que nadie va a ver.
+  var CATALOG_SIZE = MOSTRAR_TRAGAMONEDAS_GENERADAS ? 120 : 0;
 
   /* ---------------- tragamonedas de la casa (hecha a mano) ---------------- */
   var BUBBA_777 = [
@@ -52,6 +66,18 @@ window.MCCatalog = (function () {
       config: { symbols: BUBBA_777 }
     },
     {
+      // PLANTILLA: copiá esta entrada para dar de alta tu juego.
+      // El campo que manda es `engine`: tiene que coincidir con el
+      // nombre que usás en MC.registerEngine() y con el id de la
+      // <section class="view" id="view-plantilla"> del HTML.
+      id: 'plantilla', engine: 'plantilla', name: 'Doble o Nada', kind: 'Instantáneo',
+      studio: 'Bubba Originals', volatility: 'Media',
+      tag: 'Plantilla de referencia · paga 1.95x', rtpValue: 0.975, rtp: 'RTP 97,5%',
+      maxWin: 1.95, emoji: '🎴', badge: 'new',
+      art: 'linear-gradient(135deg,#2a0d12,#d81e34 60%,#ff7a86)',
+      desc: 'Rojo o negro'
+    },
+    {
       // Retorno = 1 / (1 + margen). Con 5% de margen, 95,2% en apuesta simple.
       id: 'sports', engine: 'sportsbook', name: 'Liga Bubba', kind: 'Deportes',
       studio: 'Bubba Originals', volatility: 'Alta',
@@ -80,13 +106,25 @@ window.MCCatalog = (function () {
 
   /* ---------------- catálogo completo ---------------- */
   var GENERATED = MCGameGen.generate(CATALOG_SIZE);
-  var ALL = ORIGINALS.concat(GENERATED);
+  var TODOS = ORIGINALS.concat(GENERATED);
 
+  TODOS.forEach(function (g) {
+    if (OCULTOS.indexOf(g.id) >= 0) g.hidden = true;
+  });
+
+  // El mapa por id incluye TODO, también lo oculto: el historial guarda
+  // ids de juego y tiene que seguir sabiendo cómo se llamaba cada uno.
   var GAMES = {};
-  ALL.forEach(function (g) { GAMES[g.id] = g; });
+  TODOS.forEach(function (g) { GAMES[g.id] = g; });
+
+  // La lista visible es la que ven el lobby, el buscador y el catálogo.
+  var ALL = TODOS.filter(function (g) { return !g.hidden; });
 
   /* ---------------- rieles del lobby ---------------- */
   function ids(list) { return list.map(function (g) { return g.id; }); }
+  function visibles(idList) {
+    return idList.filter(function (id) { return GAMES[id] && !GAMES[id].hidden; });
+  }
   function take(list, n) { return list.slice(0, n); }
   function byBadge(b) { return GENERATED.filter(function (g) { return g.badge === b; }); }
   function byStudio(s) { return GENERATED.filter(function (g) { return g.studio === s; }); }
@@ -118,36 +156,44 @@ window.MCCatalog = (function () {
       games: ids(take(byStudio('Nova Play'), 14)) },
     { id: 'slots', title: 'Todas las tragamonedas', sub: CATALOG_SIZE + ' títulos en el salón',
       games: ids(take(GENERATED, 14)), more: true }
-  ].filter(function (r) { return r.games.length > 0; });
+  ]
+    // Se saca de cada riel lo que esté oculto, y después se descartan
+    // los rieles que quedaron vacíos: sin esto el lobby mostraría
+    // títulos de sección sin una sola tarjeta abajo.
+    .map(function (r) { r.games = visibles(r.games); return r; })
+    .filter(function (r) { return r.games.length > 0; });
 
-  /* ---------------- banners ---------------- */
+  /* ---------------- banners ----------------
+     Los banners sólo pueden apuntar a juegos visibles: si mandan a
+     uno oculto, el botón no hace nada y parece que la página falla. */
   var PROMOS = [
     {
       kicker: 'Bienvenida',
       title: '5.000 fichas para arrancar',
       text: 'Tu cuenta se crea sola al abrir la página. Sin registro, sin datos, sin dinero real.',
       cta: 'Ver mis fichas', action: 'wallet', emoji: '🪙',
-      bg: 'linear-gradient(120deg,#1b2a6b,#2f6bff 60%,#6f9bff)'
+      bg: 'linear-gradient(120deg,#2a0d12,#d81e34 60%,#ff7a86)'
     },
     {
-      kicker: 'Salón completo',
-      title: ALL.length + ' juegos abiertos',
-      text: 'Cada tragamonedas tiene sus propios símbolos, tabla de pagos y RTP calculado. Ninguna es decorativa.',
-      cta: 'Ver el catálogo', action: 'catalog', emoji: '🎰',
-      bg: 'linear-gradient(120deg,#3a1150,#8b5cf6 60%,#c4a6ff)'
+      kicker: 'Próximamente',
+      title: 'Los juegos propios de Bubba',
+      text: 'El salón está en obra: se vienen las mesas hechas a medida para la casa. ' +
+            'Mientras tanto, la liga deportiva está abierta.',
+      cta: 'Ver el catálogo', action: 'catalog', emoji: '🎲',
+      bg: 'linear-gradient(120deg,#1a1413,#3a2b27 55%,#c9922b)'
     },
     {
       kicker: 'Bono recargable',
       title: '+2.500 fichas cada 8 horas',
       text: 'Y si te quedás en cero, la casa te rescata al instante. Acá nadie se queda afuera.',
       cta: 'Reclamar bono', action: 'bonus', emoji: '🎁',
-      bg: 'linear-gradient(120deg,#5c1a3e,#f31260 60%,#ff7aa8)'
+      bg: 'linear-gradient(120deg,#3a1150,#8b5cf6 60%,#c4a6ff)'
     },
     {
-      kicker: 'Juego destacado',
-      title: 'Bubba Jet',
-      text: 'El multiplicador sube sin freno. La única pregunta es cuándo apretás retirar.',
-      cta: 'Despegar', action: 'game:crash', emoji: '🚀',
+      kicker: 'Mesa abierta',
+      title: 'Liga Bubba',
+      text: 'Dieciséis clubes, cuotas calculadas con un modelo de goles y jornadas que se simulan de verdad.',
+      cta: 'Ir a la mesa', action: 'game:sports', emoji: '⚽',
       bg: 'linear-gradient(120deg,#0b3b2b,#17c964 60%,#7ef0b0)'
     }
   ];

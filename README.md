@@ -29,6 +29,49 @@ Doble clic en `index.html`. Listo — no necesita instalación ni conexión.
 >
 > y entrá a `http://localhost:8123`.
 
+## Agregar un juego propio
+
+Copiá `src/games/plantilla.js`. Es un juego completo y funcionando
+("Doble o Nada") escrito con lo mínimo indispensable, para que se vea el
+contrato entero sin ruido alrededor.
+
+Son cuatro cosas:
+
+1. **HTML** — una `<section class="view" id="view-TUJUEGO">` dentro del
+   escenario, en `index.html`.
+2. **Registro** — `MC.registerEngine('TUJUEGO', { load: load })`.
+3. **Plata** — `MC.canBet()` antes, `MC.addBalance()` para mover fichas y
+   `MC.recordRound(apostado, devuelto, detalle)` **siempre** al cerrar la ronda.
+4. **Catálogo** — una entrada en `src/catalog/catalog.js` con `engine: 'TUJUEGO'`.
+
+Ese único `MC.recordRound()` te engancha gratis al historial del lobby, las
+estadísticas, la XP, el rango VIP y las misiones diarias.
+
+La estética sale sola si usás las clases que ya existen: `.panel`, `.btn-accent`,
+`.btn-gold`, `.btn-spin`, `.field`, `.bet-control`, `.quick-bets`, `.hint`, y los
+tokens `--gold`, `--accent`, `--bg-2`. Mirá `src/styles/games/plantilla.css`:
+fijate cuánto **no** hay ahí.
+
+Si tu juego tiene rondas que no se pueden abandonar a medias, agregá
+`MC.guard('TUJUEGO', function () { return rondaEnCurso; })`.
+
+## Juegos ocultos
+
+Los cinco motores de casino (slots, crash, mines, ruleta, blackjack) están
+**ocultos, no borrados**: el código queda como referencia. Se prenden y apagan
+desde un único bloque al principio de `src/catalog/catalog.js`:
+
+```javascript
+var OCULTOS = ['crash', 'mines', 'slots777', 'roulette', 'blackjack'];
+var MOSTRAR_TRAGAMONEDAS_GENERADAS = false;
+```
+
+Sacar un id de `OCULTOS` lo devuelve al lobby, al buscador y al catálogo. El
+mapa `MCCatalog.games` sigue conteniendo **todo**, también lo oculto, porque el
+historial guarda ids de juego y tiene que seguir sabiendo cómo se llamaba cada
+uno. Los rieles que quedan sin juegos se descartan solos, y los botones del
+sidebar que apuntaban a esos rieles se esconden.
+
 ## Juegos
 
 **126 títulos en total**: 6 hechos a mano + 120 tragamonedas generadas.

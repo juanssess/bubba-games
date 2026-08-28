@@ -1,0 +1,76 @@
+/* ============================================================
+   PLANTILLA — hoja de estilo de ejemplo.
+
+   Fijate cuánto NO hay acá: nada de colores sueltos, tipografías ni
+   botones. Todo eso lo pone el sistema (tokens.css y base.css) con
+   las clases .panel, .btn, .bet-control, .hint. Acá sólo va lo que
+   es propio de este juego: la ficha que gira.
+
+   Prefijo .pl- para no chocar con el resto.
+   ============================================================ */
+
+.pl-layout{display:grid;grid-template-columns:262px 1fr;gap:18px;align-items:start}
+
+.pl-panel{
+  background:var(--bg-3);border:1px solid var(--line);border-radius:var(--r-md);
+  padding:16px;height:fit-content;
+}
+.pl-panel .bet-control{justify-content:space-between;margin-bottom:14px}
+.pl-panel .btn-block + .btn-block{margin-top:8px}
+
+/* Los dos botones de color del juego. */
+.btn-rojo{background:linear-gradient(135deg,var(--brand-red),var(--brand-red-dark));color:#fff}
+.btn-negro{background:linear-gradient(135deg,#2a201d,#100c0b);color:#fff;border:1px solid var(--line-2)}
+
+.pl-info{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.pl-info div{background:var(--bg-2);border-radius:var(--r-sm);padding:9px 11px;text-align:center}
+.pl-info span{display:block;font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--txt-dim)}
+.pl-info strong{font-size:16px;font-variant-numeric:tabular-nums}
+
+/* ---------------- la mesa ---------------- */
+.pl-stage{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  min-height:340px;padding:24px;border-radius:var(--r-md);
+  background:radial-gradient(circle at 50% 35%, rgba(216,30,52,.13), transparent 62%), var(--bg-3);
+  border:1px solid var(--line);
+}
+
+/* La ficha: mismo lenguaje visual que el logo — aro dorado,
+   cara oscura y el color del resultado adentro. */
+.pl-chip{
+  width:150px;height:150px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,#2a201d,#100c0b);
+  border:6px dashed var(--gold-2);
+  box-shadow:0 14px 34px rgba(0,0,0,.55), inset 0 0 26px rgba(0,0,0,.7);
+  font-size:56px;color:var(--gold);
+  transition:background .25s, border-color .25s;
+}
+.pl-chip.red{
+  background:radial-gradient(circle at 35% 30%,#e8465a,var(--brand-red-dark));
+  border-color:var(--gold);color:#fff;
+}
+.pl-chip.black{
+  background:radial-gradient(circle at 35% 30%,#3a2b27,#0b0708);
+  border-color:var(--gold);color:var(--gold);
+}
+/* El giro es sólo presentación: el resultado ya estaba decidido. */
+.pl-chip.girando{animation:plGirar 1.2s cubic-bezier(.3,.05,.2,1)}
+@keyframes plGirar{
+  from{transform:rotateY(0) scale(1)}
+  50%{transform:rotateY(900deg) scale(1.12)}
+  to{transform:rotateY(1800deg) scale(1)}
+}
+
+.pl-msg{font-size:15px;color:var(--txt-dim);text-align:center;min-height:22px}
+.pl-msg.gano{color:var(--green);font-weight:700}
+.pl-msg.perdio{color:var(--red);font-weight:700}
+
+.pl-history{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;min-height:16px}
+.pl-dot{width:15px;height:15px;border-radius:50%;border:1px solid rgba(255,255,255,.18)}
+.pl-dot.red{background:var(--brand-red)}
+.pl-dot.black{background:#1a1413}
+
+@media(max-width:900px){
+  .pl-layout{grid-template-columns:1fr}
+  .pl-chip{width:120px;height:120px;font-size:44px}
+}
