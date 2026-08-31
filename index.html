@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="src/styles/progress.css">
 <link rel="stylesheet" href="src/styles/games/slots.css">
 <link rel="stylesheet" href="src/styles/games/sportsbook.css">
+<link rel="stylesheet" href="src/styles/games/proveedor.css">
 <link rel="stylesheet" href="src/styles/games/plantilla.css">
 <link rel="stylesheet" href="src/styles/games/crash.css">
 <link rel="stylesheet" href="src/styles/games/mines.css">
@@ -202,6 +203,17 @@
       </div>
 
       <div class="stage-body">
+
+        <!-- ---------- PROVEEDOR EXTERNO ----------
+             Juegos servidos en un iframe (Maverick, Se Busca). Comparten la
+             billetera de Bubba por postMessage: ver src/games/proveedor.js. -->
+        <section class="view" id="view-proveedor">
+          <div class="prov-shell">
+            <iframe id="provFrame" class="prov-frame" title="Juego"
+                    allow="autoplay" referrerpolicy="same-origin"></iframe>
+            <div id="provLoader" class="prov-loader">Cargando…</div>
+          </div>
+        </section>
 
         <!-- ---------- PLANTILLA: COPIÁ ESTA SECCIÓN PARA TU JUEGO ----------
              El id tiene que ser view-<engine>, donde <engine> es el mismo
@@ -462,6 +474,7 @@
 <script src="src/games/mines.js"></script>
 <script src="src/games/sportsbook.js"></script>
 <script src="src/games/plantilla.js"></script>
+<script src="src/games/proveedor.js"></script>
 
 <!-- 5. Catálogo (themes → matemática → generador → armado) -->
 <script src="src/catalog/themes.js"></script>

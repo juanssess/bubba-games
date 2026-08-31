@@ -65,6 +65,29 @@ window.MCCatalog = (function () {
       desc: 'Máx. 250x',
       config: { symbols: BUBBA_777 }
     },
+    /* ---------- Tragamonedas propias, servidas en iframe ----------
+       Se construyen aparte (proyecto "Juegos Casinos") y se sirven desde
+       games/slots/. Comparten la billetera de Bubba: ver proveedor.js.
+       El RTP que se muestra es el verificado por simulación de 100-200
+       millones de rondas, igual que el resto del catálogo. */
+    {
+      id: 'maverick', engine: 'proveedor', name: 'Maverick', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Alta',
+      tag: '20 líneas · La Escalinata', rtpValue: 0.9666, rtp: 'RTP 96,7%',
+      maxWin: 3362, emoji: '🐆', badge: 'top',
+      art: 'linear-gradient(135deg,#2a1a0e,#c8901f 55%,#4fbf8b)',
+      desc: 'Escalá la pirámide',
+      frameUrl: 'games/slots/index.html?game=classic20'
+    },
+    {
+      id: 'sebusca', engine: 'proveedor', name: 'Se Busca', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Extrema',
+      tag: 'Wilds pegajosos · tope 10.000x', rtpValue: 0.9644, rtp: 'RTP 96,4%',
+      maxWin: 10000, emoji: '🤠', badge: 'hot',
+      art: 'linear-gradient(135deg,#2e1a0c,#c8452f 55%,#e8d3a0)',
+      desc: 'Multiplicadores que se pegan',
+      frameUrl: 'games/slots/index.html?game=sebusca'
+    },
     {
       // PLANTILLA: copiá esta entrada para dar de alta tu juego.
       // El campo que manda es `engine`: tiene que coincidir con el

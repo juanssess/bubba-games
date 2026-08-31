@@ -18,16 +18,52 @@ marca cuando aparecen juntos.
 
 ## Cómo ejecutarlo
 
-Doble clic en `index.html`. Listo — no necesita instalación ni conexión.
+Levantá un servidor estático desde esta carpeta:
 
-> Si tu navegador bloquea el guardado del saldo en archivos locales (`file://`),
-> levantá un servidor estático desde esta carpeta:
->
-> ```bash
-> python -m http.server 8123
-> ```
->
-> y entrá a `http://localhost:8123`.
+```bash
+python -m http.server 8123
+```
+
+y entrá a `http://localhost:8123`.
+
+> **Hace falta el servidor**, no alcanza el doble clic en `index.html`.
+> Maverick y Se Busca se embeben en un iframe y comparten la billetera por
+> `postMessage`; con `file://` los orígenes no se pueden validar. El resto de
+> los juegos sí anda con doble clic, pero el saldo también puede quedar
+> bloqueado en `file://`.
+
+## Juegos de proveedor (Maverick y Se Busca)
+
+Las dos tragamonedas grandes no viven en este proyecto: se construyen aparte
+(carpeta `Juegos Casinos`, TypeScript + PixiJS) y se sirven desde
+`games/slots/`. Es el mismo esquema que usa cualquier casino real: los juegos
+del proveedor se embeben en un iframe.
+
+**La billetera sigue siendo una sola.** El juego resuelve la ronda con su
+matemática, pero no tiene saldo: para cada giro le pide permiso a Bubba.
+
+```
+juego → 'debit'    ¿me cobrás 20 fichas?  → MC.canBet + MC.addBalance
+juego → 'settle'   gané 350, registrala   → MC.addBalance + MC.recordRound
+```
+
+Ese `MC.recordRound()` es el mismo punto único de siempre, así que el
+historial del lobby, las estadísticas, la XP, el rango VIP y las misiones
+diarias cuentan lo jugado en Maverick y Se Busca **sin que hubiera que tocar
+nada de la progresión**.
+
+El motor está en `src/games/proveedor.js` y no conoce ningún juego en
+particular: para sumar otro alcanza con una entrada en el catálogo con
+`engine: 'proveedor'` y su `frameUrl`.
+
+Para actualizar los juegos después de cambiarlos, desde la carpeta
+`Juegos Casinos`:
+
+```bash
+npm run build:casino
+```
+
+Eso compila y copia el resultado a `games/slots/` de este proyecto.
 
 ## Agregar un juego propio
 
@@ -74,7 +110,23 @@ sidebar que apuntaban a esos rieles se esconden.
 
 ## Juegos
 
-**126 títulos en total**: 6 hechos a mano + 120 tragamonedas generadas.
+**128 títulos en total**: 6 hechos a mano + 2 tragamonedas de proveedor +
+120 tragamonedas generadas.
+
+### Las dos de proveedor
+
+Construidas aparte con TypeScript + PixiJS, servidas en iframe, billetera
+compartida. Su RTP está verificado por simulación de 100-200 millones de
+rondas, no estimado.
+
+| Juego | Tipo | RTP | Volatilidad | Feature |
+|---|---|---|---|---|
+| **Maverick** | Tragamonedas 5x3, 20 líneas | 96,7% | Alta | La Escalinata: escalás una pirámide y el nivel define el paquete de giros gratis |
+| **Se Busca** | Tragamonedas 5x5, 15 líneas | 96,4% | Extrema | Wilds pegajosos x2 a x50 que se multiplican entre sí; tope 10.000x |
+
+Las dos tienen compra de bonus con el precio **derivado del valor esperado
+medido**, no elegido a ojo: la compra rinde apenas menos que girar normal,
+para que comprar no sea estrategia dominante.
 
 ### Los seis de la casa
 
@@ -202,6 +254,7 @@ src/
     catalog.js        juegos de la casa + catálogo + rieles + banners
   games/
     slots.js          motor de tragamonedas (lo comparten los 121 títulos)
+    proveedor.js      motor de juegos externos en iframe + puente de billetera
     sportsbook.js     motor de la casa de apuestas
     crash.js  mines.js  roulette.js  blackjack.js
   ui/
@@ -213,6 +266,10 @@ src/
     modals.js         cuenta, ayuda y bienvenida
     missions-view.js  pantalla de misiones y rango
   main.js             único punto de entrada
+
+games/
+  slots/              build de Maverick y Se Busca (se genera desde
+                      el proyecto "Juegos Casinos", no se edita acá)
 ```
 
 Tres decisiones que sostienen la estructura:

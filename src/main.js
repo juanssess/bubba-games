@@ -15,7 +15,7 @@
   // catálogo para que vuelva a estar jugable, sin tocar nada acá.
   var ENGINES = [
     MCSlots, MCRoulette, MCBlackjack, MCCrash, MCMines,
-    MCSportsbook, MCPlantilla
+    MCSportsbook, MCPlantilla, MCProveedor
   ];
 
   function start() {
