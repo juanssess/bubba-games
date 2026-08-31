@@ -65,8 +65,9 @@ window.MCModals = (function () {
     MC.modal('Bienvenido a Bubba',
       '<p>Arrancás con <strong style="color:var(--gold)">' + MC.fmt(MC.STARTING_CHIPS) +
       ' fichas virtuales</strong>.</p>' +
-      '<p>Hay <strong>' + MCCatalog.size + ' juegos</strong> abiertos: Crash, Mines, Ruleta, Blackjack ' +
-      'y todo el salón de tragamonedas. Si te quedás corto, el bono te recarga.</p>' +
+      '<p>Hay <strong>' + MCCatalog.size + ' juegos</strong> abiertos: ' +
+      MCCatalog.all.slice(0, 4).map(function (g) { return g.name; }).join(', ') +
+      '. Si te quedás corto, el bono te recarga.</p>' +
       '<p style="font-size:12.5px">Es un juego: no se apuesta ni se gana dinero real.</p>',
       [{ label: 'Entrar al salón', kind: 'primary' }]);
   }

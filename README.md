@@ -16,9 +16,20 @@ de acción y **oro `#f5c451`** para los destacados. El rojo de "perdiste"
 (`#ff5a5f`) es más claro a propósito, para que no se confunda con el rojo de
 marca cuando aparecen juntos.
 
-## Cómo ejecutarlo
+## Jugar online
 
-Levantá un servidor estático desde esta carpeta:
+**https://juanssess.github.io/bubba-games/**
+
+Se juega desde el navegador, también en el celular. No hay que instalar ni
+descargar nada. Cada persona arranca con sus propias fichas, guardadas en su
+navegador.
+
+## Cómo ejecutarlo localmente
+
+Doble clic en **`ABRIR CASINO.bat`**: levanta el servidor y abre el navegador.
+Dejá la ventana negra abierta mientras jugás; cerrarla apaga el casino.
+
+A mano, si preferís:
 
 ```bash
 python -m http.server 8123
