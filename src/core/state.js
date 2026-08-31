@@ -7,8 +7,12 @@ window.MC = window.MC || {};
 (function (MC) {
   'use strict';
 
-  var STORAGE_KEY = 'bubba_games_v1';
-  var LEGACY_KEY = 'maverick_casino_v2';   // cuentas anteriores al cambio de marca
+  // El estado se guarda POR PERFIL: la clave la arma MC.auth con el uid
+  // del que está jugando. Antes era una sola clave global; la migración
+  // de esa cuenta vieja al primer perfil la hace auth.js al arrancar.
+  function storageKey() {
+    return MC.auth.claveEstado(MC.auth.current().uid);
+  }
   var STARTING_CHIPS = 5000;
 
   var defaults = {
@@ -33,9 +37,11 @@ window.MC = window.MC || {};
   // no rompa las cuentas ya guardadas en el navegador.
   function load() {
     try {
-      // Si viene de la marca anterior, se rescata la cuenta guardada
-      // en vez de arrancarlo de cero por un cambio de nombre.
-      var raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
+      // Sólo el perfil activo. La migración de las cuentas viejas (cuando
+      // no había perfiles) la hace auth.js una única vez al arrancar: si
+      // también se intentara acá, CADA perfil nuevo heredaría ese saldo en
+      // vez de empezar con las fichas de bienvenida.
+      var raw = localStorage.getItem(storageKey());
       if (!raw) return clone(defaults);
       var saved = JSON.parse(raw);
       var merged = clone(defaults);
@@ -56,7 +62,7 @@ window.MC = window.MC || {};
 
   function save() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(MC.state));
+      localStorage.setItem(storageKey(), JSON.stringify(MC.state));
     } catch (e) {
       /* navegación privada o almacenamiento lleno: se juega igual, sin guardar */
     }

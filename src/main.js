@@ -27,6 +27,9 @@
     MCSearch.init();
     MCShell.init();
     MCMissionsView.init();
+    MCCuenta.init();
+    MCCajero.init();
+    MCVip.init();
 
     // 2. Motores de juego (cada uno se registra solo en el router)
     ENGINES.forEach(function (engine) { engine.init(); });

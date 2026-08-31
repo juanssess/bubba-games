@@ -67,7 +67,8 @@ window.MCShell = (function () {
       MCActions.run('missions');
       closeMobile();
     };
-    document.getElementById('sbBonus').onclick = function () { MC.claimBonus(); closeMobile(); };
+    document.getElementById('sbCajero').onclick = function () { MC.showView('cajero'); closeMobile(); };
+    document.getElementById('sbVip').onclick = function () { MCVip.open(); closeMobile(); };
     document.getElementById('sbStats').onclick = function () { MCModals.openAccount(); closeMobile(); };
     document.getElementById('sbHelp').onclick = function () { MCModals.openHelp(); closeMobile(); };
   }
@@ -83,9 +84,9 @@ window.MCShell = (function () {
     soundBtn.textContent = MC.state.soundOn ? '🔊' : '🔇';
     soundBtn.onclick = function () { MC.toggleSound(); };
 
-    document.getElementById('menuBtn').onclick = MCModals.openAccount;
-    document.getElementById('walletBox').onclick = MCModals.openAccount;
-    document.getElementById('depositBtn').onclick = function () { MC.claimBonus(); };
+    // La billetera lleva al cajero, que es donde se consiguen fichas.
+    document.getElementById('walletBox').onclick = function () { MC.showView('cajero'); };
+    document.getElementById('depositBtn').onclick = function () { MC.showView('cajero'); };
 
     document.getElementById('stageBack').onclick = function () {
       MC.sound.click();

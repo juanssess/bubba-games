@@ -43,6 +43,34 @@ y entrá a `http://localhost:8123`.
 > los juegos sí anda con doble clic, pero el saldo también puede quedar
 > bloqueado en `file://`.
 
+## Cuentas, cajero y Club VIP
+
+**Cuentas.** Se entra sin registrarse: la primera visita crea un perfil
+invitado y ya se puede jugar. Cuando quieras, le ponés nombre y ficha desde
+"Crear cuenta" — y **no perdés el saldo**, el invitado se convierte en tu
+perfil en vez de crear uno nuevo. Se pueden tener varios perfiles en el mismo
+navegador, cada uno con su saldo, sus estadísticas y su rango.
+
+El login con Google y Apple está en la pantalla pero marcado como *pronto*:
+sin servidor no hay dónde guardar cuentas reales. `src/core/auth.js` está
+escrito como una interfaz con una implementación local, y arriba de
+`entrarCon()` está documentado exactamente qué hay que escribir para
+enchufar Firebase. El resto del casino no se entera del cambio.
+
+**Cajero.** Reúne por primera vez en una sola pantalla las tres formas de
+conseguir fichas que ya existían sueltas: el bono recargable (cada 8 h,
+escalado por rango), las misiones del día y subir de rango.
+
+> No hay depósitos ni retiros, y nunca se piden datos de una tarjeta ni de
+> una cuenta bancaria. Las fichas son virtuales, se consiguen gratis y no
+> tienen ningún valor. Un formulario de pago en un sitio público es un
+> formulario de pago aunque sea "de mentira": alguien puede escribir datos
+> reales. Por eso no existe.
+
+**Club VIP.** Los seis rangos que ya calculaba `progress/levels.js`, ahora
+visibles enteros: dónde estás, cuánto falta para el siguiente y qué da cada
+uno. La XP sube con lo apostado, no con lo ganado.
+
 ## Juegos de proveedor (Maverick y Se Busca)
 
 Las dos tragamonedas grandes no viven en este proyecto: se construyen aparte
@@ -263,6 +291,8 @@ src/
     slot-math.js      pesos, tabla de pagos y RTP exacto
     generator.js      generación determinista de títulos
     catalog.js        juegos de la casa + catálogo + rieles + banners
+  core/
+    auth.js           perfiles y sesión (local hoy, Google enchufable)
   games/
     slots.js          motor de tragamonedas (lo comparten los 121 títulos)
     proveedor.js      motor de juegos externos en iframe + puente de billetera
@@ -276,6 +306,9 @@ src/
     shell.js          sidebar y topbar
     modals.js         cuenta, ayuda y bienvenida
     missions-view.js  pantalla de misiones y rango
+    cuenta.js         crear cuenta, perfil y cambio de usuario
+    cajero.js         de dónde salen las fichas
+    vip.js            los seis rangos del Club VIP
   main.js             único punto de entrada
 
 games/

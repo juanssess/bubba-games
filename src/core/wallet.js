@@ -128,6 +128,7 @@ window.MC = window.MC || {};
   MC.recordRound = recordRound;
   MC.renderBalance = renderBalance;
   MC.renderStats = renderStats;
+  MC.BONUS_AMOUNT = BONUS_AMOUNT;
   MC.claimBonus = claimBonus;
   MC.bonusReadyIn = bonusReadyIn;
   MC.refreshBonusButton = refreshBonusButton;

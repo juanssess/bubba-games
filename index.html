@@ -13,6 +13,7 @@
 <link rel="stylesheet" href="src/styles/portal.css">
 <link rel="stylesheet" href="src/styles/components.css">
 <link rel="stylesheet" href="src/styles/progress.css">
+<link rel="stylesheet" href="src/styles/cuenta.css">
 <link rel="stylesheet" href="src/styles/games/slots.css">
 <link rel="stylesheet" href="src/styles/games/sportsbook.css">
 <link rel="stylesheet" href="src/styles/games/proveedor.css">
@@ -56,7 +57,8 @@
 
     <p class="sb-label">Cuenta</p>
     <button class="sb-item" id="sbMissions"><span class="sb-ico">🏅</span>Misiones<span class="sb-badge off" id="sbMissionBadge">•</span></button>
-    <button class="sb-item" id="sbBonus"><span class="sb-ico">🎁</span>Bono<span class="sb-badge" id="sbBonusBadge">•</span></button>
+    <button class="sb-item" id="sbCajero"><span class="sb-ico">🎁</span>Cajero<span class="sb-badge" id="sbBonusBadge">•</span></button>
+    <button class="sb-item" id="sbVip"><span class="sb-ico">👑</span>Club VIP</button>
     <button class="sb-item" id="sbStats"><span class="sb-ico">📊</span>Estadísticas</button>
     <button class="sb-item" id="sbHelp"><span class="sb-ico">❔</span>Cómo funciona</button>
   </nav>
@@ -92,9 +94,13 @@
           <strong id="balanceValue">0</strong>
         </div>
       </div>
-      <button class="btn btn-accent" id="depositBtn">Recargar</button>
+      <button class="btn btn-accent" id="depositBtn">Cajero</button>
       <button class="icon-btn" id="soundBtn" title="Sonido">🔊</button>
-      <button class="icon-btn" id="menuBtn" title="Cuenta">👤</button>
+      <button class="btn btn-ghost" id="registerBtn">Crear cuenta</button>
+      <button class="userbox" id="userBox" title="Tu cuenta">
+        <span class="userbox-av" id="userAvatar">🐶</span>
+        <span class="userbox-name" id="userName">Invitado</span>
+      </button>
     </div>
   </header>
 
@@ -142,6 +148,24 @@
         <p>Juego de entretenimiento con fichas virtuales. No se apuesta ni se gana dinero real.
            Tu progreso se guarda únicamente en este navegador. Solo para mayores de 18 años.</p>
       </footer>
+    </section>
+
+    <!-- ======================= CAJERO ======================= -->
+    <section class="view" id="view-cajero">
+      <div class="cat-head">
+        <button class="btn btn-ghost" data-nav="lobby">← Lobby</button>
+        <h2>Cajero</h2>
+      </div>
+      <div id="cajeroBody"></div>
+    </section>
+
+    <!-- ======================= CLUB VIP ======================= -->
+    <section class="view" id="view-vip">
+      <div class="cat-head">
+        <button class="btn btn-ghost" data-nav="lobby">← Lobby</button>
+        <h2>Club VIP</h2>
+      </div>
+      <div id="vipBody"></div>
     </section>
 
     <!-- ======================= CATÁLOGO COMPLETO ======================= -->
@@ -450,6 +474,7 @@
 
 <!-- 1. Núcleo -->
 <script src="src/core/format.js"></script>
+<script src="src/core/auth.js"></script>
 <script src="src/core/rng.js"></script>
 <script src="src/core/state.js"></script>
 <script src="src/core/audio.js"></script>
@@ -493,6 +518,9 @@
 <script src="src/ui/shell.js"></script>
 <script src="src/ui/modals.js"></script>
 <script src="src/ui/missions-view.js"></script>
+<script src="src/ui/cuenta.js"></script>
+<script src="src/ui/cajero.js"></script>
+<script src="src/ui/vip.js"></script>
 
 <!-- 7. Arranque -->
 <script src="src/main.js"></script>
