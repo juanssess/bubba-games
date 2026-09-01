@@ -126,8 +126,19 @@ async function subirEstado(setDoc, doc, ahora) {
   subiendo = setTimeout(guardar, SYNC_MS);
 }
 
-/** Envuelve MC.save para que además empuje a la nube. */
+/**
+ * Envuelve MC.save para que además empuje a la nube.
+ *
+ * El guard no es paranoia: onAuthStateChanged puede dispararse más de una
+ * vez en la misma sesión (al refrescarse el token, por ejemplo). Sin él,
+ * MC.save quedaba envuelta dos veces y cada guardado disparaba dos subidas
+ * a Firestore — el doble de escrituras para nada.
+ */
+let guardadoEnganchado = false;
+
 function engancharGuardado(setDoc, doc) {
+  if (guardadoEnganchado) return;
+  guardadoEnganchado = true;
   const original = MC.save;
   MC.save = function () {
     original.apply(this, arguments);
