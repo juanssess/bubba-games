@@ -97,6 +97,8 @@ let avisoDeFalla = false;
  * el usuario no puede ver es un estado en el que no se puede confiar.
  */
 let estadoNube = 'local';
+/** Ultimo codigo de error de Firestore, para poder diagnosticar de un vistazo. */
+let errorNube = '';
 
 /* ---------------- sincronía con la nube ---------------- */
 
@@ -107,7 +109,8 @@ async function bajarEstado(setDoc, getDoc, doc) {
     snap = await getDoc(ref);
   } catch (e) {
     // Sin conexión o reglas mal puestas: se sigue jugando local.
-    console.warn('[bubba] no se pudo leer el estado de la nube:', e.code || e.message);
+    errorNube = e.code || e.message;
+    console.warn('[bubba] no se pudo leer el estado de la nube:', errorNube);
     estadoNube = 'error';
     return;
   }
@@ -144,7 +147,8 @@ async function subirEstado(setDoc, doc, ahora) {
       estadoNube = 'error';
       // Un fallo de sincronía NO puede ser invisible: el jugador cree que su
       // saldo lo sigue entre dispositivos y no es cierto. Se avisa una vez.
-      console.warn('[bubba] no se pudo guardar en la nube:', e.code || e.message);
+      errorNube = e.code || e.message;
+      console.warn('[bubba] no se pudo guardar en la nube:', errorNube);
       if (!avisoDeFalla) {
         avisoDeFalla = true;
         MC.toast('Tu progreso no se está guardando en la nube', 'lose');
@@ -218,7 +222,8 @@ async function init() {
       }
     },
     salir: () => auth.signOut(fbAuth),
-    estado: () => estadoNube
+    estado: () => estadoNube,
+    error: () => errorNube
   });
 
   auth.onAuthStateChanged(fbAuth, async (user) => {

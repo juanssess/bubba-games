@@ -195,6 +195,11 @@ window.MC = window.MC || {};
     return remoto.estado();
   }
 
+  /** Codigo del ultimo error de sincronia, si hubo. */
+  function errorNube() {
+    return (remoto && remoto.error) ? remoto.error() : '';
+  }
+
   function soporta(proveedor) {
     return !!(remoto && remoto.soporta && remoto.soporta(proveedor));
   }
@@ -298,6 +303,7 @@ window.MC = window.MC || {};
     disponibleRemoto: disponibleRemoto,
     soporta: soporta,
     estadoNube: estadoNube,
+    errorNube: errorNube,
     attachRemote: attachRemote,
     adoptarRemoto: adoptarRemoto,
     claveEstado: claveEstado,
