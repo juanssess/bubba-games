@@ -90,11 +90,18 @@ let subiendo = null;
 let avisoDeFalla = false;
 /**
  * Estado de la sincronia, visible en el panel de cuenta.
- * 'local' (todavia no sincronizo) | 'ok' | 'error'
+ *
+ *   'local'     este perfil no sincroniza (no hay cuenta remota)
+ *   'pendiente' hay cuenta, la sincronia todavia no respondio
+ *   'ok'        la nube respondio y el progreso viaja
+ *   'error'     algo fallo (el codigo queda en errorNube)
  *
  * Existe porque la primera version fallaba en silencio: el jugador creia
  * que su saldo lo seguia entre dispositivos y no era cierto. Un estado que
  * el usuario no puede ver es un estado en el que no se puede confiar.
+ *
+ * Y 'pendiente' existe porque sin el no se distinguia "no sincroniza" de
+ * "todavia no termino", que es justo lo que nos confundio al depurar.
  */
 let estadoNube = 'local';
 /** Ultimo codigo de error de Firestore, para poder diagnosticar de un vistazo. */
@@ -115,6 +122,12 @@ async function bajarEstado(setDoc, getDoc, doc) {
     return;
   }
 
+  // La nube respondio: eso ya alcanza para saber que la sincronia funciona.
+  // Antes esto estaba despues del return/reload de mas abajo y no se
+  // ejecutaba nunca, asi que el panel decia "solo en este navegador"
+  // aunque estuviera todo bien.
+  estadoNube = 'ok';
+
   if (snap.exists() && snap.data().state) {
     const nube = snap.data().state;
     const local = localStorage.getItem(MC.auth.claveEstado(uidPerfil));
@@ -123,7 +136,6 @@ async function bajarEstado(setDoc, getDoc, doc) {
     if (local === nube) return;
     localStorage.setItem(MC.auth.claveEstado(uidPerfil), nube);
     location.reload();
-    estadoNube = 'ok';
   } else {
     // Primera vez con esta cuenta: sube lo que haya local (que puede ser
     // el progreso que traía de invitado).
@@ -241,10 +253,42 @@ async function init() {
 
     uidPerfil = MC.auth.current().uid;
     uidNube = user.uid;
+    if (estadoNube === 'local') estadoNube = 'pendiente';
     engancharGuardado(store.setDoc, store.doc);
     await bajarEstado(store.setDoc, store.getDoc, store.doc);
   });
 }
+
+/**
+ * Diagnostico de la sincronia, para correr desde la consola:
+ *
+ *     await window.bubbaDiag()
+ *
+ * Hace el viaje completo —leer y escribir el documento propio— y devuelve
+ * que paso en cada paso. Existe porque adivinar por que falla Firestore
+ * mirando la interfaz es lento: el codigo de error dice en una linea si el
+ * problema son las reglas, el nombre de la base o la sesion.
+ */
+window.bubbaDiag = async function () {
+  const r = { logueado: !!uidNube, uidNube: uidNube, uidPerfil: uidPerfil, estado: estadoNube, error: errorNube };
+  if (!uidNube) { r.conclusion = 'No hay sesion de Google iniciada'; return r; }
+
+  const store = await import(SDK + 'firebase-firestore.js');
+  try {
+    const snap = await store.getDoc(store.doc(db, 'players', uidNube));
+    r.lectura = snap.exists() ? 'ok, documento existe' : 'ok, documento vacio';
+  } catch (e) { r.lectura = 'FALLO: ' + (e.code || e.message); }
+
+  try {
+    await store.setDoc(store.doc(db, 'players', uidNube), { ping: Date.now() }, { merge: true });
+    r.escritura = 'ok';
+  } catch (e) { r.escritura = 'FALLO: ' + (e.code || e.message); }
+
+  r.conclusion = (r.lectura.startsWith('ok') && r.escritura === 'ok')
+    ? 'La sincronia funciona'
+    : 'Revisar las reglas de Firestore';
+  return r;
+};
 
 init().catch((e) => {
   // Que falle el login remoto no puede romper el casino: se sigue con

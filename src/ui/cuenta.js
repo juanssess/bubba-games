@@ -139,6 +139,7 @@ window.MCCuenta = (function () {
   function filaNube() {
     var e = MC.auth.estadoNube();
     if (e === 'ok') return fila('Progreso', 'Guardado en la nube', 'var(--green)');
+    if (e === 'pendiente') return fila('Progreso', 'Sincronizando…', 'var(--gold)');
     if (e === 'error') {
       var cod = MC.auth.errorNube();
       return fila('Progreso', 'No se pudo sincronizar' + (cod ? ' (' + cod + ')' : ''), 'var(--red)');

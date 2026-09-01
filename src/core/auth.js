@@ -192,7 +192,10 @@ window.MC = window.MC || {};
     if (!remoto || !remoto.estado) return 'local';
     var u = current();
     if (!u || u.provider === 'local') return 'local';
-    return remoto.estado();
+    var e = remoto.estado();
+    // Una cuenta remota nunca esta "solo en este navegador": si dice eso,
+    // es que la sincronia todavia no arranco.
+    return e === 'local' ? 'pendiente' : e;
   }
 
   /** Codigo del ultimo error de sincronia, si hubo. */
