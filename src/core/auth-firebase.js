@@ -55,6 +55,20 @@ const CONFIG = {
 };
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
+
+/**
+ * ID de la base de Firestore.
+ *
+ * OJO: normalmente es '(default)' (con parentesis) y el SDK lo asume solo.
+ * Esta se creo con el nombre literal 'default', asi que hay que pasarselo
+ * explicito o getFirestore() se conecta a una base que no existe y todo
+ * falla con NOT_FOUND sin decir por que.
+ *
+ * Como se comprobo: pedir databases/(default) devuelve NOT_FOUND y
+ * databases/default devuelve PERMISSION_DENIED. El segundo error solo
+ * aparece si la base existe.
+ */
+const DB_ID = 'default';
 /** Cuánto se espera antes de subir a la nube, para no escribir en cada giro. */
 const SYNC_MS = 2500;
 
@@ -131,7 +145,7 @@ async function init() {
 
   const app = initializeApp(CONFIG);
   const fbAuth = auth.getAuth(app);
-  db = store.getFirestore(app);
+  db = store.getFirestore(app, DB_ID);
 
   // Mantiene la sesión abierta entre visitas.
   await auth.setPersistence(fbAuth, auth.browserLocalPersistence);
