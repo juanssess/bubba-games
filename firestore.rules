@@ -1,0 +1,28 @@
+/* ============================================================
+   REGLAS DE FIRESTORE — Bubba Games
+
+   Pegar en: consola de Firebase -> Firestore Database -> Reglas.
+
+   La idea es una sola: cada jugador puede leer y escribir SU
+   documento y nada más. Sin esto, cualquiera con la apiKey (que es
+   pública por diseño) podría leer o pisar el progreso de otro.
+   ============================================================ */
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // El progreso de cada jugador: /players/{uid}
+    match /players/{uid} {
+      // Sólo el dueño, y sólo estando logueado.
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Todo lo demás queda cerrado. Si mañana se agrega una colección
+    // (ranking, torneos), se le escribe su regla acá a propósito y no
+    // queda abierta por olvido.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

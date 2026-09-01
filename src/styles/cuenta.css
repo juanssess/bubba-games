@@ -1,68 +1,66 @@
 /* ============================================================
    CUENTA, CAJERO Y CLUB VIP
 
-   Todo se apoya en los tokens que ya existen (--gold, --accent,
-   --bg-2/3/4, --line). Nada de colores sueltos: si mañana cambia
-   la marca, estas pantallas la siguen solas.
+   Todo sale de los tokens de la marca: negros cálidos, el rojo de
+   la ficha y el oro. Nada de paletas nuevas — si mañana cambia
+   --accent, estas tres pantallas cambian con el resto.
    ============================================================ */
 
-/* ---------------- topbar: el usuario ---------------- */
+/* ---------------- topbar: quién está jugando ---------------- */
 .userbox{
   display:flex; align-items:center; gap:8px;
-  padding:6px 12px 6px 6px;
-  background:var(--bg-3);
-  border:1px solid var(--line);
-  border-radius:999px;
-  color:var(--text);
-  cursor:pointer;
+  padding:5px 12px 5px 5px;
+  background:var(--bg-3); border:1px solid var(--line);
+  border-radius:999px; cursor:pointer;
+  color:var(--txt); font:inherit; font-size:13.5px; font-weight:600;
   transition:border-color .18s ease, background .18s ease;
 }
-.userbox:hover{ border-color:var(--gold); background:var(--bg-4) }
+.userbox:hover{ border-color:var(--gold-2); background:var(--bg-4) }
 
 .userbox-av{
+  width:28px; height:28px; flex:0 0 28px;
   display:grid; place-items:center;
-  width:28px; height:28px;
-  background:var(--bg-4);
-  border-radius:50%;
-  font-size:15px;
-  line-height:1;
+  background:var(--bg-4); border-radius:50%;
+  font-size:15px; overflow:hidden;
 }
-.userbox-name{ font-size:13.5px; font-weight:600; max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.userbox-av img{ width:100%; height:100%; object-fit:cover }
+.userbox-name{ max-width:96px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
 
 @media(max-width:860px){
   .userbox-name{ display:none }
+  .userbox{ padding:5px }
   #registerBtn{ display:none !important }
 }
 
-/* ---------------- entrar / crear cuenta ---------------- */
-.auth-provs{ display:grid; gap:8px; margin-bottom:16px }
+/* ---------------- entrar / crear perfil ---------------- */
+.auth-provs{ display:grid; gap:9px; margin-bottom:16px }
 
 .prov-btn{
-  display:flex; align-items:center; gap:10px;
+  display:flex; align-items:center; gap:11px;
   width:100%; padding:11px 14px;
-  background:#fff; color:#1a1a1a;
-  border:1px solid rgba(0,0,0,.15); border-radius:10px;
-  font-size:14px; font-weight:600; font-family:inherit;
-  cursor:pointer;
+  background:#fff; color:#1f1f1f;
+  border:1px solid rgba(0,0,0,.12); border-radius:10px;
+  font:inherit; font-size:14px; font-weight:600; cursor:pointer;
   transition:filter .18s ease;
 }
 .prov-btn:hover:not(:disabled){ filter:brightness(.94) }
-.prov-btn:disabled{ cursor:not-allowed; opacity:.55 }
-/* Apple es negro sobre blanco, como manda su guía de marca. */
-.prov-btn[data-prov="apple"]{ background:#111; color:#fff; border-color:rgba(255,255,255,.28) }
-.prov-ico{ display:grid; place-items:center; width:18px; font-size:17px; line-height:1 }
+/* Deshabilitado y con la etiqueta "pronto": es más honesto que
+   esconderlos, y deja claro que el lugar ya está reservado. */
+.prov-btn:disabled{ opacity:.5; cursor:not-allowed }
+.prov-btn[data-prov="apple"]{ background:#000; color:#fff; border-color:#000 }
+
+.prov-ico{ display:grid; place-items:center; width:18px; height:18px }
 .prov-txt{ flex:1; text-align:left }
 .prov-soon{
-  font-size:10.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+  font-size:10.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase;
   padding:3px 7px; border-radius:5px;
-  background:rgba(0,0,0,.1); color:inherit; opacity:.7;
+  background:rgba(0,0,0,.1); color:inherit; opacity:.75;
 }
-.prov-btn[data-prov="apple"] .prov-soon{ background:rgba(255,255,255,.18) }
+.prov-btn[data-prov="apple"] .prov-soon{ background:rgba(255,255,255,.16) }
 
 .auth-sep{
   display:flex; align-items:center; gap:12px;
-  margin:16px 0 14px;
-  color:var(--muted); font-size:12px;
+  margin:16px 0 14px; color:var(--txt-dim); font-size:12px;
 }
 .auth-sep::before, .auth-sep::after{
   content:''; flex:1; height:1px; background:var(--line);
@@ -70,216 +68,207 @@
 
 .auth-label{
   display:block; margin:0 0 6px;
-  font-size:11.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
-  color:var(--muted);
+  font-size:11.5px; font-weight:700; letter-spacing:.6px;
+  text-transform:uppercase; color:var(--txt-dim);
 }
-.auth-input{ width:100%; margin-bottom:16px }
+.auth-input{ width:100%; margin-bottom:14px }
 
 .av-grid{
-  display:grid; grid-template-columns:repeat(6, 1fr); gap:6px;
-  margin-bottom:14px;
+  display:grid; grid-template-columns:repeat(6,1fr); gap:7px; margin-bottom:14px;
 }
 .av{
   aspect-ratio:1; display:grid; place-items:center;
-  font-size:19px; line-height:1;
-  background:var(--bg-3);
-  border:1px solid var(--line); border-radius:9px;
-  cursor:pointer;
-  transition:border-color .15s ease, background .15s ease, transform .15s ease;
+  font-size:20px; cursor:pointer;
+  background:var(--bg-3); border:1px solid var(--line); border-radius:9px;
+  transition:transform .12s ease, border-color .18s ease;
 }
 .av:hover{ transform:translateY(-2px) }
-.av.on{ border-color:var(--gold); background:var(--bg-4); box-shadow:0 0 0 1px var(--gold) inset }
+.av.on{ border-color:var(--gold); background:var(--bg-4); box-shadow:0 0 0 1px var(--gold) }
 
-.auth-legal{ margin:0; font-size:12px; color:var(--muted); line-height:1.5 }
+.auth-legal{ margin:4px 0 0; font-size:12px; color:var(--txt-dim); line-height:1.5 }
 
 /* ---------------- panel de cuenta ---------------- */
 .acc-head{
-  display:flex; align-items:center; gap:12px;
-  padding-bottom:14px; margin-bottom:14px;
-  border-bottom:1px solid var(--line);
+  display:flex; align-items:center; gap:13px;
+  padding-bottom:14px; margin-bottom:14px; border-bottom:1px solid var(--line);
 }
 .acc-av{
-  display:grid; place-items:center;
-  width:46px; height:46px;
-  background:var(--bg-4); border-radius:50%;
-  font-size:24px; line-height:1;
+  width:48px; height:48px; flex:0 0 48px;
+  display:grid; place-items:center; overflow:hidden;
+  background:var(--bg-3); border:1px solid var(--line-2); border-radius:50%;
+  font-size:24px;
 }
-.acc-id{ display:flex; flex-direction:column; gap:2px }
+.acc-av img{ width:100%; height:100%; object-fit:cover }
+.acc-id{ display:flex; flex-direction:column; gap:3px; min-width:0 }
 .acc-id strong{ font-size:17px }
-.acc-id span{ font-size:12.5px; color:var(--muted) }
+.acc-id span{ font-size:12.5px; color:var(--txt-dim) }
 
 .acc-grid{ display:grid; gap:1px; background:var(--line); border-radius:10px; overflow:hidden; margin-bottom:16px }
 .acc-row{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:9px 12px; background:var(--bg-2);
-  font-size:13.5px;
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+  padding:10px 13px; background:var(--bg-2); font-size:13.5px;
 }
-.acc-row span{ color:var(--muted) }
+.acc-row span{ color:var(--txt-dim) }
 
-.acc-users{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px }
+.acc-users{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px }
 .acc-user{
-  display:flex; align-items:center; gap:6px;
-  padding:7px 12px;
+  display:flex; align-items:center; gap:7px;
+  padding:7px 12px; cursor:pointer;
   background:var(--bg-3); border:1px solid var(--line); border-radius:999px;
-  color:var(--text); font-size:13px; font-family:inherit;
-  cursor:pointer;
+  color:var(--txt); font:inherit; font-size:13px; font-weight:600;
 }
-.acc-user:hover{ border-color:var(--gold) }
+.acc-user:hover{ border-color:var(--gold-2) }
 
 /* ---------------- cajero ---------------- */
 .cj-hero{
-  display:flex; flex-wrap:wrap; gap:16px; justify-content:space-between; align-items:center;
+  display:flex; justify-content:space-between; align-items:center; gap:20px; flex-wrap:wrap;
   padding:22px 24px; margin-bottom:14px;
-  background:linear-gradient(135deg, var(--bg-3), var(--bg-2));
+  background:linear-gradient(135deg, var(--bg-3), var(--bg-2) 60%);
   border:1px solid var(--line-2); border-radius:16px;
 }
-.cj-hero-main{ display:flex; flex-direction:column; gap:2px }
 .cj-kicker{
-  font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase;
-  color:var(--accent);
+  display:block; font-size:11.5px; font-weight:700; letter-spacing:.7px;
+  text-transform:uppercase; color:var(--txt-dim); margin-bottom:4px;
 }
-.cj-balance{ font-size:40px; line-height:1.05; color:var(--gold); letter-spacing:-.5px }
-.cj-unit{ font-size:12.5px; color:var(--muted) }
+.cj-balance{
+  display:block; font-size:40px; line-height:1; color:var(--gold);
+  font-variant-numeric:tabular-nums;
+}
+.cj-unit{ font-size:12.5px; color:var(--txt-dim) }
 
 .cj-hero-rank{
-  display:flex; align-items:center; gap:10px;
-  padding:10px 16px;
-  background:var(--bg-4); border:1px solid var(--line); border-radius:12px;
+  display:flex; align-items:center; gap:11px;
+  padding:11px 16px; background:var(--bg-4); border-radius:12px;
 }
-.cj-rank-ico{ font-size:24px; line-height:1 }
-.cj-hero-rank strong{ display:block; font-size:14px }
-.cj-hero-rank span{ display:block; font-size:12px; color:var(--muted) }
+.cj-rank-ico{ font-size:26px }
+.cj-hero-rank strong{ display:block; font-size:14.5px }
+.cj-hero-rank span{ font-size:12px; color:var(--gold) }
 
+/* La acción principal, separada del resto para que no se pierda. */
 .cj-claim{
-  display:flex; flex-wrap:wrap; gap:14px; justify-content:space-between; align-items:center;
-  padding:16px 20px; margin-bottom:18px;
-  background:var(--bg-2);
-  border:1px solid var(--line); border-radius:14px;
-  transition:border-color .2s ease;
+  display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
+  padding:16px 20px; margin-bottom:20px;
+  background:var(--bg-2); border:1px solid var(--line); border-radius:14px;
 }
-/* Cuando el bono está listo, el borde dorado lo dice sin leer nada. */
-.cj-claim.on{ border-color:var(--gold); box-shadow:0 0 0 1px rgba(245,196,81,.25) }
+.cj-claim.on{
+  border-color:var(--gold);
+  box-shadow:0 0 0 1px rgba(245,196,81,.25), 0 8px 30px rgba(245,196,81,.09);
+}
 .cj-claim-txt strong{ display:block; font-size:20px; color:var(--gold) }
-.cj-claim-txt span{ display:block; font-size:12.5px; color:var(--muted); margin-top:2px }
+.cj-claim-txt span{ font-size:12.5px; color:var(--txt-dim) }
 
+/* La tabla: mismo ritmo que un cajero de verdad, sin copiarlo. */
 .cj-table{
-  border:1px solid var(--line); border-radius:14px; overflow:hidden;
-  margin-bottom:18px;
+  display:grid; gap:1px; background:var(--line);
+  border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:18px;
 }
 .cj-row{
-  display:grid; grid-template-columns:1.6fr 1fr 1.3fr 1fr; gap:12px; align-items:center;
-  padding:13px 18px;
-  background:var(--bg-2);
-  border-bottom:1px solid var(--line);
-  font-size:13.5px;
+  display:grid; grid-template-columns:1.5fr 1fr 1.3fr 1fr; gap:12px; align-items:center;
+  padding:13px 18px; background:var(--bg-2); font-size:13.5px;
 }
-.cj-row:last-child{ border-bottom:0 }
 .cj-head{
   background:var(--bg-3);
-  font-size:11px; font-weight:700; letter-spacing:.8px; text-transform:uppercase;
-  color:var(--muted);
+  font-size:11px; font-weight:700; letter-spacing:.7px;
+  text-transform:uppercase; color:var(--txt-dim);
 }
 .cj-name{ font-weight:600 }
-/* Los números en monoespaciada: se comparan de un vistazo. */
-.cj-mono{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--gold) }
-.cj-when{ color:var(--muted); font-size:12.5px }
-.cj-state{ color:var(--muted); font-size:12.5px; text-align:right }
+.cj-mono{ font-variant-numeric:tabular-nums; color:var(--gold) }
+.cj-when{ color:var(--txt-dim); font-size:12.5px }
+.cj-state{ color:var(--txt-dim); font-size:12.5px; text-align:right }
 .cj-state.on{ color:var(--green); font-weight:600 }
 
-.cj-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px }
+.cj-actions{ display:flex; flex-wrap:wrap; gap:9px; margin-bottom:18px }
 
+/* El aviso NO es letra chica: es lo que evita que alguien crea que
+   esto es un casino de plata real. */
 .cj-note{
-  padding:14px 18px;
+  padding:15px 18px;
   background:rgba(216,30,52,.07);
-  border:1px solid rgba(216,30,52,.28); border-radius:12px;
-  font-size:13px; line-height:1.6; color:var(--muted);
+  border:1px solid rgba(216,30,52,.28); border-left-width:3px;
+  border-radius:10px;
+  font-size:13px; line-height:1.6; color:var(--txt-dim);
 }
-.cj-note strong{ color:var(--text) }
+.cj-note strong{ color:var(--txt) }
 
-/* ---------------- club VIP ---------------- */
+@media(max-width:760px){
+  .cj-balance{ font-size:32px }
+  .cj-row{ grid-template-columns:1fr auto; gap:4px 12px; padding:12px 14px }
+  .cj-head{ display:none }
+  .cj-when{ grid-column:1; font-size:11.5px }
+  .cj-state{ grid-column:2; text-align:right }
+}
+
+/* ---------------- club vip ---------------- */
 .vip-hero{
-  display:flex; flex-wrap:wrap; gap:20px; justify-content:space-between; align-items:center;
-  padding:22px 24px; margin-bottom:18px;
-  background:linear-gradient(135deg, var(--bg-3), var(--bg-2));
+  display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap;
+  padding:22px 24px; margin-bottom:16px;
+  background:linear-gradient(135deg, var(--bg-3), var(--bg-2) 60%);
   border:1px solid var(--line-2); border-radius:16px;
 }
-.vip-now{ display:flex; flex-direction:column; gap:3px }
 .vip-kicker{
-  font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase;
-  color:var(--accent);
+  display:block; font-size:11.5px; font-weight:700; letter-spacing:.7px;
+  text-transform:uppercase; color:var(--txt-dim); margin-bottom:5px;
 }
-.vip-name{ font-size:26px; line-height:1.15 }
-.vip-xp{ font-size:12.5px; color:var(--muted) }
+.vip-name{ display:block; font-size:27px; line-height:1.1 }
+.vip-xp{ font-size:12.5px; color:var(--txt-dim) }
 
-.vip-prog{ flex:1; min-width:240px; max-width:420px }
+.vip-prog{ flex:1; min-width:230px }
 .vip-prog-top{
   display:flex; justify-content:space-between; align-items:baseline;
-  font-size:13px; color:var(--muted); margin-bottom:7px;
+  font-size:13px; color:var(--txt-dim); margin-bottom:7px;
 }
-.vip-prog-top strong{ color:var(--text) }
+.vip-prog-top strong{ color:var(--txt) }
 .vip-bar{ height:8px; background:var(--bg-4); border-radius:999px; overflow:hidden }
 .vip-fill{
   height:100%; border-radius:999px;
   background:linear-gradient(90deg, var(--gold-2), var(--gold));
-  transition:width .4s ease;
+  transition:width .5s ease;
 }
-.vip-falta{ display:block; margin-top:7px; font-size:12px; color:var(--muted) }
+.vip-falta{ display:block; margin-top:7px; font-size:12px; color:var(--txt-dim) }
 
 .vip-tiers{
-  display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:10px;
-  margin-bottom:18px;
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
+  gap:1px; background:var(--line);
+  border:1px solid var(--line); border-radius:16px; overflow:hidden; margin-bottom:18px;
 }
 .vip-card{
-  position:relative;
   display:flex; flex-direction:column; gap:5px;
-  padding:16px;
-  background:var(--bg-2);
-  border:1px solid var(--line); border-radius:14px;
-  transition:transform .18s ease, border-color .18s ease;
+  padding:18px 16px; background:var(--bg-2);
+  transition:background .2s ease;
 }
-.vip-card:hover{ transform:translateY(-3px) }
+/* Los rangos ya pasados se apagan; el actual se ilumina. Se ve de un
+   vistazo dónde estás sin tener que leer nada. */
+.vip-card.pasado{ opacity:.5 }
+.vip-card.actual{ background:var(--bg-4); box-shadow:inset 0 0 0 1px var(--gold) }
 .vip-card-num{
-  font-size:10.5px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
-  color:var(--muted);
+  font-size:10.5px; font-weight:700; letter-spacing:.7px;
+  text-transform:uppercase; color:var(--txt-dim);
 }
-.vip-card-ico{ font-size:26px; line-height:1; margin:2px 0 }
+.vip-card-ico{ font-size:26px; margin:2px 0 }
 .vip-card-name{ font-size:16px }
-.vip-card-req{ font-size:12px; color:var(--muted) }
+.vip-card-req{ font-size:12px; color:var(--txt-dim) }
 .vip-card-perk{
-  margin-top:6px; padding-top:8px;
-  border-top:1px solid var(--line);
-  font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size:13px; color:var(--gold);
+  margin-top:6px; padding-top:9px; border-top:1px solid var(--line);
+  font-size:13px; font-weight:600; color:var(--gold);
 }
-/* Tres estados: el que ya pasaste, el actual y el que viene. */
-.vip-card.pasado{ opacity:.62 }
-.vip-card.pasado .vip-card-perk{ color:var(--muted) }
-.vip-card.actual{ border-color:var(--gold); background:var(--bg-3); box-shadow:0 0 0 1px rgba(245,196,81,.3) }
-.vip-card.futuro .vip-card-ico{ filter:grayscale(1); opacity:.5 }
 .vip-card-tag{
-  position:absolute; top:12px; right:12px;
-  padding:3px 8px; border-radius:6px;
-  background:var(--gold); color:#1a1206;
-  font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase;
+  margin-top:7px; align-self:flex-start;
+  padding:3px 9px; border-radius:999px;
+  background:var(--accent); color:#fff;
+  font-size:10.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase;
 }
 
 .vip-note{
-  padding:16px 20px; margin-bottom:16px;
+  padding:16px 20px; margin-bottom:18px;
   background:var(--bg-2); border:1px solid var(--line); border-radius:12px;
-  font-size:13.5px; line-height:1.65; color:var(--muted);
 }
-.vip-note p{ margin:0 0 8px }
-.vip-note p:last-child{ margin:0 }
-.vip-note strong{ color:var(--text) }
+.vip-note p{ margin:0 0 9px; font-size:13.5px; line-height:1.6; color:var(--txt-dim) }
+.vip-note p:last-child{ margin-bottom:0 }
+.vip-note strong{ color:var(--txt) }
 
-.vip-actions{ display:flex; flex-wrap:wrap; gap:8px }
+.vip-actions{ display:flex; flex-wrap:wrap; gap:9px }
 
-@media(max-width:720px){
-  .cj-balance{ font-size:32px }
-  .cj-row{ grid-template-columns:1.4fr 1fr; row-gap:4px }
-  /* En pantalla angosta el "cada cuánto" sobra: se cae y quedan
-     el qué y el cuánto, que es lo que se vino a mirar. */
-  .cj-when{ display:none }
-  .cj-state{ text-align:left; grid-column:2 }
-  .cj-head span:nth-child(3), .cj-head span:nth-child(4){ display:none }
+@media(max-width:760px){
+  .vip-name{ font-size:22px }
+  .vip-tiers{ grid-template-columns:repeat(2,1fr) }
 }

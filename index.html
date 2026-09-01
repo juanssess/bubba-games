@@ -524,5 +524,10 @@
 
 <!-- 7. Arranque -->
 <script src="src/main.js"></script>
+
+<!-- Login con Google y saldo en la nube. Es un módulo (el SDK de Firebase lo
+     es) y va último a propósito: si falla, el casino ya arrancó con perfiles
+     locales y se juega igual. -->
+<script type="module" src="src/core/auth-firebase.js"></script>
 </body>
 </html>

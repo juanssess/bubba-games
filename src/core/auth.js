@@ -39,7 +39,8 @@ window.MC = window.MC || {};
   var AVATARS = ['🐶', '🦊', '🐼', '🦁', '🐸', '🦉', '🐺', '🐯', '🦄', '🐙', '🦈', '🐲'];
 
   var listeners = [];
-  var data = null;   // { users: [...], activeUid }
+  var data = null;     // { users: [...], activeUid }
+  var remoto = null;   // proveedor de login real, si hay (ver auth-firebase.js)
 
   /* ---------------- persistencia ---------------- */
   function read() {
@@ -66,6 +67,7 @@ window.MC = window.MC || {};
       name: nombre,
       avatar: opts.avatar || AVATARS[Math.floor(Math.random() * AVATARS.length)],
       provider: opts.provider || 'local',   // 'local' | 'google' | 'apple'
+      photo: opts.photo || null,            // foto de la cuenta, si el proveedor la da
       guest: !!opts.guest,
       createdAt: Date.now()
     };
@@ -138,6 +140,7 @@ window.MC = window.MC || {};
 
   function salir() {
     if (!data) return;
+    if (remoto && remoto.salir) { try { remoto.salir(); } catch (e) {} }
     // "Salir" no borra nada: vuelve al invitado, y el perfil queda
     // guardado para volver a entrar. Borrar la cuenta de alguien
     // porque toco "cerrar sesion" seria una sorpresa desagradable.
@@ -170,10 +173,78 @@ window.MC = window.MC || {};
      Apple necesita ademas el Apple Developer Program (99 USD/año).
      -------------------------------------------------------------- */
   function entrarCon(proveedor) {
+    if (remoto && remoto.entrarCon) return remoto.entrarCon(proveedor);
     MC.toast('El login con ' + proveedor + ' todavía no está conectado', 'info');
   }
 
-  function disponibleRemoto() { return false; }
+  function disponibleRemoto() { return !!remoto; }
+
+  /**
+   * ¿Está realmente disponible este método de login?
+   *
+   * No alcanza con que haya proveedor remoto: Firebase está conectado
+   * pero Apple necesita membresía paga y un servidor, así que ese botón
+   * tiene que seguir mostrándose apagado. Un botón que se ve activo y no
+   * hace nada es peor que uno que dice "pronto".
+   */
+  function soporta(proveedor) {
+    return !!(remoto && remoto.soporta && remoto.soporta(proveedor));
+  }
+
+  /**
+   * Engancha un proveedor de login real. Lo llama auth-firebase.js cuando
+   * termina de cargar el SDK; hasta entonces el casino funciona igual con
+   * perfiles locales, que es lo que hace que un problema de red o una
+   * config mal puesta no dejen a nadie afuera del juego.
+   */
+  function attachRemote(p) {
+    remoto = p;
+    emitir();
+  }
+
+  /**
+   * Da de alta (o actualiza) el perfil de una cuenta remota y lo activa.
+   * Devuelve true si hubo que recargar para cambiar de perfil.
+   *
+   * El truco: la cuenta de Google entra al MISMO registro de perfiles que
+   * los locales. Por eso el resto del casino —el estado por perfil, la
+   * topbar, el panel de cuenta— no necesita saber que existe Google.
+   */
+  function adoptarRemoto(info) {
+    var uidRemoto = info.provider + ':' + info.id;
+    var ya = null;
+    for (var i = 0; i < data.users.length; i++) {
+      if (data.users[i].uid === uidRemoto) ya = data.users[i];
+    }
+
+    if (ya) {
+      ya.name = info.name || ya.name;
+      ya.photo = info.photo || ya.photo;
+      var cambia = data.activeUid !== uidRemoto;
+      data.activeUid = uidRemoto;
+      write();
+      if (cambia) { location.reload(); return true; }
+      emitir();
+      return false;
+    }
+
+    // Primera vez con esta cuenta. Si venía jugando de invitado, se le
+    // regala su progreso a la cuenta nueva en vez de que empiece de cero
+    // por haberse logueado tarde.
+    var invitado = current();
+    var heredar = (invitado && invitado.guest) ? localStorage.getItem(claveEstado(invitado.uid)) : null;
+
+    crear(info.name || 'Jugador', {
+      uid: uidRemoto,
+      provider: info.provider,
+      photo: info.photo
+    });
+    if (heredar) {
+      try { localStorage.setItem(claveEstado(uidRemoto), heredar); } catch (e) {}
+    }
+    location.reload();
+    return true;
+  }
 
   /* ---------------- arranque ---------------- */
   function init() {
@@ -217,6 +288,9 @@ window.MC = window.MC || {};
     salir: salir,
     entrarCon: entrarCon,
     disponibleRemoto: disponibleRemoto,
+    soporta: soporta,
+    attachRemote: attachRemote,
+    adoptarRemoto: adoptarRemoto,
     claveEstado: claveEstado,
     AVATARS: AVATARS
   };

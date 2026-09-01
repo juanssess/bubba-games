@@ -53,7 +53,7 @@ window.MCCuenta = (function () {
   }
 
   function botonProveedor(id, icono, texto) {
-    var listo = MC.auth.disponibleRemoto();
+    var listo = MC.auth.soporta(id);
     return '<button class="prov-btn" data-prov="' + id + '"' + (listo ? '' : ' disabled') + '>' +
       '<span class="prov-ico">' + icono + '</span>' +
       '<span class="prov-txt">' + texto + '</span>' +
@@ -145,10 +145,16 @@ window.MCCuenta = (function () {
 
     var body =
       '<div class="acc-head">' +
-        '<span class="acc-av">' + u.avatar + '</span>' +
+        '<span class="acc-av">' +
+          (u.photo
+            ? '<img src="' + u.photo + '" alt="" referrerpolicy="no-referrer">'
+            : u.avatar) +
+        '</span>' +
         '<div class="acc-id">' +
           '<strong>' + u.name + '</strong>' +
-          '<span>' + t.ico + ' ' + t.name + (u.guest ? ' · sin registrar' : '') + '</span>' +
+          '<span>' + t.ico + ' ' + t.name +
+            (u.guest ? ' · sin registrar' : '') +
+            (u.provider === 'google' ? ' · Google' : '') + '</span>' +
         '</div>' +
       '</div>' +
       '<div class="acc-grid">' +
@@ -174,7 +180,8 @@ window.MCCuenta = (function () {
     if (u.guest) {
       acciones.unshift({ label: 'Crear cuenta', onClick: abrirRegistro });
     } else {
-      acciones.unshift({ label: 'Editar', onClick: abrirRegistro });
+      // El nombre de una cuenta de Google lo manda Google, no se edita acá.
+      if (u.provider === 'local') acciones.unshift({ label: 'Editar', onClick: abrirRegistro });
       acciones.unshift({ label: 'Salir', onClick: MC.auth.salir });
     }
 
@@ -193,7 +200,11 @@ window.MCCuenta = (function () {
     var nm = document.getElementById('userName');
     var reg = document.getElementById('registerBtn');
 
-    if (av) av.textContent = u.avatar;
+    // Con cuenta de Google se muestra su foto; con perfil local, la ficha.
+    if (av) {
+      if (u.photo) av.innerHTML = '<img src="' + u.photo + '" alt="" referrerpolicy="no-referrer">';
+      else av.textContent = u.avatar;
+    }
     if (nm) nm.textContent = u.guest ? 'Invitado' : u.name;
     // Al invitado se le ofrece registrarse; al que ya tiene perfil no se
     // le muestra un botón que ya no le sirve.
