@@ -135,6 +135,14 @@ window.MCCuenta = (function () {
       '<strong' + (color ? ' style="color:' + color + '"' : '') + '>' + v + '</strong></div>';
   }
 
+  /** Dice si el progreso viaja o se queda en este navegador. Sin rodeos. */
+  function filaNube() {
+    var e = MC.auth.estadoNube();
+    if (e === 'ok') return fila('Progreso', 'Guardado en la nube', 'var(--green)');
+    if (e === 'error') return fila('Progreso', 'No se pudo sincronizar', 'var(--red)');
+    return fila('Progreso', 'Sólo en este navegador', 'var(--txt-dim)');
+  }
+
   function abrirCuenta() {
     MC.sound.click();
     var u = MC.auth.current();
@@ -163,6 +171,7 @@ window.MCCuenta = (function () {
         fila('Total apostado', MC.fmt(s.wagered)) +
         fila('Mejor golpe', '+' + MC.fmt(s.best), 'var(--green)') +
         fila('Balance neto', (s.net >= 0 ? '+' : '') + MC.fmt(s.net), netColor) +
+        filaNube() +
       '</div>' +
       (otros.length
         ? '<label class="auth-label">Cambiar de perfil</label>' +

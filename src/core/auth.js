@@ -187,6 +187,14 @@ window.MC = window.MC || {};
    * tiene que seguir mostrándose apagado. Un botón que se ve activo y no
    * hace nada es peor que uno que dice "pronto".
    */
+  /** 'local' | 'ok' | 'error' — como viene la sincronia con la nube. */
+  function estadoNube() {
+    if (!remoto || !remoto.estado) return 'local';
+    var u = current();
+    if (!u || u.provider === 'local') return 'local';
+    return remoto.estado();
+  }
+
   function soporta(proveedor) {
     return !!(remoto && remoto.soporta && remoto.soporta(proveedor));
   }
@@ -289,6 +297,7 @@ window.MC = window.MC || {};
     entrarCon: entrarCon,
     disponibleRemoto: disponibleRemoto,
     soporta: soporta,
+    estadoNube: estadoNube,
     attachRemote: attachRemote,
     adoptarRemoto: adoptarRemoto,
     claveEstado: claveEstado,

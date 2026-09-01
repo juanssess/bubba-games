@@ -73,30 +73,54 @@ const DB_ID = 'default';
 const SYNC_MS = 2500;
 
 let db = null;
-let uidActual = null;
+/**
+ * Dos identificadores distintos, y confundirlos fue el primer bug de esto:
+ *
+ *  - uidPerfil: el del registro de perfiles, CON prefijo ('google:abc123').
+ *    Es la clave del estado en localStorage.
+ *  - uidNube: el uid crudo de Firebase ('abc123'). Es el id del documento
+ *    en Firestore, porque las reglas comparan contra request.auth.uid, que
+ *    viene sin prefijo. Con el prefijo puesto, cada escritura se rechazaba
+ *    en silencio y el saldo nunca llegaba al otro dispositivo.
+ */
+let uidPerfil = null;
+let uidNube = null;
 let subiendo = null;
+/** Para no repetirle el mismo problema al jugador en cada guardado. */
+let avisoDeFalla = false;
+/**
+ * Estado de la sincronia, visible en el panel de cuenta.
+ * 'local' (todavia no sincronizo) | 'ok' | 'error'
+ *
+ * Existe porque la primera version fallaba en silencio: el jugador creia
+ * que su saldo lo seguia entre dispositivos y no era cierto. Un estado que
+ * el usuario no puede ver es un estado en el que no se puede confiar.
+ */
+let estadoNube = 'local';
 
 /* ---------------- sincronía con la nube ---------------- */
 
 async function bajarEstado(setDoc, getDoc, doc) {
-  const ref = doc(db, 'players', uidActual);
+  const ref = doc(db, 'players', uidNube);
   let snap;
   try {
     snap = await getDoc(ref);
   } catch (e) {
     // Sin conexión o reglas mal puestas: se sigue jugando local.
-    console.warn('[bubba] no se pudo leer el estado de la nube:', e.message);
+    console.warn('[bubba] no se pudo leer el estado de la nube:', e.code || e.message);
+    estadoNube = 'error';
     return;
   }
 
   if (snap.exists() && snap.data().state) {
     const nube = snap.data().state;
-    const local = localStorage.getItem(MC.auth.claveEstado(uidActual));
+    const local = localStorage.getItem(MC.auth.claveEstado(uidPerfil));
     // Si es lo mismo, no se toca nada: recargar por gusto pierde la
     // pantalla en la que estaba el jugador.
     if (local === nube) return;
-    localStorage.setItem(MC.auth.claveEstado(uidActual), nube);
+    localStorage.setItem(MC.auth.claveEstado(uidPerfil), nube);
     location.reload();
+    estadoNube = 'ok';
   } else {
     // Primera vez con esta cuenta: sube lo que haya local (que puede ser
     // el progreso que traía de invitado).
@@ -105,17 +129,26 @@ async function bajarEstado(setDoc, getDoc, doc) {
 }
 
 async function subirEstado(setDoc, doc, ahora) {
-  if (!db || !uidActual) return;
+  if (!db || !uidNube) return;
   const guardar = async () => {
-    const raw = localStorage.getItem(MC.auth.claveEstado(uidActual));
+    const raw = localStorage.getItem(MC.auth.claveEstado(uidPerfil));
     if (!raw) return;
     try {
-      await setDoc(doc(db, 'players', uidActual), {
+      await setDoc(doc(db, 'players', uidNube), {
         state: raw,
         updatedAt: Date.now()
       }, { merge: true });
+      estadoNube = 'ok';
+      avisoDeFalla = false;
     } catch (e) {
-      console.warn('[bubba] no se pudo guardar en la nube:', e.message);
+      estadoNube = 'error';
+      // Un fallo de sincronía NO puede ser invisible: el jugador cree que su
+      // saldo lo sigue entre dispositivos y no es cierto. Se avisa una vez.
+      console.warn('[bubba] no se pudo guardar en la nube:', e.code || e.message);
+      if (!avisoDeFalla) {
+        avisoDeFalla = true;
+        MC.toast('Tu progreso no se está guardando en la nube', 'lose');
+      }
     }
   };
 
@@ -184,11 +217,12 @@ async function init() {
         console.warn('[bubba] login:', e.code || e.message);
       }
     },
-    salir: () => auth.signOut(fbAuth)
+    salir: () => auth.signOut(fbAuth),
+    estado: () => estadoNube
   });
 
   auth.onAuthStateChanged(fbAuth, async (user) => {
-    if (!user) { uidActual = null; return; }
+    if (!user) { uidPerfil = uidNube = null; return; }
 
     // adoptarRemoto devuelve true si tuvo que recargar para cambiar de
     // perfil; en ese caso no hay nada más que hacer en esta vida.
@@ -200,7 +234,8 @@ async function init() {
     });
     if (recargo) return;
 
-    uidActual = MC.auth.current().uid;
+    uidPerfil = MC.auth.current().uid;
+    uidNube = user.uid;
     engancharGuardado(store.setDoc, store.doc);
     await bajarEstado(store.setDoc, store.getDoc, store.doc);
   });
