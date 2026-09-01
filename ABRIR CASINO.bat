@@ -27,7 +27,7 @@ start "" cmd /c "timeout /t 1 >nul & start http://localhost:8123"
 
 REM Python es lo que ya tenes instalado. Si algun dia no esta,
 REM el fallback usa Node.
-python -m http.server 8123 2>nul
+python "%~dp0servidor.py" 2>nul
 if errorlevel 1 (
   echo Python no respondio, probando con Node...
   npx --yes http-server -p 8123 -c-1
