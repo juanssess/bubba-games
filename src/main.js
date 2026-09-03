@@ -30,6 +30,9 @@
     MCCuenta.init();
     MCCajero.init();
     MCVip.init();
+    MCAgente.init();
+    MCAjustes.init();
+    MCAsistente.init();
 
     // 2. Motores de juego (cada uno se registra solo en el router)
     ENGINES.forEach(function (engine) { engine.init(); });

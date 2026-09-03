@@ -69,6 +69,8 @@ window.MCShell = (function () {
     };
     document.getElementById('sbCajero').onclick = function () { MC.showView('cajero'); closeMobile(); };
     document.getElementById('sbVip').onclick = function () { MCVip.open(); closeMobile(); };
+    document.getElementById('sbAgente').onclick = function () { MCAgente.open(); closeMobile(); };
+    document.getElementById('sbAjustes').onclick = function () { MCAjustes.open(); closeMobile(); };
     document.getElementById('sbStats').onclick = function () { MCModals.openAccount(); closeMobile(); };
     document.getElementById('sbHelp').onclick = function () { MCModals.openHelp(); closeMobile(); };
   }

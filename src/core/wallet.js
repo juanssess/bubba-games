@@ -17,7 +17,21 @@ window.MC = window.MC || {};
   /* ---------------- saldo ---------------- */
   function getBalance() { return MC.state.balance; }
 
-  function canBet(amount) { return amount > 0 && MC.state.balance >= amount; }
+  function canBet(amount) {
+    if (!(amount > 0) || MC.state.balance < amount) return false;
+
+    // El límite de juego responsable se consulta acá, en el único lugar por
+    // el que pasan TODAS las apuestas. Si viviera en cada juego, el primero
+    // que se agregue mañana se olvidaría de respetarlo.
+    if (window.MCAjustes) {
+      var motivo = MCAjustes.bloqueaApuesta(amount);
+      if (motivo) {
+        MC.toast(motivo, 'lose');
+        return false;
+      }
+    }
+    return true;
+  }
 
   // delta negativo = apuesta, positivo = pago
   function addBalance(delta) {

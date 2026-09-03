@@ -40,26 +40,44 @@ window.MCMissions = (function () {
       text: function (n) { return 'Ganá ' + MC.fmt(n) + ' fichas netas en una sola ronda'; },
       hits: function (r) { return r.net; } },
 
-    { key: 'slots', mode: 'count', goals: [10, 20, 35],
+    { key: 'slots', mode: 'count', goals: [10, 20, 35], engines: ['slots', 'proveedor'],
       text: function (n) { return 'Jugá ' + n + ' rondas de tragamonedas'; },
       hits: function (r) { return r.engine === 'slots' ? 1 : 0; } },
 
-    { key: 'crash', mode: 'count', goals: [3, 6, 10],
+    { key: 'crash', mode: 'count', goals: [3, 6, 10], engines: ['crash'],
       text: function (n) { return 'Retirá ' + n + ' veces en Crash'; },
       hits: function (r) { return r.engine === 'crash' && r.net > 0 ? 1 : 0; } },
 
-    { key: 'mines', mode: 'count', goals: [3, 6, 10],
+    { key: 'mines', mode: 'count', goals: [3, 6, 10], engines: ['mines'],
       text: function (n) { return 'Retirá ' + n + ' veces en Mines'; },
       hits: function (r) { return r.engine === 'mines' && r.net > 0 ? 1 : 0; } },
 
-    { key: 'table', mode: 'count', goals: [5, 10, 18],
+    { key: 'table', mode: 'count', goals: [5, 10, 18], engines: ['roulette', 'blackjack'],
       text: function (n) { return 'Jugá ' + n + ' manos de ruleta o blackjack'; },
       hits: function (r) { return (r.engine === 'roulette' || r.engine === 'blackjack') ? 1 : 0; } },
 
-    { key: 'sports', mode: 'count', goals: [2, 4, 6],
+    { key: 'sports', mode: 'count', goals: [2, 4, 6], engines: ['sportsbook'],
       text: function (n) { return 'Acertá ' + n + ' apuestas deportivas'; },
       hits: function (r) { return r.engine === 'sportsbook' && r.net > 0 ? 1 : 0; } }
   ];
+
+  /**
+   * ¿Se puede completar esta misión hoy?
+   *
+   * Las plantillas sin `engines` valen siempre (jugá N rondas, apostá N
+   * fichas). Las que apuntan a un juego concreto sólo entran si ese juego
+   * está visible en el catálogo.
+   *
+   * Sin esto, al ocultar Crash, Mines, Ruleta y Blackjack el jugador seguía
+   * recibiendo misiones de esos juegos: objetivos imposibles que nunca iba
+   * a poder tachar, y que encima le comían los tres lugares del día.
+   */
+  function jugable(tpl) {
+    if (!tpl.engines) return true;
+    var abiertos = {};
+    (MCCatalog.all || []).forEach(function (g) { abiertos[g.engine] = true; });
+    return tpl.engines.some(function (e) { return abiertos[e]; });
+  }
 
   function templateOf(key) {
     for (var i = 0; i < TEMPLATES.length; i++) if (TEMPLATES[i].key === key) return TEMPLATES[i];
@@ -79,7 +97,7 @@ window.MCMissions = (function () {
 
   function generate(day) {
     var rng = MC.seeded(MC.hashSeed('misiones-' + day));
-    var pool = TEMPLATES.slice();
+    var pool = TEMPLATES.filter(jugable);
 
     // Barajado con la semilla del día: mismo sorteo durante toda la jornada.
     for (var i = pool.length - 1; i > 0; i--) {

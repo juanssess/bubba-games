@@ -312,6 +312,36 @@ window.MC = window.MC || {};
     write();
   }
 
+  /**
+   * Lee el estado guardado de CUALQUIER perfil, sin cambiarse a el.
+   * Lo usa el panel de agente para mostrar la mesa completa.
+   * Devuelve null si ese perfil todavia no jugo nada.
+   */
+  function leerEstado(uid) {
+    try {
+      var raw = localStorage.getItem(claveEstado(uid));
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * Escribe el estado de otro perfil.
+   *
+   * Ojo: si el uid es el del perfil activo hay que pasar por MC.state y no
+   * por aca, o la pantalla queda mostrando datos viejos. El panel de agente
+   * contempla ese caso.
+   */
+  function escribirEstado(uid, obj) {
+    try {
+      localStorage.setItem(claveEstado(uid), JSON.stringify(obj));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /** Clave de almacenamiento del estado de juego de un perfil. */
   function claveEstado(u) {
     return 'bubba_games_v2.' + u;
@@ -335,6 +365,8 @@ window.MC = window.MC || {};
     attachRemote: attachRemote,
     adoptarRemoto: adoptarRemoto,
     claveEstado: claveEstado,
+    leerEstado: leerEstado,
+    escribirEstado: escribirEstado,
     AVATARS: AVATARS
   };
 
