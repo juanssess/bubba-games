@@ -98,11 +98,37 @@ window.MC = window.MC || {};
   // Cambiar de perfil recarga la página: el estado, la billetera y los
   // juegos ya tomaron referencias del perfil viejo. Recargar es más
   // barato y mucho más seguro que reconstruir medio casino en caliente.
+  /**
+   * Recarga con freno de mano.
+   *
+   * Cambiar de perfil necesita recargar: el estado, la billetera y los
+   * juegos ya tomaron referencias del perfil viejo. Pero una recarga
+   * automatica que se dispara sola es peligrosa — un bucle deja la pagina
+   * inusable y al jugador sin forma de entrar a arreglarlo. Este contador
+   * corta despues de tres en un minuto.
+   */
+  function recargar(motivo) {
+    var CLAVE = 'bubba_recargas';
+    var ahora = Date.now();
+    var reg = { n: 0, desde: ahora };
+    try { reg = JSON.parse(sessionStorage.getItem(CLAVE)) || reg; } catch (e) {}
+    if (ahora - reg.desde > 60000) reg = { n: 0, desde: ahora };
+    reg.n++;
+    try { sessionStorage.setItem(CLAVE, JSON.stringify(reg)); } catch (e) {}
+
+    if (reg.n > 3) {
+      console.warn('[bubba] demasiadas recargas seguidas (' + motivo + '), se corta');
+      return false;
+    }
+    location.reload();
+    return true;
+  }
+
   function usar(uidNuevo) {
     if (!data || uidNuevo === data.activeUid) return;
     data.activeUid = uidNuevo;
     write();
-    location.reload();
+    recargar('cambio de perfil');
   }
 
   function registrar(nombre, avatar) {
@@ -123,7 +149,7 @@ window.MC = window.MC || {};
     }
 
     var nuevo = crear(nombre, { avatar: avatar });
-    location.reload();
+    recargar('perfil nuevo');
     return nuevo;
   }
 
@@ -151,7 +177,7 @@ window.MC = window.MC || {};
     if (!invitado) invitado = crear('Invitado', { guest: true });
     data.activeUid = invitado.uid;
     write();
-    location.reload();
+    recargar('cerrar sesion');
   }
 
   /* ---------------- PROVEEDOR REMOTO (pendiente) ----------------
@@ -239,7 +265,7 @@ window.MC = window.MC || {};
       var cambia = data.activeUid !== uidRemoto;
       data.activeUid = uidRemoto;
       write();
-      if (cambia) { location.reload(); return true; }
+      if (cambia) return recargar('cuenta remota distinta');
       emitir();
       return false;
     }
@@ -258,8 +284,7 @@ window.MC = window.MC || {};
     if (heredar) {
       try { localStorage.setItem(claveEstado(uidRemoto), heredar); } catch (e) {}
     }
-    location.reload();
-    return true;
+    return recargar('primera vez con esta cuenta');
   }
 
   /* ---------------- arranque ---------------- */

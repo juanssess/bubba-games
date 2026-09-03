@@ -131,11 +131,24 @@ async function bajarEstado(setDoc, getDoc, doc) {
   if (snap.exists() && snap.data().state) {
     const nube = snap.data().state;
     const local = localStorage.getItem(MC.auth.claveEstado(uidPerfil));
-    // Si es lo mismo, no se toca nada: recargar por gusto pierde la
-    // pantalla en la que estaba el jugador.
     if (local === nube) return;
+
+    // Se aplica EN CALIENTE, sin recargar.
+    //
+    // Antes esto hacia location.reload() y provocaba un bucle infinito: al
+    // recargar, el casino toca el estado enseguida (regenera las misiones
+    // del dia, el temporizador del bono), asi que volvia a diferir del
+    // remoto y recargaba otra vez. La pagina quedaba inusable.
     localStorage.setItem(MC.auth.claveEstado(uidPerfil), nube);
-    location.reload();
+    if (!MC.aplicarEstado(nube)) {
+      // Si el estado remoto vino corrupto, no se insiste: mejor seguir con
+      // lo local que dejar al jugador sin nada.
+      console.warn('[bubba] el estado de la nube no se pudo aplicar');
+      estadoNube = 'error';
+      errorNube = 'estado-invalido';
+      return;
+    }
+    MC.toast('Progreso recuperado de tu cuenta', 'win');
   } else {
     // Primera vez con esta cuenta: sube lo que haya local (que puede ser
     // el progreso que traía de invitado).
@@ -290,8 +303,15 @@ window.bubbaDiag = async function () {
   return r;
 };
 
+// Escotilla de emergencia: con ?nosync=1 en la URL la sincronia no arranca.
+// Si algun dia la nube deja la pagina en un estado raro, esto permite entrar
+// igual y arreglarlo desde adentro en vez de quedar afuera del casino.
+if (new URLSearchParams(location.search).has('nosync')) {
+  console.warn('[bubba] sincronia desactivada por ?nosync=1');
+} else {
 init().catch((e) => {
   // Que falle el login remoto no puede romper el casino: se sigue con
   // perfiles locales y el botón de Google queda como estaba.
   console.warn('[bubba] Firebase no disponible, se juega con perfiles locales:', e.message);
 });
+}

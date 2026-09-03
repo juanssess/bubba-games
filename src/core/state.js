@@ -85,7 +85,51 @@ window.MC = window.MC || {};
     MC.toast('Cuenta reiniciada con ' + MC.fmt(STARTING_CHIPS) + ' fichas', 'info');
   }
 
+  /**
+   * Reemplaza el estado en caliente, sin recargar la pagina.
+   *
+   * Existe por un bucle de recarga real: la sincronia con la nube hacia
+   * location.reload() cuando el estado remoto difería del local, pero al
+   * recargar el casino toca el estado enseguida (regenera las misiones del
+   * dia, el temporizador del bono), asi que volvia a diferir y recargaba de
+   * nuevo. Infinito, y la pagina quedaba inusable.
+   *
+   * Se vacia y rellena el MISMO objeto para no romper las referencias que
+   * otros modulos ya tomaron de MC.state, igual que resetProgress.
+   */
+  function aplicarEstado(raw) {
+    var entrante;
+    try {
+      entrante = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    } catch (e) {
+      return false;
+    }
+    if (!entrante || typeof entrante !== 'object') return false;
+
+    var merged = clone(defaults);
+    Object.keys(merged).forEach(function (k) {
+      if (entrante[k] !== undefined && entrante[k] !== null) merged[k] = entrante[k];
+    });
+    merged.stats = Object.assign(clone(defaults.stats), entrante.stats || {});
+
+    Object.keys(MC.state).forEach(function (k) { delete MC.state[k]; });
+    Object.assign(MC.state, merged);
+
+    // Se guarda directo, sin pasar por MC.save(): esa esta envuelta por la
+    // sincronia y volveria a subir lo que acabamos de bajar.
+    try {
+      localStorage.setItem(storageKey(), JSON.stringify(MC.state));
+    } catch (e) {}
+
+    MC.renderBalance(true);
+    MC.renderStats();
+    if (window.MCPortal && MCPortal.renderHistory) MCPortal.renderHistory();
+    if (window.MCLevels && MCLevels.render) MCLevels.render();
+    return true;
+  }
+
   MC.STARTING_CHIPS = STARTING_CHIPS;
+  MC.aplicarEstado = aplicarEstado;
   MC.state = load();
   MC.save = save;
   MC.resetProgress = resetProgress;
