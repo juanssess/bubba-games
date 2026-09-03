@@ -225,6 +225,11 @@ window.MC = window.MC || {};
   }
 
   /** Codigo del ultimo error de sincronia, si hubo. */
+  /** API del ranking, o null si no hay proveedor remoto conectado. */
+  function rankingApi() {
+    return (remoto && remoto.ranking) ? remoto.ranking : null;
+  }
+
   function errorNube() {
     return (remoto && remoto.error) ? remoto.error() : '';
   }
@@ -362,6 +367,7 @@ window.MC = window.MC || {};
     soporta: soporta,
     estadoNube: estadoNube,
     errorNube: errorNube,
+    rankingApi: rankingApi,
     attachRemote: attachRemote,
     adoptarRemoto: adoptarRemoto,
     claveEstado: claveEstado,

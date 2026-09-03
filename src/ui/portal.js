@@ -39,8 +39,15 @@ window.MCPortal = (function () {
   function renderJackpot() {
     var el = document.getElementById('jackpotTicker');
     if (!el) return;
-    var wagered = MC.state.stats.wagered || 0;
-    el.textContent = MC.fmt(JACKPOT_BASE + Math.floor(wagered * JACKPOT_SHARE));
+    // El pozo lo lleva MCBote, que además es quien lo sortea y lo paga.
+    // Antes este número se calculaba acá aparte y no lo podía ganar nadie.
+    el.textContent = MC.fmt(window.MCBote ? MCBote.pozo() : 0);
+
+    var odds = document.getElementById('jackpotOdds');
+    if (odds && window.MCBote) {
+      var enCuantas = MCBote.unoEnCuantas(1000);
+      odds.textContent = 'apostando 1.000 · 1 en ' + MC.fmt(enCuantas);
+    }
   }
 
   return { renderHistory: renderHistory, renderJackpot: renderJackpot };

@@ -254,3 +254,61 @@ body.sin-animaciones *::after{
   .aj-fila{ flex-wrap:wrap }
   .aj-select{ width:100% }
 }
+
+/* ---------------- tabla de posiciones ---------------- */
+.rk-tabla{
+  display:grid; gap:1px; background:var(--line);
+  border:1px solid var(--line); border-radius:14px;
+  overflow:hidden; margin-bottom:16px;
+}
+.rk-row{
+  display:grid; grid-template-columns:44px 2fr 1.1fr 1.1fr 1.1fr;
+  gap:12px; align-items:center;
+  padding:12px 18px; background:var(--bg-2); font-size:13.5px;
+}
+.rk-head{
+  background:var(--bg-3);
+  font-size:11px; font-weight:700; letter-spacing:.7px;
+  text-transform:uppercase; color:var(--txt-dim);
+}
+/* Tu fila, marcada: en una tabla de 25 uno se busca a sí mismo primero. */
+.rk-row.mio{ background:var(--bg-4); box-shadow:inset 3px 0 0 var(--gold) }
+.rk-pos{ font-size:17px; font-weight:700; text-align:center }
+.rk-jugador{ display:flex; align-items:center; gap:10px; min-width:0 }
+.rk-av{
+  width:30px; height:30px; flex:0 0 30px;
+  display:grid; place-items:center; overflow:hidden;
+  background:var(--bg-4); border-radius:50%; font-size:15px;
+}
+.rk-av img{ width:100%; height:100%; object-fit:cover }
+.rk-nombre{
+  display:flex; flex-direction:column; gap:1px; font-weight:600;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.rk-nombre em{ font-style:normal; font-size:11px; color:var(--gold) }
+.rk-mono{ font-variant-numeric:tabular-nums; color:var(--txt-dim) }
+.rk-fuerte{ color:var(--txt); font-weight:600 }
+
+.rk-aviso{
+  display:flex; flex-direction:column; gap:4px;
+  padding:16px 18px; margin-bottom:14px;
+  background:var(--bg-2); border:1px solid var(--line); border-radius:12px;
+}
+.rk-aviso strong{ font-size:14.5px }
+.rk-aviso span{ font-size:13px; color:var(--txt-dim); line-height:1.55 }
+.rk-nota{ margin:0 0 16px; font-size:12.5px; color:var(--txt-dim); line-height:1.55 }
+.rk-nota strong{ color:var(--txt) }
+.rk-acciones{ display:flex; flex-wrap:wrap; gap:9px }
+
+@media(max-width:760px){
+  .rk-row{ grid-template-columns:36px 1.6fr 1fr; gap:10px; padding:11px 13px }
+  .rk-head span:nth-child(4), .rk-head span:nth-child(5),
+  .rk-row > span:nth-child(4), .rk-row > span:nth-child(5){ display:none }
+}
+
+/* ---------------- bote del sidebar ---------------- */
+.sb-jackpot{ cursor:pointer; width:100%; text-align:left; font:inherit }
+.sb-jp-odds{
+  display:block; margin-top:3px;
+  font-size:10.5px; color:var(--txt-dim); letter-spacing:.2px;
+}

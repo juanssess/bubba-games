@@ -54,6 +54,16 @@ window.MC = window.MC || {};
     // El requisito del bono de bienvenida cuenta acá, igual que la XP y las
     // misiones: un solo lugar por donde pasa todo lo apostado.
     if (window.MCBienvenida) MCBienvenida.registrar(staked);
+
+    // El bote progresivo se sortea acá, con lo apostado de esta ronda.
+    // Si toca, el premio se acredita como parte del mismo cierre.
+    var bote = window.MCBote ? MCBote.ronda(staked) : 0;
+    if (bote > 0) {
+      addBalance(bote);
+      returned += bote;
+      net += bote;
+      detail = (detail ? detail + ' · ' : '') + '¡BOTE BUBBA!';
+    }
     s.net += net;
     if (net > s.best) s.best = net;
 

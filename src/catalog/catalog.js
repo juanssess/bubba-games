@@ -16,7 +16,10 @@ window.MCCatalog = (function () {
      Para volver a mostrar uno, sacalo de OCULTOS.
      Para traer de nuevo las 120 tragamonedas, poné true abajo.
      ============================================================ */
-  var OCULTOS = ['crash', 'mines', 'slots777', 'roulette', 'blackjack'];
+  // Vacio: estan todos los juegos de la casa a la vista. Para apagar uno,
+  // metelo aca por su id y desaparece del lobby, del buscador y del
+  // catalogo sin tocar una linea de su codigo.
+  var OCULTOS = [];
   var MOSTRAR_TRAGAMONEDAS_GENERADAS = false;
 
   // Si están ocultas ni siquiera se generan: no tiene sentido

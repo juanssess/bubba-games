@@ -68,6 +68,24 @@ window.MCShell = (function () {
       closeMobile();
     };
     document.getElementById('sbCajero').onclick = function () { MC.showView('cajero'); closeMobile(); };
+    document.getElementById('sbJackpot').onclick = function () {
+      var pozo = MCBote.pozo();
+      MC.modal('Bote Bubba',
+        '<p style="font-size:30px;color:var(--gold);margin:4px 0">' + MC.fmt(pozo) + ' fichas</p>' +
+        '<p>Cada ronda aporta el <strong>1% de lo apostado</strong> al pozo, y esa misma ' +
+        'ronda tiene una chance de ganárselo entero.</p>' +
+        '<p>La probabilidad es <strong>(1% de tu apuesta) ÷ pozo</strong>. Con eso el bote ' +
+        'devuelve exactamente el 1% de lo que apostás, sin importar cómo apuestes: ' +
+        'jugar fuerte no mejora tu retorno, sólo adelanta el momento.</p>' +
+        '<p>Apostando 1.000 fichas ahora mismo: <strong>1 en ' +
+        MC.fmt(MCBote.unoEnCuantas(1000)) + '</strong>. Cuanto más crece el pozo, ' +
+        'más raro se hace — como en un progresivo de verdad.</p>' +
+        '<p style="font-size:12.5px;color:var(--txt-dim)">Es tu pozo: lo alimenta lo que ' +
+        'apostás vos y se guarda con tu progreso. No es compartido entre jugadores.</p>',
+        [{ label: 'Entendido', kind: 'primary' }]);
+      closeMobile();
+    };
+    document.getElementById('sbRanking').onclick = function () { MCRanking.open(); closeMobile(); };
     document.getElementById('sbVip').onclick = function () { MCVip.open(); closeMobile(); };
     document.getElementById('sbAgente').onclick = function () { MCAgente.open(); closeMobile(); };
     document.getElementById('sbAjustes').onclick = function () { MCAjustes.open(); closeMobile(); };

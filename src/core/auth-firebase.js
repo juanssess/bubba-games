@@ -166,6 +166,20 @@ async function subirEstado(setDoc, doc, ahora) {
         state: raw,
         updatedAt: Date.now()
       }, { merge: true });
+
+      // La fila del ranking viaja con el mismo guardado: es un documento
+      // aparte porque es PUBLICO, y en players/ no puede entrar nada que
+      // otros puedan leer.
+      const fila = window.MCRanking && MCRanking.datosPropios();
+      if (fila) {
+        try {
+          await setDoc(doc(db, 'leaderboard', uidNube), fila, { merge: true });
+        } catch (e) {
+          // Que falle el ranking no puede romper el guardado del progreso.
+          console.warn('[bubba] no se pudo publicar en el ranking:', e.code || e.message);
+        }
+      }
+
       estadoNube = 'ok';
       avisoDeFalla = false;
     } catch (e) {
@@ -248,7 +262,27 @@ async function init() {
     },
     salir: () => auth.signOut(fbAuth),
     estado: () => estadoNube,
-    error: () => errorNube
+    error: () => errorNube,
+
+    /**
+     * Lectura de la tabla de posiciones.
+     *
+     * Se ordena por `apostado` en el servidor: traer todo y ordenar en el
+     * navegador funcionaría con diez jugadores y se rompería con mil.
+     */
+    ranking: {
+      leer: async (tope) => {
+        const q = store.query(
+          store.collection(db, 'leaderboard'),
+          store.orderBy('apostado', 'desc'),
+          store.limit(tope)
+        );
+        const snap = await store.getDocs(q);
+        const out = [];
+        snap.forEach((d) => out.push(Object.assign({ id: d.id }, d.data())));
+        return out;
+      }
+    }
   });
 
   auth.onAuthStateChanged(fbAuth, async (user) => {

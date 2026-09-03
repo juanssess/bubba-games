@@ -30,6 +30,8 @@
     MCCuenta.init();
     MCCajero.init();
     MCVip.init();
+    MCRanking.init();
+    MCBote.init();
     MCAgente.init();
     MCAjustes.init();
     MCAsistente.init();
