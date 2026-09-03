@@ -51,6 +51,9 @@ window.MCCajero = (function () {
     var mis = misionesPendientes();
 
     cont.innerHTML =
+      // ---- el bono de bienvenida manda mientras haya algo que reclamar ----
+      (MCBienvenida.hayAlgo() ? MCBienvenida.tarjeta() : '') +
+
       // ---- saldo, arriba y grande: es el dato que se viene a ver ----
       '<div class="cj-hero">' +
         '<div class="cj-hero-main">' +
@@ -101,6 +104,9 @@ window.MCCajero = (function () {
         filaTabla('Ganar jugando', 'Lo que salga', 'En cada ronda', 'Siempre', true) +
       '</div>' +
 
+      // ---- métodos de pago ----
+      metodosDePago() +
+
       // ---- accesos, para que la pantalla no sea un callejón sin salida ----
       '<div class="cj-actions">' +
         '<button class="btn btn-accent" id="cjMissions">Ver misiones</button>' +
@@ -118,6 +124,54 @@ window.MCCajero = (function () {
     enganchar();
   }
 
+  /**
+   * Métodos de pago.
+   *
+   * Un cajero de verdad tiene esta tabla, así que la tiene. Con una
+   * diferencia que NO es un detalle y por eso va arriba y en rojo, no en
+   * letra chica al pie: acá no existe ninguno de estos métodos.
+   *
+   * No hay formulario, no hay dónde escribir un número de tarjeta y no se
+   * puede depositar ni retirar. Está para mostrar cómo se ve la pantalla,
+   * no para que nadie crea que puede pagar.
+   *
+   * Esa es la línea: mostrar el diseño, sí; pedir un dato de pago, nunca.
+   */
+  function metodosDePago() {
+    var metodos = [
+      ['💳', 'Tarjeta de débito', 'No disponible', '—', '—'],
+      ['📱', 'Billetera virtual', 'No disponible', '—', '—'],
+      ['🏦', 'Transferencia bancaria', 'No disponible', '—', '—'],
+      ['🎟️', 'Tarjeta prepaga', 'No disponible', '—', '—'],
+      ['🪙', 'Fichas Bubba', 'Activo', 'Al instante', 'Sin comisión']
+    ];
+
+    return '<div class="cj-pagos">' +
+      '<div class="cj-pagos-head">' +
+        '<h3>Métodos de pago</h3>' +
+        '<span class="cj-demo">Demostración</span>' +
+      '</div>' +
+      '<p class="cj-pagos-sub">Así se ve el cajero de un casino de dinero real. ' +
+      'En Bubba <strong>ninguno de estos métodos existe</strong>: no hay formulario, ' +
+      'no hay dónde cargar una tarjeta y no se puede depositar ni retirar.</p>' +
+
+      '<div class="cj-table">' +
+        '<div class="cj-row cj-head">' +
+          '<span>Método</span><span>Estado</span><span>Acreditación</span><span>Comisión</span>' +
+        '</div>' +
+        metodos.map(function (m) {
+          var activo = m[2] === 'Activo';
+          return '<div class="cj-row' + (activo ? '' : ' cj-off') + '">' +
+            '<span class="cj-name">' + m[0] + ' ' + m[1] + '</span>' +
+            '<span class="cj-state' + (activo ? ' on' : '') + '">' + m[2] + '</span>' +
+            '<span class="cj-when">' + m[3] + '</span>' +
+            '<span class="cj-when">' + m[4] + '</span>' +
+            '</div>';
+        }).join('') +
+      '</div>' +
+      '</div>';
+  }
+
   function filaTabla(nombre, cuanto, cadaCuanto, estado, activo) {
     return '<div class="cj-row">' +
       '<span class="cj-name">' + nombre + '</span>' +
@@ -128,6 +182,7 @@ window.MCCajero = (function () {
   }
 
   function enganchar() {
+    MCBienvenida.enganchar(pintar);
     var claim = document.getElementById('cjClaim');
     if (claim) claim.onclick = function () {
       MC.claimBonus();

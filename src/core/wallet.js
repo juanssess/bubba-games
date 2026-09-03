@@ -51,6 +51,9 @@ window.MC = window.MC || {};
 
     s.plays += 1;
     s.wagered += staked;
+    // El requisito del bono de bienvenida cuenta acá, igual que la XP y las
+    // misiones: un solo lugar por donde pasa todo lo apostado.
+    if (window.MCBienvenida) MCBienvenida.registrar(staked);
     s.net += net;
     if (net > s.best) s.best = net;
 

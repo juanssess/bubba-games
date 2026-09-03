@@ -272,3 +272,69 @@
   .vip-name{ font-size:22px }
   .vip-tiers{ grid-template-columns:repeat(2,1fr) }
 }
+
+/* ---------------- bono de bienvenida ---------------- */
+.bv-card{
+  padding:24px 26px; margin-bottom:16px;
+  background:linear-gradient(135deg, var(--bg-3), var(--bg-2) 65%);
+  border:1px solid var(--line-2); border-radius:16px;
+}
+/* Cuando hay algo para reclamar, la tarjeta se enciende: es la accion
+   principal de la pantalla y tiene que ganarle al resto. */
+.bv-oferta{
+  border-color:var(--gold);
+  box-shadow:0 0 0 1px rgba(245,196,81,.2), 0 12px 40px rgba(245,196,81,.1);
+}
+.bv-kicker{
+  display:block; font-size:11.5px; font-weight:700; letter-spacing:.8px;
+  text-transform:uppercase; color:var(--accent); margin-bottom:6px;
+}
+.bv-monto{
+  display:block; font-size:44px; line-height:1; color:var(--gold);
+  font-variant-numeric:tabular-nums;
+}
+.bv-listo{ display:block; font-size:30px; line-height:1.2; color:var(--green) }
+.bv-unit{ display:block; font-size:13px; color:var(--txt-dim); margin-top:4px }
+.bv-desc{ margin:14px 0 0; font-size:13.5px; line-height:1.6; color:var(--txt-dim) }
+
+.bv-detalle{
+  display:grid; gap:1px; background:var(--line);
+  border-radius:10px; overflow:hidden; margin:16px 0;
+}
+.bv-row{
+  display:flex; justify-content:space-between; gap:12px;
+  padding:10px 14px; background:var(--bg-2); font-size:13.5px;
+}
+.bv-row span{ color:var(--txt-dim) }
+
+.bv-bar{
+  height:9px; margin:16px 0 8px;
+  background:var(--bg-4); border-radius:999px; overflow:hidden;
+}
+.bv-fill{
+  height:100%; border-radius:999px;
+  background:linear-gradient(90deg, var(--gold-2), var(--gold));
+  transition:width .5s ease;
+}
+.bv-prog{
+  display:flex; justify-content:space-between; align-items:baseline;
+  font-size:12.5px; color:var(--txt-dim); margin-bottom:14px;
+}
+.bv-prog strong{ color:var(--gold) }
+
+/* ---------------- métodos de pago ---------------- */
+.cj-pagos{ margin-bottom:18px }
+.cj-pagos-head{ display:flex; align-items:center; gap:10px; margin-bottom:4px }
+.cj-pagos-head h3{ margin:0; font-size:16.5px }
+/* La etiqueta va al lado del titulo, no al pie: si alguien lee una sola
+   cosa de este bloque, que sea que es una demostracion. */
+.cj-demo{
+  padding:3px 9px; border-radius:999px;
+  background:rgba(216,30,52,.16); border:1px solid rgba(216,30,52,.4);
+  color:var(--accent);
+  font-size:10.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+}
+.cj-pagos-sub{ margin:0 0 14px; font-size:13px; line-height:1.6; color:var(--txt-dim) }
+.cj-pagos-sub strong{ color:var(--txt) }
+.cj-pagos .cj-row{ grid-template-columns:1.6fr 1fr 1.2fr 1fr }
+.cj-row.cj-off{ opacity:.45 }
