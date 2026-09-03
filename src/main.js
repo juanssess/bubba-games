@@ -20,6 +20,7 @@
 
   function start() {
     // 1. Portal
+    MCArte.init();          // antes de los rieles: ellos montan el arte
     MCCarousel.build();
     buildQuickRow();
     MCRails.build();

@@ -17,7 +17,8 @@ window.MCCard = (function () {
       : '';
 
     return '<article class="gcard" data-game="' + g.id + '">' +
-             '<div class="gcard-art" style="background:' + g.art + '">' + g.emoji +
+             '<div class="gcard-art" data-arte="' + g.id + '" style="background:' + g.art + '">' +
+               '<span class="gcard-emoji">' + g.emoji + '</span>' +
                badge +
                '<span class="gcard-live">' + g.rtp + '</span>' +
                '<div class="gcard-play"><span>Jugar</span></div>' +

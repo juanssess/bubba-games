@@ -72,6 +72,22 @@
   text-shadow:0 8px 20px rgba(0,0,0,.45);
 }
 .gcard-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.55))}
+
+/* ---- arte vivo (game-art.js) ----
+   El canvas se apoya sobre el degradado y tapa al emoji. Si el canvas
+   nunca llega a montarse, la tarjeta queda exactamente como antes:
+   .tiene-arte solo se agrega cuando el dibujo ya esta andando. */
+.gcard-cv{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1}
+.gcard-emoji{position:relative;z-index:1}
+.gcard-art.tiene-arte .gcard-emoji{display:none}
+.gcard-art.tiene-arte::after{background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.5))}
+/* El brillo de hover da la sensacion de que la tarjeta responde. */
+.gcard:hover .gcard-cv{filter:saturate(1.15) brightness(1.08)}
+@media (prefers-reduced-motion:reduce){
+  /* Quien pidio menos movimiento ve el emoji quieto de siempre. */
+  .gcard-cv{display:none}
+  .gcard-art.tiene-arte .gcard-emoji{display:block}
+}
 .gcard-badge{
   position:absolute;top:9px;left:9px;z-index:2;padding:3px 8px;border-radius:99px;
   font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;

@@ -26,6 +26,10 @@ window.MCRails = (function () {
              '</section>';
     }).join('');
 
+    // El arte vivo se monta despues de que las tarjetas esten en el DOM:
+    // necesita medirlas para dimensionar cada canvas.
+    if (window.MCArte) { MCArte.limpiar(); MCArte.montar(wrap); }
+
     wrap.onclick = function (e) {
       if (e.target.closest('.rail-all')) { MCActions.run('catalog'); return; }
 

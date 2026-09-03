@@ -50,6 +50,8 @@ window.MCCatalogView = (function () {
       ? slice.map(function (g) { return MCCard.html(g.id); }).join('')
       : '<p class="empty-msg">Ningún juego coincide con esos filtros.</p>';
 
+    if (window.MCArte) { MCArte.limpiar(); MCArte.montar(grid); }
+
     document.getElementById('catCount').textContent =
       filtered.length + (filtered.length === 1 ? ' juego' : ' juegos');
     document.getElementById('catMore').style.display = shown < filtered.length ? '' : 'none';
