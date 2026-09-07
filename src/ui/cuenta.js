@@ -144,6 +144,11 @@ window.MCCuenta = (function () {
       var cod = MC.auth.errorNube();
       return fila('Progreso', 'No se pudo sincronizar' + (cod ? ' (' + cod + ')' : ''), 'var(--red)');
     }
+    // Nada roto: este perfil es de este dispositivo, y la nube es de la
+    // cuenta de Google. Decir "sólo en este navegador" a secas sonaría a falla.
+    if (e === 'otro-perfil') {
+      return fila('Progreso', 'Local · la nube es de tu cuenta de Google', 'var(--txt-dim)');
+    }
     return fila('Progreso', 'Sólo en este navegador', 'var(--txt-dim)');
   }
 

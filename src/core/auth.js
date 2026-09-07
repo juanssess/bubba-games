@@ -158,6 +158,9 @@ window.MC = window.MC || {};
   function usar(uidNuevo) {
     if (!data || uidNuevo === data.activeUid) return;
     data.activeUid = uidNuevo;
+    // Queda anotado que este perfil lo eligio una persona, no el arranque.
+    // adoptarRemoto lo respeta: ver por que, alla abajo.
+    data.elegido = uidNuevo;
     write();
     recargar('cambio de perfil', true);
   }
@@ -194,6 +197,8 @@ window.MC = window.MC || {};
   function crearAgente(nombre) {
     nombre = (nombre || '').trim().slice(0, 18) || 'Agente';
     var nuevo = crear(nombre, { rol: 'agente', avatar: '🗂️' });
+    data.elegido = nuevo.uid;
+    write();
     recargar('agente nuevo', true);
     return nuevo;
   }
@@ -221,6 +226,8 @@ window.MC = window.MC || {};
     }
     if (!invitado) invitado = crear('Invitado', { guest: true });
     data.activeUid = invitado.uid;
+    write();
+    data.elegido = null;
     write();
     recargar('cerrar sesion', true);
   }
@@ -312,6 +319,30 @@ window.MC = window.MC || {};
     if (ya) {
       ya.name = info.name || ya.name;
       ya.photo = info.photo || ya.photo;
+
+      /* Estar logueado con Google y ELEGIR usar otro perfil de este
+         dispositivo son dos cosas distintas.
+
+         Antes esto asumia que si habia sesion de Google, el perfil activo
+         tenia que ser el de Google, y lo cambiaba a la fuerza. Eso era
+         cierto cuando habia un perfil por persona; dejo de serlo el dia
+         que se pudo elegir otro a mano — que es exactamente lo que es la
+         cuenta de agente.
+
+         El sintoma era feo: entrabas al agente, la pagina recargaba, y
+         Firebase te devolvia al jugador. Parecia que la cuenta se
+         deslogueaba sola.
+
+         Si el perfil activo lo eligio una persona, se respeta. El de
+         Google se actualiza igual y sigue estando a un click en "cambiar
+         de perfil". */
+      var elegidoAMano = data.elegido && data.elegido === data.activeUid;
+      if (elegidoAMano && data.activeUid !== uidRemoto) {
+        write();
+        emitir();
+        return false;
+      }
+
       var cambia = data.activeUid !== uidRemoto;
       data.activeUid = uidRemoto;
       write();

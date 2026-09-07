@@ -191,6 +191,7 @@ window.MCAjustes = (function () {
     if (e === 'ok') return 'Guardado en la nube';
     if (e === 'pendiente') return 'Sincronizando…';
     if (e === 'error') return 'Sólo local (falló la nube)';
+    if (e === 'otro-perfil') return 'Local · la nube es de tu cuenta de Google';
     return 'Sólo en este navegador';
   }
 

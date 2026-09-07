@@ -298,6 +298,25 @@ async function init() {
     });
     if (recargo) return;
 
+    /* La nube es del perfil de Google, no del que este activo.
+
+       Antes esto ataba la sincronia a MC.auth.current() sin mirar cual
+       era, y solo funcionaba de casualidad: el perfil activo SIEMPRE era
+       el de Google. Con la cuenta de agente dejo de serlo, y ahi la cuenta
+       se volvia peligrosa en las dos direcciones — subia el estado del
+       agente encima del guardado del jugador, y bajaba el del jugador
+       encima del agente.
+
+       Asi que si estas usando otro perfil, la sincronia se sienta a
+       esperar. No sube, no baja, y no toca nada. Tu progreso en la nube
+       queda intacto hasta que vuelvas a la cuenta de Google. */
+    const uidEsperado = 'google:' + user.uid;
+    if (MC.auth.current().uid !== uidEsperado) {
+      uidPerfil = uidNube = null;
+      estadoNube = 'otro-perfil';
+      return;
+    }
+
     uidPerfil = MC.auth.current().uid;
     uidNube = user.uid;
     if (estadoNube === 'local') estadoNube = 'pendiente';
