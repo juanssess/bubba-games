@@ -227,14 +227,27 @@ window.MCAgente = (function () {
 
   /* La puerta se cierra acá y no sólo escondiendo el botón: a la vista
      se puede llegar por consola o por un enlace viejo. Esconder un botón
-     no es cerrar una puerta. */
+     no es cerrar una puerta.
+
+     Y antes de negar nada se reacomoda la interfaz. Si alguien llegó hasta
+     acá es porque vio un botón que no debería estar: la pantalla quedó
+     mostrando un perfil y adentro hay otro. Negar sin corregir dejaría al
+     jugador discutiendo con una barra lateral que le miente. */
   function negar() {
-    MC.modal('Esto es del agente',
-      '<p>Estás con una cuenta de <strong>jugador</strong>, y el panel de ' +
-      'agente es de las cuentas de agente.</p>' +
-      '<p>Podés crear una desde <strong>tu cuenta</strong>, y cambiar de una ' +
-      'a otra cuando quieras.</p>',
-      [{ label: 'Entendido', kind: 'primary' }]);
+    MCRoles.aplicar();
+    var u = MC.auth.current();
+    MC.modal('El panel es de las cuentas de agente',
+      '<p>Estás jugando como <strong>' + (u ? u.name : 'jugador') + '</strong>, ' +
+      'que es una cuenta de jugador.</p>' +
+      '<p>Para entrar al panel, abrí <strong>tu cuenta</strong> y cambiá a la ' +
+      'cuenta de agente. Si todavía no tenés una, ahí mismo la creás.</p>',
+      [
+        { label: 'Cerrar' },
+        { label: 'Ir a mi cuenta', kind: 'primary', onClick: function () {
+            var box = document.getElementById('userBox');
+            if (box) box.click();
+          } }
+      ]);
     MC.showView('lobby');
   }
 

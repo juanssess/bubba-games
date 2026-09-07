@@ -77,6 +77,10 @@ window.MC = window.MC || {};
     data.users.push(u);
     data.activeUid = u.uid;
     write();
+    // Crear un perfil TAMBIEN lo activa. Sin avisar, todo lo que depende
+    // del perfil (el rol, y por lo tanto media interfaz) queda desfasado
+    // si la recarga no llega a ocurrir.
+    emitir();
     return u;
   }
 
@@ -107,12 +111,33 @@ window.MC = window.MC || {};
    * Cambiar de perfil necesita recargar: el estado, la billetera y los
    * juegos ya tomaron referencias del perfil viejo. Pero una recarga
    * automatica que se dispara sola es peligrosa — un bucle deja la pagina
-   * inusable y al jugador sin forma de entrar a arreglarlo. Este contador
-   * corta despues de tres en un minuto.
+   * inusable y al jugador sin forma de entrar a arreglarlo.
+   *
+   * ---------------------------------------------------------------
+   * POR QUE EL FRENO NO SE APLICA A LOS CLICKS
+   * ---------------------------------------------------------------
+   * El freno se hizo para cortar el bucle de sincronizacion: recargas
+   * que se disparan solas y se vuelven a disparar al arrancar. Aplicarselo
+   * tambien a una persona que aprieta "cambiar de perfil" fue un error, y
+   * uno feo: a la cuarta vez la recarga se cortaba, el perfil activo
+   * cambiaba igual en memoria, y la pantalla se quedaba mostrando la del
+   * perfil ANTERIOR. La interfaz terminaba mintiendo — barra lateral de
+   * agente con una cuenta de jugador adentro.
+   *
+   * Una persona apretando un boton tres veces no es un bucle. Las
+   * recargas deliberadas pasan siempre, y ademas limpian el contador:
+   * si hay alguien manejando, no hay bucle que cortar.
    */
-  function recargar(motivo) {
+  function recargar(motivo, deliberada) {
     var CLAVE = 'bubba_recargas';
     var ahora = Date.now();
+
+    if (deliberada) {
+      try { sessionStorage.removeItem(CLAVE); } catch (e) {}
+      location.reload();
+      return true;
+    }
+
     var reg = { n: 0, desde: ahora };
     try { reg = JSON.parse(sessionStorage.getItem(CLAVE)) || reg; } catch (e) {}
     if (ahora - reg.desde > 60000) reg = { n: 0, desde: ahora };
@@ -121,6 +146,9 @@ window.MC = window.MC || {};
 
     if (reg.n > 3) {
       console.warn('[bubba] demasiadas recargas seguidas (' + motivo + '), se corta');
+      // Aunque no se recargue, el perfil activo YA cambio. Avisar es lo
+      // que evita que la pantalla siga mostrando al perfil viejo.
+      emitir();
       return false;
     }
     location.reload();
@@ -131,7 +159,7 @@ window.MC = window.MC || {};
     if (!data || uidNuevo === data.activeUid) return;
     data.activeUid = uidNuevo;
     write();
-    recargar('cambio de perfil');
+    recargar('cambio de perfil', true);
   }
 
   function registrar(nombre, avatar) {
@@ -152,7 +180,7 @@ window.MC = window.MC || {};
     }
 
     var nuevo = crear(nombre, { avatar: avatar });
-    recargar('perfil nuevo');
+    recargar('perfil nuevo', true);
     return nuevo;
   }
 
@@ -166,7 +194,7 @@ window.MC = window.MC || {};
   function crearAgente(nombre) {
     nombre = (nombre || '').trim().slice(0, 18) || 'Agente';
     var nuevo = crear(nombre, { rol: 'agente', avatar: '🗂️' });
-    recargar('agente nuevo');
+    recargar('agente nuevo', true);
     return nuevo;
   }
 
@@ -194,7 +222,7 @@ window.MC = window.MC || {};
     if (!invitado) invitado = crear('Invitado', { guest: true });
     data.activeUid = invitado.uid;
     write();
-    recargar('cerrar sesion');
+    recargar('cerrar sesion', true);
   }
 
   /* ---------------- PROVEEDOR REMOTO (pendiente) ----------------
