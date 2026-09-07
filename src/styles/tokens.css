@@ -59,6 +59,19 @@ body{
   font-family:var(--font);color:var(--txt);background:var(--bg);
   min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;
 }
+
+/* ATMOSFERA
+   Un negro plano de punta a punta se lee como una pagina sin terminar.
+   Dos luces muy tenues —oro arriba a la derecha, carmesi abajo a la
+   izquierda— le dan cuerpo al fondo sin competir con nada. Va fija y
+   detras de todo: acompaña sin moverse con el scroll, como la luz de
+   un salon. */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(75% 55% at 82% -8%, rgba(245,196,81,.07), transparent 62%),
+    radial-gradient(65% 50% at 6% 104%, rgba(216,30,52,.09), transparent 60%);
+}
 input,select,button{font-family:inherit}
 
 /* CIFRAS ALINEADAS

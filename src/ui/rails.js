@@ -16,6 +16,9 @@ window.MCRails = (function () {
                '<div class="rail-head">' +
                  '<h2>' + r.title + '</h2>' +
                  '<span class="rail-sub">' + r.sub + '</span>' +
+                 // El canto de la ficha: separa el titulo de los controles
+                 // y le da al riel un remate que no es una linea generica.
+                 '<div class="chip-rule"></div>' +
                  '<div class="rail-arrows">' +
                    (r.more ? '<button class="btn btn-ghost rail-all">Ver todos</button>' : '') +
                    '<button class="rail-arrow" data-dir="-1">‹</button>' +

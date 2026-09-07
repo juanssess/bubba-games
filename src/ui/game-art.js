@@ -193,7 +193,8 @@ window.MCArte = (function () {
       }
 
       if (bomba) texto(c, '¡BOOM!', w / 2, h - 13, 14 + 2 * Math.sin(f * 11), '#ff8fa0');
-      else texto(c, (abiertas || 0) + ' gemas', w / 2, h - 13, 13, 'rgba(255,255,255,.8)');
+      else texto(c, (abiertas || 0) + (abiertas === 1 ? ' gema' : ' gemas'),
+                 w / 2, h - 13, 13, 'rgba(255,255,255,.8)');
     };
   };
 
@@ -302,7 +303,7 @@ window.MCArte = (function () {
 
       var col = 5, fil = 4;
       var cw = w * 0.15, chh = h * 0.19;
-      var x0 = (w - cw * col) / 2, y0 = h * 0.16;
+      var x0 = (w - cw * col) / 2, y0 = h * 0.20;
 
       c.fillStyle = 'rgba(0,0,0,.30)';
       c.fillRect(x0, y0, cw * col, chh * fil);
@@ -339,8 +340,9 @@ window.MCArte = (function () {
 
       // Los wilds ya pegados laten juntos: el tramo final del ciclo
       // dejaba de moverse una vez colocado el ultimo.
+      // Abajo, no arriba: arriba viven las dos insignias de la tarjeta.
       texto(c, total ? '×' + total + ' pegado' : 'Se Busca',
-            w / 2, h * 0.075, 13 + (pegados >= MAX ? Math.sin(f * 6) : 0), '#ffe0b8');
+            w / 2, h - 12, 13 + (pegados >= MAX ? Math.sin(f * 6) : 0), '#ffe0b8');
     };
   };
 

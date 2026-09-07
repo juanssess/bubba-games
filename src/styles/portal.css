@@ -44,21 +44,42 @@
 .dot.active{background:#fff;width:38px}
 
 /* ---------------- accesos rápidos ---------------- */
-.quick-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px;margin-bottom:26px}
-.quick{
-  display:flex;align-items:center;gap:11px;padding:14px;cursor:pointer;
-  border-radius:var(--r-md);background:var(--bg-2);border:1px solid var(--line);transition:.18s;
+/* Una tira, no una grilla. Nueve cajas de dos lineas ocupaban dos filas
+   enteras y empujaban los juegos abajo del pliegue: lo primero que se
+   veia al entrar a un casino era un menu gris. La subtitulo se va —el
+   titulo ya dice a donde lleva— y todo entra en una fila que corre. */
+.quick-row{
+  display:flex;gap:9px;margin-bottom:26px;
+  overflow-x:auto;padding-bottom:5px;scrollbar-width:none;
 }
-.quick:hover{transform:translateY(-3px);border-color:var(--line-2);background:var(--bg-3)}
-.quick-ico{font-size:22px}
-.quick-txt strong{display:block;font-size:13.5px}
-.quick-txt span{font-size:11px;color:var(--txt-dim)}
+.quick-row::-webkit-scrollbar{display:none}
+.quick{
+  display:flex;align-items:center;gap:8px;padding:9px 15px 9px 11px;cursor:pointer;
+  border-radius:99px;background:var(--bg-2);border:1px solid var(--line);
+  transition:.18s;white-space:nowrap;flex:none;
+}
+.quick:hover{border-color:var(--line-2);background:var(--bg-3);transform:translateY(-2px)}
+.quick-ico{font-size:16px;line-height:1}
+.quick-txt strong{display:block;font-size:12.5px;font-weight:700}
+.quick-txt span{display:none}
 
 /* ---------------- rieles ---------------- */
-.rail{margin-bottom:30px}
-.rail-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.rail-head h2{font-size:18px;letter-spacing:.3px}
-.rail-sub{font-size:12px;color:var(--txt-dim)}
+.rail{margin-bottom:34px}
+.rail-head{display:flex;align-items:center;gap:14px;margin-bottom:15px}
+.rail-head h2{
+  font-family:var(--font-display);font-size:20px;letter-spacing:1.2px;
+  text-transform:uppercase;white-space:nowrap;
+}
+.rail-sub{font-size:11.5px;color:var(--txt-dim);white-space:nowrap}
+
+/* El canto de la ficha del logo, convertido en regla. Es el unico
+   adorno del salon, y sale de la marca: no podria estar en ningun
+   otro casino. */
+.chip-rule{
+  flex:1;height:2px;min-width:20px;
+  background:repeating-linear-gradient(90deg,
+    var(--line-2) 0 20px, transparent 20px 38px);
+}
 .rail-arrows{margin-left:auto;display:flex;gap:7px}
 .rail-arrow{
   width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:14px;
@@ -70,7 +91,7 @@
 /* Ancho fijo por tarjeta: así un riel con un solo juego no se estira
    a lo ancho de la pantalla y todos los rieles se ven parejos. */
 .rail-track{
-  display:grid;grid-auto-flow:column;grid-auto-columns:clamp(152px,15vw,196px);gap:14px;
+  display:grid;grid-auto-flow:column;grid-auto-columns:clamp(168px,16.5vw,224px);gap:14px;
   justify-content:start;
   overflow-x:auto;scroll-behavior:smooth;padding-bottom:6px;scroll-snap-type:x mandatory;
 }
@@ -86,8 +107,12 @@
   transform:translateY(-6px);border-color:var(--line-2);
   box-shadow:0 18px 40px rgba(0,0,0,.55), 0 0 0 1px rgba(245,196,81,.14);
 }
+/* Cuadrada, no apaisada. Una tarjeta 4:3 se lee como una miniatura de
+   video; las fichas de un casino son cuadradas. Es el cambio que mas
+   mueve la percepcion de todo el salon, y el arte de MCArte se adapta
+   solo porque dibuja contra el ancho y el alto que recibe. */
 .gcard-art{
-  position:relative;aspect-ratio:4/3;display:grid;place-items:center;font-size:52px;
+  position:relative;aspect-ratio:1/1;display:grid;place-items:center;font-size:58px;
   text-shadow:0 8px 20px rgba(0,0,0,.45);
 }
 .gcard-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.55))}
@@ -117,8 +142,13 @@
 /* El RTP pasa al frente. Es el dato que ningun casino de verdad muestra
    tan a la vista, y aca esta verificado por simulacion: es el mejor
    argumento de la casa, no una nota al pie. */
+/* Arriba a la derecha, no abajo. En 4:3 sobraba ancho y el RTP convivia
+   con el texto que dibuja MCArte; en cuadrado se pisaban en cuatro juegos
+   (Se Busca, Liga Bubba, Doble o Nada y Blackjack). Arriba nunca estorba:
+   las escenas escriben abajo, y la insignia de categoria ya ocupa la
+   esquina opuesta. */
 .gcard-live{
-  position:absolute;bottom:8px;right:9px;z-index:2;
+  position:absolute;top:9px;right:9px;z-index:2;
   font-size:9.5px;font-weight:700;color:var(--txt);
   background:rgba(8,5,5,.72);padding:3px 8px;border-radius:6px;
   border:1px solid var(--line);font-variant-numeric:tabular-nums;
@@ -151,7 +181,7 @@
 }
 .filter-input:focus{border-color:var(--accent)}
 #catSearch{flex:1;min-width:200px}
-.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:14px}
 .cat-more{display:flex;justify-content:center;margin-top:24px}
 
 /* ---------------- últimas jugadas ---------------- */

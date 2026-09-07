@@ -59,6 +59,13 @@ window.MCCatalogView = (function () {
 
   /* ---------------- cableado ---------------- */
   function init() {
+    /* Que el catalogo se dibuje al ENTRAR a la vista, y no solo cuando se
+       lo abre por su boton. Sin esto, llegar por cualquier otra via
+       —un MC.showView('catalog') desde otro modulo, o el rebote por rol—
+       mostraba la pantalla vacia con los filtros puestos: parecia que no
+       habia ningun juego. */
+    MC.onEnter('catalog', function () { if (!filtered.length) apply(); else render(); });
+
     document.getElementById('catStudio').innerHTML =
       '<option value="">Todos los estudios</option>' +
       MCCatalog.studios.map(function (s) {
