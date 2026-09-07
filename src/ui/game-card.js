@@ -25,7 +25,11 @@ window.MCCard = (function () {
              '</div>' +
              '<div class="gcard-body">' +
                '<strong>' + g.name + '</strong>' +
-               '<span>' + g.studio + ' · ' + g.desc + '</span>' +
+               // Solo la descripcion: con el estudio adelante la linea no
+               // entraba y se cortaba con puntos suspensivos. El estudio
+               // esta en el catalogo y en la ficha del juego, que es donde
+               // alguien lo va a buscar.
+               '<span>' + g.desc + '</span>' +
              '</div>' +
            '</article>';
   }

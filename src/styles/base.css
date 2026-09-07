@@ -26,7 +26,8 @@
 
 /* El botón grande de acción de cada juego (girar, repartir, apostar). */
 .btn-spin{
-  font-family:var(--font-display);letter-spacing:3px;font-size:19px;padding:13px 40px;border-radius:99px;
+  font-family:var(--font);font-weight:800;letter-spacing:.2px;font-size:15px;
+  padding:13px 32px;border-radius:11px;
   background:linear-gradient(135deg,var(--brand-red),var(--brand-red-dark));color:#fff;
   box-shadow:0 10px 28px rgba(216,30,52,.45);
 }
