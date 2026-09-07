@@ -55,8 +55,8 @@
 
 .sb-item{
   position:relative;display:flex;align-items:center;gap:11px;width:100%;
-  padding:11px 12px;margin-bottom:3px;border:none;border-radius:var(--r-sm);
-  background:transparent;color:var(--txt-dim);font-size:14px;font-weight:600;
+  padding:9px 12px;margin-bottom:1px;border:none;border-radius:9px;
+  background:transparent;color:var(--txt-dim);font-size:13.5px;font-weight:600;
   cursor:pointer;text-align:left;transition:.16s;
 }
 .sb-item:hover{background:var(--bg-3);color:var(--txt)}
@@ -68,7 +68,18 @@
   content:"";position:absolute;left:-12px;top:7px;bottom:7px;width:3px;
   border-radius:0 3px 3px 0;background:var(--accent);
 }
-.sb-ico{font-size:17px;width:22px;text-align:center}
+/* ICONOS
+   Antes eran emojis. Multicolor sobre negro se leen como marcadores de
+   posicion, y ademas cada sistema los dibuja distinto: el mismo menu se
+   veia de otra forma en Windows, en Mac y en el telefono. Estos son de
+   trazo y heredan currentColor, asi que se apagan y se encienden junto
+   con el texto del item y el menu se lee como una sola pieza. */
+.sb-ico{
+  width:19px;height:19px;flex:none;stroke-width:1.7;
+  opacity:.68;transition:opacity .16s;
+}
+.sb-item:hover .sb-ico{opacity:1}
+.sb-item.active .sb-ico{opacity:1;color:var(--accent)}
 .sb-badge{
   margin-left:auto;min-width:9px;height:9px;border-radius:99px;background:var(--red);
   font-size:0;box-shadow:0 0 0 3px rgba(255,90,95,.22);

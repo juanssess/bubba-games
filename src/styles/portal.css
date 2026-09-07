@@ -7,22 +7,22 @@
 .carousel{position:relative;border-radius:var(--r-lg);overflow:hidden;margin-bottom:20px}
 .carousel-track{display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1)}
 .promo{
-  position:relative;flex:0 0 100%;min-height:230px;padding:clamp(22px,3.4vw,40px);
+  position:relative;flex:0 0 100%;min-height:clamp(250px,34vw,330px);
+  padding:clamp(26px,4vw,52px);
   display:flex;flex-direction:column;justify-content:center;overflow:hidden;
 }
 /* Profundidad en vez de un rectangulo plano: dos focos de luz —oro
    arriba a la derecha, carmesi abajo a la izquierda— que dan la sensacion
    de una mesa iluminada. El velo blanco de antes lavaba el color de marca
    en vez de darle cuerpo. */
-.promo::before{
+/* La luz de la mesa: oro desde arriba a la derecha, sombra abajo a la
+   izquierda. Le da cuerpo al color de marca en vez de lavarlo con blanco,
+   que era lo que hacia el velo anterior. */
+.promo::after{
   content:"";position:absolute;inset:0;pointer-events:none;
   background:
-    radial-gradient(120% 150% at 88% 14%, rgba(245,196,81,.30), transparent 58%),
-    radial-gradient(95% 125% at 6% 92%, rgba(0,0,0,.45), transparent 62%);
-}
-.promo::after{
-  content:"";position:absolute;right:-60px;top:-70px;width:340px;height:340px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,255,255,.14),transparent 62%);
+    radial-gradient(120% 150% at 88% 10%, rgba(245,196,81,.28), transparent 56%),
+    radial-gradient(100% 130% at 4% 96%, rgba(0,0,0,.5), transparent 60%);
 }
 .promo > *{position:relative;z-index:1}
 .promo-kicker{
@@ -32,15 +32,42 @@
   color:var(--gold);margin-bottom:14px;
 }
 .promo h3{
-  font-family:var(--font-display);font-size:clamp(28px,4.6vw,50px);
-  letter-spacing:.5px;line-height:.96;text-transform:uppercase;text-wrap:balance;
+  font-family:var(--font-display);font-size:clamp(32px,5.6vw,64px);
+  letter-spacing:.5px;line-height:.92;text-transform:uppercase;text-wrap:balance;
+  max-width:15ch;text-shadow:0 4px 24px rgba(0,0,0,.35);
 }
-.promo p{max-width:44ch;margin-top:10px;font-size:14.5px;opacity:.92;position:relative}
-.promo .btn{align-self:flex-start;margin-top:20px;position:relative}
-.promo-emoji{position:absolute;right:5%;top:50%;transform:translateY(-50%);font-size:clamp(70px,12vw,140px);opacity:.9}
+.promo p{max-width:42ch;margin-top:12px;font-size:14.5px;opacity:.9;position:relative}
+.promo .btn{align-self:flex-start;margin-top:24px;position:relative}
+/* LA FICHA
+   El emoji gigante era lo mas plano del hero: un sticker pegado al fondo.
+   Ahora hay una ficha detras —el logo, agrandado— girando muy lento. Da
+   la sensacion de mesa en movimiento sin pedir atencion, y el emoji queda
+   arriba, mas chico, como la figura y no como el fondo. */
+.promo::before{
+  content:"";position:absolute;right:-6%;top:50%;
+  width:clamp(240px,32vw,420px);height:clamp(240px,32vw,420px);
+  transform:translateY(-50%);pointer-events:none;opacity:.5;
+  background:
+    radial-gradient(circle, transparent 0 38%,
+      rgba(255,255,255,.14) 38% 40%, transparent 40% 62%,
+      rgba(255,255,255,.10) 62% 64%, transparent 64%),
+    repeating-conic-gradient(from 0deg,
+      rgba(255,255,255,.16) 0 5deg, transparent 5deg 45deg);
+  -webkit-mask:radial-gradient(circle,#000 0 70%,transparent 70%);
+  mask:radial-gradient(circle,#000 0 70%,transparent 70%);
+  animation:fichaGira 90s linear infinite;
+}
+@keyframes fichaGira{to{transform:translateY(-50%) rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.promo::before{animation:none}}
+
+.promo-emoji{
+  position:absolute;right:7%;top:50%;transform:translateY(-50%);
+  font-size:clamp(56px,8.5vw,104px);
+  filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));
+}
 
 .carousel-dots{position:absolute;bottom:14px;left:clamp(22px,3.4vw,40px);display:flex;gap:7px;z-index:2}
-.dot{width:26px;height:4px;border-radius:99px;background:rgba(255,255,255,.35);cursor:pointer;transition:.2s;border:none}
+.dot{width:22px;height:3px;border-radius:99px;background:rgba(255,255,255,.28);cursor:pointer;transition:.2s;border:none}
 .dot.active{background:#fff;width:38px}
 
 /* ---------------- accesos rápidos ---------------- */

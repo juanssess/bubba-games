@@ -289,7 +289,9 @@ window.MCArte = (function () {
           c.stroke();
         }
         c.globalAlpha = 1;
-        texto(c, 'LA CIMA', w / 2, h * 0.14, 14, '#ffe9a8');
+        // Abajo: arriba estan las dos insignias de la tarjeta. En 4:3 este
+        // texto tenia lugar de sobra; en cuadrado se metia debajo de ellas.
+        texto(c, 'LA CIMA', w / 2, h - 12, 14, '#ffe9a8');
       }
     };
   };
