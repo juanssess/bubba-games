@@ -48,6 +48,10 @@
   font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:var(--txt-dim);
   padding:14px 10px 8px;
 }
+/* El atributo hidden lo pisa cualquier display:flex de mas abajo. Sin esta
+   regla, ocultar una seccion por rol (roles.js) no ocultaria nada. */
+[hidden]{display:none!important}
+
 .sb-item{
   position:relative;display:flex;align-items:center;gap:11px;width:100%;
   padding:11px 12px;margin-bottom:3px;border:none;border-radius:var(--r-sm);

@@ -164,32 +164,39 @@ window.MCCuenta = (function () {
         '</span>' +
         '<div class="acc-id">' +
           '<strong>' + u.name + '</strong>' +
-          '<span>' + t.ico + ' ' + t.name +
+          '<span>' +
+            (MCRoles.esAgente(u)
+              ? '🗂️ Agente'
+              : t.ico + ' ' + t.name) +
             (u.guest ? ' · sin registrar' : '') +
             (u.provider === 'google' ? ' · Google' : '') + '</span>' +
         '</div>' +
       '</div>' +
       '<div class="acc-grid">' +
-        fila('Saldo', MC.fmt(MC.getBalance()) + ' fichas', 'var(--gold)') +
-        fila('Rondas jugadas', MC.fmt(s.plays)) +
-        fila('Total apostado', MC.fmt(s.wagered)) +
-        fila('Mejor golpe', '+' + MC.fmt(s.best), 'var(--green)') +
-        fila('Balance neto', (s.net >= 0 ? '+' : '') + MC.fmt(s.net), netColor) +
-        filaNube() +
+        (MCRoles.esAgente(u)
+          // Un agente no apuesta: mostrarle "mejor golpe" o "balance neto"
+          // seria ensenarle cinco ceros permanentes.
+          ? fila('Rol', 'Agente · administra jugadores', 'var(--gold)') +
+            fila('Jugadores a cargo', MC.fmt(jugadores().length)) +
+            filaNube()
+          : fila('Saldo', MC.fmt(MC.getBalance()) + ' fichas', 'var(--gold)') +
+            fila('Rondas jugadas', MC.fmt(s.plays)) +
+            fila('Total apostado', MC.fmt(s.wagered)) +
+            fila('Mejor golpe', '+' + MC.fmt(s.best), 'var(--green)') +
+            fila('Balance neto', (s.net >= 0 ? '+' : '') + MC.fmt(s.net), netColor) +
+            filaNube()) +
       '</div>' +
-      (otros.length
-        ? '<label class="auth-label">Cambiar de perfil</label>' +
-          '<div class="acc-users">' +
-            otros.map(function (x) {
-              return '<button class="acc-user" data-uid="' + x.uid + '">' +
-                '<span>' + x.avatar + '</span>' + x.name + '</button>';
-            }).join('') +
-          '</div>'
-        : '') +
+      grupo('Jugadores', otros.filter(function (x) { return !MCRoles.esAgente(x); })) +
+      grupo('Agentes', otros.filter(MCRoles.esAgente)) +
       '<p class="auth-legal">Las fichas son virtuales y se guardan sólo en este navegador. ' +
       'No hay dinero real involucrado.</p>';
 
     var acciones = [{ label: 'Cerrar', kind: 'primary' }];
+    // Si todavia no hay ningun agente se ofrece crear el primero; con uno
+    // ya hecho, el camino es cambiar de perfil y no acumular agentes.
+    if (!MC.auth.all().some(MCRoles.esAgente)) {
+      acciones.unshift({ label: 'Crear agente', onClick: crearAgente });
+    }
     if (u.guest) {
       acciones.unshift({ label: 'Crear cuenta', onClick: abrirRegistro });
     } else {
@@ -203,6 +210,49 @@ window.MCCuenta = (function () {
     document.querySelectorAll('.acc-user').forEach(function (b) {
       b.onclick = function () { MC.auth.usar(b.dataset.uid); };
     });
+  }
+
+  /** Los perfiles de jugador, que son los que un agente administra. */
+  function jugadores() {
+    return MC.auth.all().filter(function (x) { return !MCRoles.esAgente(x); });
+  }
+
+  function grupo(titulo, lista) {
+    if (!lista.length) return '';
+    return '<label class="auth-label">' + titulo + '</label>' +
+      '<div class="acc-users">' +
+        lista.map(function (x) {
+          return '<button class="acc-user" data-uid="' + x.uid + '">' +
+            '<span>' + (MCRoles.esAgente(x) ? '🗂️' : x.avatar) + '</span>' +
+            x.name + '</button>';
+        }).join('') +
+      '</div>';
+  }
+
+  /**
+   * Crea la cuenta de agente. Se avisa lo que implica ANTES de crearla:
+   * es una cuenta que no juega, y eso sorprende si no se dice.
+   */
+  function crearAgente() {
+    MC.modal('Crear cuenta de agente',
+      '<p>Una cuenta de agente <strong>administra jugadores</strong>: les carga ' +
+      'y descuenta fichas y ve cuánto mueven.</p>' +
+      '<p><strong>No apuesta.</strong> Tampoco tiene bono, misiones, Club VIP, ' +
+      'bote ni entra a la tabla de posiciones. Para jugar seguís usando tu ' +
+      'cuenta de jugador: se cambia de una a otra desde acá mismo.</p>' +
+      '<label class="auth-label">Nombre del agente</label>' +
+      '<input type="text" id="agName" class="filter-input auth-input" maxlength="18" ' +
+      'placeholder="Agente" autocomplete="off">' +
+      '<p class="auth-legal">El rol se guarda en este navegador, como todo lo demás. ' +
+      'Separa dos usos; no es una barrera de seguridad, porque sin servidor propio ' +
+      'no puede serlo.</p>',
+      [
+        { label: 'Cancelar' },
+        { label: 'Crear', kind: 'primary', onClick: function () {
+            var el = document.getElementById('agName');
+            MC.auth.crearAgente(el && el.value);
+          } }
+      ]);
   }
 
   /* ---------------- topbar ---------------- */

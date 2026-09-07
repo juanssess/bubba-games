@@ -67,6 +67,9 @@ window.MC = window.MC || {};
       name: nombre,
       avatar: opts.avatar || AVATARS[Math.floor(Math.random() * AVATARS.length)],
       provider: opts.provider || 'local',   // 'local' | 'google' | 'apple'
+      // 'jugador' apuesta; 'agente' administra y no apuesta. Ver roles.js
+      // para por que la separacion es de uso y no de seguridad.
+      rol: opts.rol === 'agente' ? 'agente' : 'jugador',
       photo: opts.photo || null,            // foto de la cuenta, si el proveedor la da
       guest: !!opts.guest,
       createdAt: Date.now()
@@ -150,6 +153,20 @@ window.MC = window.MC || {};
 
     var nuevo = crear(nombre, { avatar: avatar });
     recargar('perfil nuevo');
+    return nuevo;
+  }
+
+  /**
+   * Crea la cuenta de agente y se pasa a ella.
+   *
+   * No reutiliza registrar(): ese asciende al invitado que está jugando,
+   * y convertir en agente al perfil que tiene las fichas es justo lo que
+   * hay que evitar. El agente siempre nace como perfil aparte.
+   */
+  function crearAgente(nombre) {
+    nombre = (nombre || '').trim().slice(0, 18) || 'Agente';
+    var nuevo = crear(nombre, { rol: 'agente', avatar: '🗂️' });
+    recargar('agente nuevo');
     return nuevo;
   }
 
@@ -359,6 +376,7 @@ window.MC = window.MC || {};
     onChange: onChange,
     emitir: emitir,
     registrar: registrar,
+    crearAgente: crearAgente,
     renombrar: renombrar,
     usar: usar,
     salir: salir,

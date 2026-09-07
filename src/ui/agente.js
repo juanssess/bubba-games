@@ -40,7 +40,11 @@ window.MCAgente = (function () {
   }
 
   function tabla() {
-    return MC.auth.all().map(filaDe).sort(function (a, b) {
+    // Sólo jugadores: un agente administra apostadores, no a otros
+    // agentes. Y como el agente no apuesta, su fila estaría toda en cero.
+    return MC.auth.all().filter(function (u) {
+      return !MCRoles.esAgente(u);
+    }).map(filaDe).sort(function (a, b) {
       // El que está jugando primero; después por volumen apostado, que es
       // lo que a un agente le importa mirar.
       if (a.activo !== b.activo) return a.activo ? -1 : 1;
@@ -216,12 +220,29 @@ window.MCAgente = (function () {
   }
 
   function open() {
+    if (!MCRoles.activoEsAgente()) return negar();
     MC.showView('agente');
     render();
   }
 
+  /* La puerta se cierra acá y no sólo escondiendo el botón: a la vista
+     se puede llegar por consola o por un enlace viejo. Esconder un botón
+     no es cerrar una puerta. */
+  function negar() {
+    MC.modal('Esto es del agente',
+      '<p>Estás con una cuenta de <strong>jugador</strong>, y el panel de ' +
+      'agente es de las cuentas de agente.</p>' +
+      '<p>Podés crear una desde <strong>tu cuenta</strong>, y cambiar de una ' +
+      'a otra cuando quieras.</p>',
+      [{ label: 'Entendido', kind: 'primary' }]);
+    MC.showView('lobby');
+  }
+
   function init() {
-    MC.onEnter('agente', render);
+    MC.onEnter('agente', function () {
+      if (!MCRoles.activoEsAgente()) return negar();
+      render();
+    });
   }
 
   return { init: init, open: open, render: render };

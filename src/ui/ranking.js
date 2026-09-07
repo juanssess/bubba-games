@@ -39,6 +39,9 @@ window.MCRanking = (function () {
   function datosPropios() {
     var u = MC.auth.current();
     if (!u || u.provider !== 'google') return null;
+    // El agente crea las fichas: dejarlo competir volveria la tabla un
+    // adorno, porque su "apostado" no costaria nada.
+    if (MCRoles.esAgente(u)) return null;
     var s = MC.state.stats || {};
     return {
       nombre: (u.name || 'Jugador').slice(0, 24),

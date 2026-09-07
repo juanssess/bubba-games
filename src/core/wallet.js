@@ -20,6 +20,13 @@ window.MC = window.MC || {};
   function canBet(amount) {
     if (!(amount > 0) || MC.state.balance < amount) return false;
 
+    // Una cuenta de agente no apuesta: es quien crea las fichas, y si
+    // además pudiera jugarlas el bote y el ranking dejarian de medir algo.
+    if (window.MCRoles) {
+      var porRol = MCRoles.bloqueaApuesta();
+      if (porRol) { MC.toast(porRol, 'lose'); return false; }
+    }
+
     // El límite de juego responsable se consulta acá, en el único lugar por
     // el que pasan TODAS las apuestas. Si viviera en cada juego, el primero
     // que se agregue mañana se olvidaría de respetarlo.
