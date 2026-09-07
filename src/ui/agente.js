@@ -81,6 +81,20 @@ window.MCAgente = (function () {
     users.forEach(function (x) { if (x.uid === uid) u = x; });
     if (!u) return;
 
+    /* La caja manda. Cargar SALE de la caja del agente y descontar
+       vuelve a ella. Antes esto creaba fichas de la nada: alcanzaba para
+       ver la mecanica, pero sin limite no hay decision que tomar. */
+    if (!MCCajaAgente.alcanza(delta)) {
+      MC.modal('No te alcanza la caja',
+        '<p>Quisiste cargar <strong>' + MC.fmt(delta) + '</strong> fichas y en tu caja ' +
+        'hay <strong>' + MC.fmt(MCCajaAgente.saldo()) + '</strong>.</p>' +
+        '<p>Podes descontarle fichas a un jugador —vuelven a tu caja— o cobrar la ' +
+        'comision que tengas disponible.</p>',
+        [{ label: 'Entendido', kind: 'primary' }]);
+      return;
+    }
+    if (!MCCajaAgente.mover(delta)) return;
+
     if (uid === MC.auth.current().uid) {
       var nuevo = Math.max(0, MC.getBalance() + delta);
       MC.addBalance(nuevo - MC.getBalance());
@@ -250,6 +264,7 @@ window.MCAgente = (function () {
       barra() +
       (pestana === 'stats' ? vistaStats(m)
         : pestana === 'jugadores' ? vistaJugadores(m)
+        : pestana === 'pedidos' ? vistaPedidos()
         : vistaMovimientos()) +
       nota();
 
@@ -262,6 +277,8 @@ window.MCAgente = (function () {
         tab('stats', 'Mis estadisticas') +
         tab('jugadores', 'Mis jugadores') +
         tab('movimientos', 'Movimientos') +
+        tab('pedidos', 'Pedidos' + (MCPeticiones.pendientes().length
+              ? '<i class="ag-pin">' + MCPeticiones.pendientes().length + '</i>' : '')) +
       '</div>' +
       '<div class="ag-periodos">' +
         PERIODOS.map(function (p) {
@@ -290,6 +307,7 @@ window.MCAgente = (function () {
             m.margen >= 0 ? 'var(--green)' : 'var(--red)') +
       '</div>' +
       grafico(m) +
+      cajaBloque() +
       '<div class="ag-mini">' +
         mini('Fichas en juego', MC.fmt(m.fichas)) +
         mini('Rondas del periodo', MC.fmt(m.rondas)) +
@@ -297,6 +315,34 @@ window.MCAgente = (function () {
         mini('Descontaste', '\u2212' + MC.fmt(m.caja.descontado)) +
       '</div>' +
       avisoDesdeCuando();
+  }
+
+  /* La caja del agente, con la comision a la vista.
+     La comision se calcula siempre desde el total y se le resta lo ya
+     cobrado, asi que la cuenta se puede rehacer desde cero y da igual. */
+  function cajaBloque() {
+    var disp = MCCajaAgente.comisionDisponible();
+    var net = MCCajaAgente.netwinTotal();
+    return '<div class="ag-caja">' +
+      '<div class="ag-caja-num">' +
+        '<span>Tu caja</span>' +
+        '<strong>' + MC.fmt(MCCajaAgente.saldo()) + '</strong>' +
+        '<em>fichas disponibles para cargar</em>' +
+      '</div>' +
+      '<div class="ag-caja-num">' +
+        '<span>Entregado a jugadores</span>' +
+        '<strong>' + MC.fmt(MCCajaAgente.entregado()) + '</strong>' +
+        '<em>neto, descontando lo que volvio</em>' +
+      '</div>' +
+      '<div class="ag-caja-num">' +
+        '<span>Comision (' + (MCCajaAgente.COMISION * 100) + '% del netwin)</span>' +
+        '<strong style="color:' + (disp > 0 ? 'var(--green)' : 'var(--txt-dim)') + '">' +
+          MC.fmt(disp) + '</strong>' +
+        '<em>sobre ' + (net >= 0 ? '+' : '') + MC.fmt(net) + ' de netwin acumulado</em>' +
+      '</div>' +
+      '<button class="btn ' + (disp > 0 ? 'btn-gold' : 'btn-ghost') + '" id="agCobrar"' +
+        (disp > 0 ? '' : ' disabled') + '>Cobrar comision</button>' +
+    '</div>';
   }
 
   function kpi(ico, valor, label, color) {
@@ -455,6 +501,70 @@ window.MCAgente = (function () {
     '</div>';
   }
 
+  /* ---------------- pestana: pedidos ---------------- */
+  function vistaPedidos() {
+    var lista = MCPeticiones.todas(40);
+    if (!lista.length) {
+      return '<div class="ag-tabla"><div class="ag-vacio">' +
+        'Ningun jugador pidio fichas todavia. Pueden hacerlo desde el Cajero.' +
+        '</div></div>';
+    }
+
+    return '<div class="ag-pedidos">' +
+      lista.map(pedido).join('') +
+    '</div>';
+  }
+
+  function pedido(p) {
+    var pend = p.estado === 'pendiente';
+    var etiqueta = { pendiente: 'Esperando', aceptada: 'Aceptada',
+                     rechazada: 'Rechazada', cancelada: 'Cancelada' }[p.estado] || p.estado;
+
+    return '<div class="ag-pedido ' + p.estado + '">' +
+      '<div class="ag-pedido-top">' +
+        '<strong>' + escapar(p.nombre) + '</strong>' +
+        '<span class="ag-chip ' + p.estado + '">' + etiqueta + '</span>' +
+      '</div>' +
+      '<div class="ag-pedido-monto">' + MC.fmt(p.monto) + ' fichas</div>' +
+      (p.nota ? '<p class="ag-pedido-nota">\u201C' + escapar(p.nota) + '\u201D</p>' : '') +
+      '<div class="ag-pedido-pie">' +
+        '<span>' + cuando(p.at) + '</span>' +
+        (pend
+          ? '<span class="ag-pedido-btns">' +
+              '<button class="btn btn-ghost ag-no" data-p="' + p.id + '">Rechazar</button>' +
+              '<button class="btn btn-gold ag-si" data-p="' + p.id + '" ' +
+                'data-m="' + p.monto + '">Aceptar</button>' +
+            '</span>'
+          : '<span class="ag-pedido-res">' +
+              (p.resueltaAt ? cuando(p.resueltaAt) : '') + '</span>') +
+      '</div>' +
+    '</div>';
+  }
+
+  /* Aceptar hace las tres cosas en orden: descuenta de la caja, acredita
+     al jugador y marca el pedido. Si la caja no alcanza no se marca nada,
+     asi el pedido queda esperando en vez de desaparecer sin fichas. */
+  function aceptar(pid, monto) {
+    if (!MCCajaAgente.alcanza(monto)) {
+      MC.modal('No te alcanza la caja',
+        '<p>Este pedido es de <strong>' + MC.fmt(monto) + '</strong> fichas y en tu caja ' +
+        'hay <strong>' + MC.fmt(MCCajaAgente.saldo()) + '</strong>.</p>' +
+        '<p>El pedido queda esperando: no se pierde.</p>',
+        [{ label: 'Entendido', kind: 'primary' }]);
+      return;
+    }
+    var p = MCPeticiones.resolver(pid, 'aceptada');
+    if (!p) return;
+    mover(p.uid, p.monto);
+    render();
+  }
+
+  function rechazar(pid) {
+    if (!MCPeticiones.resolver(pid, 'rechazada')) return;
+    MC.sound.click();
+    render();
+  }
+
   function cuando(ts) {
     var d = new Date(ts);
     var hh = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
@@ -485,6 +595,22 @@ window.MCAgente = (function () {
     document.querySelectorAll('.ag-per').forEach(function (b) {
       b.onclick = function () { periodo = b.dataset.per; MC.sound.click(); render(); };
     });
+    document.querySelectorAll('.ag-si').forEach(function (b) {
+      b.onclick = function () { aceptar(b.dataset.p, Number(b.dataset.m)); };
+    });
+    document.querySelectorAll('.ag-no').forEach(function (b) {
+      b.onclick = function () { rechazar(b.dataset.p); };
+    });
+
+    var cobrar = document.getElementById('agCobrar');
+    if (cobrar) cobrar.onclick = function () {
+      var got = MCCajaAgente.cobrarComision();
+      if (!got) return;
+      MC.sound.win();
+      MC.toast('Cobraste ' + MC.fmt(got) + ' fichas de comision', 'win');
+      render();
+    };
+
     document.querySelectorAll('.ag-mas').forEach(function (b) {
       b.onclick = function () { pedirMonto(b.dataset.uid, 1); };
     });

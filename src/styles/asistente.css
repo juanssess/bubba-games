@@ -393,3 +393,106 @@ body.sin-animaciones *::after{
   .ag-periodos{justify-content:center}
   .ag-row-mov{grid-template-columns:1fr 1fr !important;gap:4px}
 }
+
+
+/* ============================================================
+   ESTADISTICAS DEL JUGADOR + extras del panel de agente
+   ============================================================ */
+.st-periodos{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.st-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:14px}
+.st-kpi{
+  display:flex;flex-direction:column;gap:3px;padding:15px 17px;text-align:center;
+  background:linear-gradient(135deg,var(--bg-2),var(--bg-3));
+  border:1px solid var(--line);border-radius:var(--r-md);
+}
+.st-kpi strong{font-size:23px;letter-spacing:-.5px}
+.st-kpi span{font-size:11.5px;color:var(--txt-dim)}
+
+.st-rtp{
+  padding:13px 16px;border-radius:var(--r-md);margin-bottom:14px;
+  background:rgba(240,194,67,.08);border:1px solid rgba(240,194,67,.3);
+}
+.st-rtp.ok{background:rgba(80,235,160,.08);border-color:rgba(80,235,160,.3)}
+.st-rtp strong{display:block;font-size:14px;margin-bottom:4px}
+.st-rtp span{font-size:12.5px;color:var(--txt-dim);line-height:1.55}
+
+.st-juegos,.st-rondas{
+  background:var(--bg-2);border:1px solid var(--line);
+  border-radius:var(--r-md);padding:14px 16px;margin-bottom:14px;
+}
+.st-juegos h3,.st-rondas h3{font-size:14px;margin-bottom:11px}
+.st-juegos h3 em{font-size:11px;color:var(--txt-dim);font-style:normal;font-weight:400;margin-left:6px}
+
+.st-juego{display:grid;grid-template-columns:28px 1fr 110px 90px;align-items:center;gap:11px;padding:7px 0}
+.st-juego-ico{font-size:19px;text-align:center}
+.st-juego-nombre{font-size:13px;font-weight:600;min-width:0}
+.st-juego-nombre em{display:block;font-size:10.5px;color:var(--txt-dim);font-style:normal;font-weight:400}
+.st-barra{height:6px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
+.st-barra i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#f0c24366);border-radius:99px}
+.st-juego-neto{text-align:right;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+
+.st-ronda{display:grid;grid-template-columns:26px 1fr 90px 90px;align-items:center;gap:10px;
+  padding:7px 0;border-top:1px solid var(--line);font-size:12.5px}
+.st-ronda:first-of-type{border-top:none}
+.st-r-ico{font-size:16px;text-align:center}
+.st-r-juego{font-weight:600;min-width:0}
+.st-r-juego em{display:block;font-size:10.5px;color:var(--txt-dim);font-style:normal;font-weight:400}
+.st-r-ap{text-align:right;color:var(--txt-dim);font-variant-numeric:tabular-nums}
+.st-r-net{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* ---- caja del agente ---- */
+.ag-caja{
+  display:grid;grid-template-columns:repeat(3,1fr) auto;gap:16px;align-items:center;
+  padding:15px 18px;margin-bottom:14px;border-radius:var(--r-md);
+  background:linear-gradient(135deg,rgba(240,194,67,.10),rgba(240,194,67,.03));
+  border:1px solid rgba(240,194,67,.3);
+}
+.ag-caja-num{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ag-caja-num span{font-size:11px;color:var(--txt-dim)}
+.ag-caja-num strong{font-size:20px;letter-spacing:-.5px}
+.ag-caja-num em{font-size:10.5px;color:var(--txt-dim);font-style:normal}
+
+/* ---- pedidos ---- */
+.ag-pin{
+  display:inline-block;margin-left:6px;min-width:17px;padding:1px 5px;border-radius:99px;
+  background:var(--accent);color:#fff;font-size:10px;font-weight:800;font-style:normal;
+}
+.ag-pedidos{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-bottom:14px}
+.ag-pedido{padding:14px 16px;border-radius:var(--r-md);background:var(--bg-2);border:1px solid var(--line)}
+.ag-pedido.pendiente{border-color:rgba(240,194,67,.45);background:rgba(240,194,67,.06)}
+.ag-pedido.rechazada,.ag-pedido.cancelada{opacity:.62}
+.ag-pedido-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.ag-pedido-top strong{font-size:13.5px}
+.ag-chip{padding:2px 8px;border-radius:99px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.ag-chip.pendiente{background:var(--gold);color:#241a02}
+.ag-chip.aceptada{background:var(--green);color:#04240f}
+.ag-chip.rechazada{background:var(--red);color:#fff}
+.ag-chip.cancelada{background:rgba(255,255,255,.14);color:var(--txt-dim)}
+.ag-pedido-monto{font-size:21px;font-weight:800;color:var(--gold);letter-spacing:-.5px}
+.ag-pedido-nota{font-size:12px;color:var(--txt-dim);margin:5px 0 0;font-style:italic}
+.ag-pedido-pie{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:11px;
+  font-size:11px;color:var(--txt-dim);flex-wrap:wrap}
+.ag-pedido-btns{display:flex;gap:6px}
+.ag-pedido-btns .btn{padding:6px 13px;font-size:12px}
+
+/* ---- pedir fichas, del lado del jugador ---- */
+.cj-pedido{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  padding:14px 17px;margin-bottom:14px;border-radius:var(--r-md);
+  background:var(--bg-2);border:1px solid var(--line);
+}
+.cj-pedido.esperando{border-color:rgba(240,194,67,.45);background:rgba(240,194,67,.07)}
+.cj-pedido div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cj-pedido strong{font-size:14px}
+.cj-pedido span{font-size:12px;color:var(--txt-dim)}
+.cj-pedido-ok{color:var(--green)}
+.cj-pedido-no{color:var(--red)}
+
+@media (max-width:860px){
+  .ag-caja{grid-template-columns:1fr 1fr;gap:12px}
+  .ag-caja .btn{grid-column:1/-1}
+  .st-juego{grid-template-columns:24px 1fr 80px;gap:8px}
+  .st-juego .st-barra{display:none}
+  .cj-pedido{flex-direction:column;align-items:stretch}
+  .cj-pedido .btn{width:100%}
+}

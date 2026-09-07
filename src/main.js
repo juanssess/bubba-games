@@ -34,6 +34,8 @@
     MCRanking.init();
     MCBote.init();
     MCAgente.init();
+    MCEstadisticas.init();
+    MCCajaAgente.init();
     // Despues de MCAgente: si el perfil activo es agente, lo lleva a su panel.
     MCRoles.init();
     MCAjustes.init();

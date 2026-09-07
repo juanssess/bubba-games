@@ -25,6 +25,16 @@ window.MC = window.MC || {};
     crashHistory: [],
     crashBest: 1,
 
+    // Registros que alimentan las estadisticas y el panel de agente.
+    // Van declarados aca por una razon concreta: aplicarEstado() reconstruye
+    // el estado SOLO con las claves de defaults, asi que una clave que no
+    // este en esta lista desaparece la primera vez que sincroniza la nube.
+    // Es el mismo pozo en el que ya se cayo el sello de hora.
+    diario: {},        // por dia: rondas, apostado, devuelto
+    porJuego: {},      // por juego, de toda la vida
+    caja: [],          // libro de movimientos (solo cuentas de agente)
+    cajaAgente: null,  // saldo y comision del agente (solo cuentas de agente)
+
     xp: 0,                                        // rango VIP
     missions: { day: '', items: [] },             // objetivos del día
     // liga simulada: jornada actual, tabla, últimos resultados y cupones pendientes

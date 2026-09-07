@@ -54,6 +54,9 @@ window.MCCajero = (function () {
       // ---- el bono de bienvenida manda mientras haya algo que reclamar ----
       (MCBienvenida.hayAlgo() ? MCBienvenida.tarjeta() : '') +
 
+      // ---- pedirle fichas al agente ----
+      bloquePedido() +
+
       // ---- saldo, arriba y grande: es el dato que se viene a ver ----
       '<div class="cj-hero">' +
         '<div class="cj-hero-main">' +
@@ -188,12 +191,114 @@ window.MCCajero = (function () {
       MC.claimBonus();
       pintar();
     };
+    var pedir = document.getElementById('cjPedir');
+    if (pedir) pedir.onclick = abrirPedido;
+    var canc = document.getElementById('cjCancelar');
+    if (canc) canc.onclick = function () {
+      var p = MCPeticiones.miPendiente();
+      if (p && MCPeticiones.cancelar(p.id)) { MC.toast('Pedido cancelado', 'info'); pintar(); }
+    };
+
     var mis = document.getElementById('cjMissions');
     if (mis) mis.onclick = function () { MCMissionsView.open(); };
     var vip = document.getElementById('cjVip');
     if (vip) vip.onclick = function () { MCVip.open(); };
     var play = document.getElementById('cjPlay');
     if (play) play.onclick = function () { MC.showView('lobby'); };
+  }
+
+  /* ============================================================
+     PEDIRLE FICHAS AL AGENTE
+
+     La otra mitad del circuito: hasta ahora el agente empujaba y el
+     jugador esperaba. Solo aparece si hay una cuenta de agente en
+     este dispositivo; sin agente a quien pedirle, un boton para
+     pedir es una promesa vacia.
+     ============================================================ */
+  function hayAgente() {
+    return MC.auth.all().some(MCRoles.esAgente);
+  }
+
+  function bloquePedido() {
+    if (!hayAgente() || MCRoles.activoEsAgente()) return '';
+
+    var pend = MCPeticiones.miPendiente();
+    if (pend) {
+      return '<div class="cj-pedido esperando">' +
+        '<div>' +
+          '<strong>Pediste ' + MC.fmt(pend.monto) + ' fichas</strong>' +
+          '<span>Esperando que el agente conteste.</span>' +
+        '</div>' +
+        '<button class="btn btn-ghost" id="cjCancelar">Cancelar</button>' +
+      '</div>';
+    }
+
+    // La ultima respuesta, para que el jugador se entere de que le contestaron.
+    var ultima = MCPeticiones.mios(1)[0];
+    var aviso = '';
+    if (ultima && ultima.estado === 'aceptada') {
+      aviso = '<span class="cj-pedido-ok">Tu ultimo pedido de ' +
+        MC.fmt(ultima.monto) + ' se acredito.</span>';
+    } else if (ultima && ultima.estado === 'rechazada') {
+      aviso = '<span class="cj-pedido-no">Tu ultimo pedido de ' +
+        MC.fmt(ultima.monto) + ' fue rechazado.</span>';
+    }
+
+    return '<div class="cj-pedido">' +
+      '<div>' +
+        '<strong>Pedirle fichas al agente</strong>' +
+        '<span>El agente las carga de su caja. ' + aviso + '</span>' +
+      '</div>' +
+      '<button class="btn btn-gold" id="cjPedir">Pedir fichas</button>' +
+    '</div>';
+  }
+
+  function abrirPedido() {
+    var montos = [1000, 5000, 25000, 100000];
+    MC.modal('Pedirle fichas al agente',
+      '<p>El agente ve tu pedido en su panel y decide. Las fichas salen de ' +
+      '<strong>su caja</strong>, asi que puede rechazarlo.</p>' +
+      '<div class="ag-montos">' +
+        montos.map(function (m) {
+          return '<button class="btn btn-ghost cj-monto" data-m="' + m + '">' +
+            MC.fmt(m) + '</button>';
+        }).join('') +
+      '</div>' +
+      '<label class="auth-label">O poné el monto</label>' +
+      '<input type="number" id="cjMonto" class="filter-input" min="' + MCPeticiones.MIN +
+        '" step="100" placeholder="' + MCPeticiones.MIN + '">' +
+      '<label class="auth-label">Nota para el agente (opcional)</label>' +
+      '<input type="text" id="cjNota" class="filter-input" maxlength="80" ' +
+        'placeholder="Para el finde">' +
+      '<p class="auth-legal">El agente es una cuenta de este mismo dispositivo. ' +
+      'Sin servidor no hay forma de pedirle nada a alguien que este en otro telefono.</p>',
+      [
+        { label: 'Cancelar' },
+        { label: 'Pedir', kind: 'primary', onClick: function () {
+            var mo = document.getElementById('cjMonto');
+            var no = document.getElementById('cjNota');
+            enviar(mo ? mo.value : 0, no ? no.value : '');
+          } }
+      ]);
+
+    document.querySelectorAll('.cj-monto').forEach(function (b) {
+      b.onclick = function () {
+        var campo = document.getElementById('cjMonto');
+        if (campo) campo.value = b.dataset.m;
+        document.querySelectorAll('.cj-monto').forEach(function (x) {
+          x.classList.toggle('btn-gold', x === b);
+          x.classList.toggle('btn-ghost', x !== b);
+        });
+      };
+    });
+  }
+
+  function enviar(monto, nota) {
+    var r = MCPeticiones.pedir(monto, nota);
+    if (r.error) { MC.toast(r.error, 'lose'); return; }
+    MC.sound.click();
+    MC.toast('Pedido enviado al agente', 'win');
+    pintar();
   }
 
   /* ---------------- ciclo de vida ---------------- */

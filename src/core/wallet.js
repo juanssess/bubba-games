@@ -12,7 +12,10 @@ window.MC = window.MC || {};
   var BONUS_AMOUNT = 2500;
   var BONUS_COOLDOWN_MS = 8 * 60 * 60 * 1000;   // 8 horas
   var BROKE_THRESHOLD = 100;                     // debajo de esto, la casa rescata
-  var HISTORY_LEN = 14;
+  /* 14 alcanzaba cuando el historial era solo la tira del lobby. La
+     pantalla de estadisticas necesita mirar para atras, y 120 rondas son
+     ~11 KB: barato para lo que responde. El lobby sigue mostrando pocas. */
+  var HISTORY_LEN = 120;
 
   /* ---------------- saldo ---------------- */
   function getBalance() { return MC.state.balance; }
@@ -85,9 +88,17 @@ window.MC = window.MC || {};
     MC.state.history.unshift(entry);
     MC.state.history = MC.state.history.slice(0, HISTORY_LEN);
 
-    // El renglon del dia. history se recorta a 14 entradas —es la vitrina
-    // del lobby—, asi que no sirve para contar nada: esto si.
+    // El renglon del dia. history se recorta —es la vitrina del lobby—,
+    // asi que no sirve para contar nada: esto si.
     if (window.MCDiario) MCDiario.registrar(staked, returned);
+
+    /* Y el acumulado POR JUEGO, de toda la vida. Va aparte del diario y
+       sin podar: son nueve renglones fijos, contestan "cual me rinde" y
+       si se podaran por fecha la respuesta cambiaria sola con el tiempo. */
+    if (!MC.state.porJuego) MC.state.porJuego = {};
+    var pj = MC.state.porJuego[gameId] ||
+             (MC.state.porJuego[gameId] = { r: 0, a: 0, d: 0 });
+    pj.r += 1; pj.a += staked; pj.d += returned;
 
     MC.save();
     renderStats();

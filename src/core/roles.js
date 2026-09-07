@@ -76,7 +76,7 @@ window.MCRoles = (function () {
   // Los ids de la barra lateral que son sólo de un rol. Tenerlos acá
   // junto evita que agregar una sección mañana se olvide del rol.
   var SOLO_JUGADOR = [
-    'sbRanking', 'sbMissions', 'sbCajero', 'sbVip',
+    'sbRanking', 'sbMissions', 'sbCajero', 'sbVip', 'sbStats',
     // De la barra de arriba: el saldo y el cajero son del que juega.
     // Un agente con "Saldo 5.000" y un boton de Cajero invita a apostar
     // justo a la cuenta que no puede hacerlo.
@@ -122,7 +122,9 @@ window.MCRoles = (function () {
     ranking: JUGADOR,
     missions: JUGADOR,
     cajero: JUGADOR,
-    vip: JUGADOR
+    vip: JUGADOR,
+    // El agente no juega: sus estadisticas son las del panel, no estas.
+    stats: JUGADOR
   };
 
   function puedeVer(vista) {
