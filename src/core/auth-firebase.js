@@ -133,6 +133,30 @@ async function bajarEstado(setDoc, getDoc, doc) {
     const local = localStorage.getItem(MC.auth.claveEstado(uidPerfil));
     if (local === nube) return;
 
+    /* GANA LA COPIA MAS NUEVA, no la de la nube.
+       -----------------------------------------------------------------
+       Antes la nube ganaba siempre, y eso se comia cambios reales. El
+       caso que lo destapo: el agente le carga fichas al jugador mientras
+       ese perfil no esta activo, asi que nada sube; despues el jugador
+       entra con Google, baja la copia vieja, y las fichas desaparecen.
+       Verificado que pasaba: 10.000 -> 5.000.
+
+       Ahora cada guardado deja su hora (state.at) y se compara con la
+       del documento remoto. Si lo local es mas nuevo, se sube en vez de
+       pisarse.
+
+       Si la nube no trae hora es un documento viejo, de antes de este
+       cambio: ahi gana la nube como siempre, que es lo unico seguro
+       cuando no hay con que comparar. */
+    const horaNube = snap.data().updatedAt || 0;
+    let horaLocal = 0;
+    try { horaLocal = (JSON.parse(local || '{}') || {}).at || 0; } catch (e) {}
+
+    if (horaNube && horaLocal && horaLocal > horaNube) {
+      await subirEstado(setDoc, doc, true);
+      return;
+    }
+
     // Se aplica EN CALIENTE, sin recargar.
     //
     // Antes esto hacia location.reload() y provocaba un bucle infinito: al
@@ -162,9 +186,14 @@ async function subirEstado(setDoc, doc, ahora) {
     const raw = localStorage.getItem(MC.auth.claveEstado(uidPerfil));
     if (!raw) return;
     try {
+      // updatedAt es la hora DEL ESTADO, no la de la subida: si fueran
+      // distintas, subir sin cambios haria "ganar" a la nube por reloj.
+      let horaEstado = Date.now();
+      try { horaEstado = (JSON.parse(raw) || {}).at || horaEstado; } catch (e) {}
+
       await setDoc(doc(db, 'players', uidNube), {
         state: raw,
-        updatedAt: Date.now()
+        updatedAt: horaEstado
       }, { merge: true });
 
       // La fila del ranking viaja con el mismo guardado: es un documento

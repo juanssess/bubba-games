@@ -416,6 +416,9 @@ window.MC = window.MC || {};
    */
   function escribirEstado(uid, obj) {
     try {
+      // Mismo sello que MC.save(). Sin esto, las fichas que carga el
+      // agente parecerian mas viejas que la nube y se perderian.
+      obj.at = Date.now();
       localStorage.setItem(claveEstado(uid), JSON.stringify(obj));
       return true;
     } catch (e) {

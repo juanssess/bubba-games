@@ -62,6 +62,10 @@ window.MC = window.MC || {};
 
   function save() {
     try {
+      // La hora del ultimo cambio. Es lo que le permite a la sincronia
+      // saber cual de las dos copias es la nueva, en vez de suponer que
+      // siempre gana la de la nube.
+      MC.state.at = Date.now();
       localStorage.setItem(storageKey(), JSON.stringify(MC.state));
     } catch (e) {
       /* navegación privada o almacenamiento lleno: se juega igual, sin guardar */
@@ -111,6 +115,13 @@ window.MC = window.MC || {};
       if (entrante[k] !== undefined && entrante[k] !== null) merged[k] = entrante[k];
     });
     merged.stats = Object.assign(clone(defaults.stats), entrante.stats || {});
+
+    // La hora viaja con el estado. Se copia aparte porque el merge de
+    // arriba solo conserva las claves que estan en defaults, y sin esto
+    // el sello se perdia justo despues de sincronizar: la copia recien
+    // aplicada quedaba "sin fecha" y la siguiente comparacion no tenia
+    // con que decidir cual era la nueva.
+    merged.at = entrante.at || Date.now();
 
     Object.keys(MC.state).forEach(function (k) { delete MC.state[k]; });
     Object.assign(MC.state, merged);
