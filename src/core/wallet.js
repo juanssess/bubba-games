@@ -85,6 +85,10 @@ window.MC = window.MC || {};
     MC.state.history.unshift(entry);
     MC.state.history = MC.state.history.slice(0, HISTORY_LEN);
 
+    // El renglon del dia. history se recorta a 14 entradas —es la vitrina
+    // del lobby—, asi que no sirve para contar nada: esto si.
+    if (window.MCDiario) MCDiario.registrar(staked, returned);
+
     MC.save();
     renderStats();
     if (window.MCPortal && MCPortal.renderHistory) MCPortal.renderHistory();

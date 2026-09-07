@@ -25,6 +25,13 @@ window.MCAgente = (function () {
     return MC.auth.leerEstado(u.uid);
   }
 
+  /** El saldo actual de un perfil, sea el activo o no. */
+  function saldoDe(u) {
+    if (u.uid === MC.auth.current().uid) return MC.getBalance();
+    var st = MC.auth.leerEstado(u.uid);
+    return (st && st.balance) || 0;
+  }
+
   function filaDe(u) {
     var st = estadoDe(u) || {};
     var stats = st.stats || {};
@@ -88,6 +95,10 @@ window.MCAgente = (function () {
       MC.auth.escribirEstado(uid, st);
     }
 
+    // Al libro del agente, antes del aviso: si algo falla, que falle
+    // sin haberle dicho al agente que ya esta hecho.
+    MCCaja.registrar(uid, u.name, delta, saldoDe(u));
+
     MC.sound[delta >= 0 ? 'win' : 'click']();
     MC.toast(
       (delta >= 0 ? 'Cargaste ' : 'Descontaste ') + MC.fmt(Math.abs(delta)) +
@@ -137,80 +148,343 @@ window.MCAgente = (function () {
     });
   }
 
+  /* ============================================================
+     PERIODOS
+
+     El panel de referencia filtra por fecha, asi que hace falta
+     poder contestar "hoy", "ayer", "esta semana". Eso sale del
+     diario (ver diario.js), no de `stats`, que no tiene tiempo.
+     ============================================================ */
+  var periodo = 'hoy';
+
+  var PERIODOS = [
+    { id: 'hoy',    label: 'Hoy' },
+    { id: 'ayer',   label: 'Ayer' },
+    { id: 'semana', label: 'Semana' },
+    { id: 'mes',    label: 'Mes' },
+    { id: 'todo',   label: 'Todo' }
+  ];
+
+  function diaDesplazado(n) {
+    var d = new Date();
+    d.setDate(d.getDate() + n);
+    return MCDiario.clave(d.getTime());
+  }
+
+  /** Limites del periodo como claves 'YYYY-MM-DD'. Nulos = todo. */
+  function limites() {
+    var hoy = MCDiario.clave();
+    if (periodo === 'hoy') return { desde: hoy, hasta: hoy };
+    if (periodo === 'ayer') { var a = diaDesplazado(-1); return { desde: a, hasta: a }; }
+    if (periodo === 'semana') return { desde: diaDesplazado(-6), hasta: hoy };
+    if (periodo === 'mes') return { desde: diaDesplazado(-29), hasta: hoy };
+    return { desde: null, hasta: null };
+  }
+
+  /** Los mismos limites en milisegundos, para el libro de caja. */
+  function limitesMs() {
+    var l = limites();
+    if (!l.desde) return { desde: null, hasta: null };
+    return {
+      desde: new Date(l.desde + 'T00:00:00').getTime(),
+      hasta: new Date(l.hasta + 'T23:59:59.999').getTime()
+    };
+  }
+
+  /* ============================================================
+     LOS NUMEROS
+
+     "Netwin" es la cuenta de la casa: lo apostado menos lo devuelto.
+     Positivo quiere decir que gano el casino. Es la cuenta al reves
+     de la del jugador, y es la que mira un agente.
+
+     El margen es netwin sobre apostado. Con los RTP de esta casa
+     (96% a 97,5%) tiene que rondar el 3%. Si en un periodo corto da
+     muy distinto es varianza, no que las cuentas esten mal: hacen
+     falta muchas rondas para que el margen se parezca al teorico.
+     ============================================================ */
+  function metricas() {
+    var l = limites();
+    var jugadores = MC.auth.all().filter(function (u) { return !MCRoles.esAgente(u); });
+
+    var m = {
+      jugadores: jugadores.length, activos: 0,
+      apostado: 0, devuelto: 0, rondas: 0,
+      fichas: 0, porDia: {}, filas: []
+    };
+
+    jugadores.forEach(function (u) {
+      var st = estadoDe(u) || {};
+      var r = MCDiario.rango(st, l.desde, l.hasta);
+      if (r.activo) m.activos++;
+      m.apostado += r.apostado;
+      m.devuelto += r.devuelto;
+      m.rondas += r.rondas;
+      m.fichas += saldoDe(u);
+
+      r.dias.forEach(function (d) {
+        var acc = m.porDia[d.dia] || (m.porDia[d.dia] = { a: 0, d: 0 });
+        acc.a += d.a; acc.d += d.d;
+      });
+
+      m.filas.push({ u: u, st: st, per: r });
+    });
+
+    m.netwin = m.apostado - m.devuelto;
+    m.margen = m.apostado > 0 ? m.netwin / m.apostado : 0;
+
+    var ms = limitesMs();
+    m.caja = MCCaja.resumen(ms.desde, ms.hasta);
+    return m;
+  }
+
   /* ---------------- dibujo ---------------- */
+  var pestana = 'stats';
+
   function render() {
     var cont = document.getElementById('agenteBody');
     if (!cont) return;
-
-    var filas = tabla();
-    var totalFichas = filas.reduce(function (a, f) { return a + f.saldo; }, 0);
-    var totalApostado = filas.reduce(function (a, f) { return a + f.apostado; }, 0);
-    var totalJugadas = filas.reduce(function (a, f) { return a + f.jugadas; }, 0);
+    var m = metricas();
 
     cont.innerHTML =
-      // ---- resumen de la operación ----
-      '<div class="ag-resumen">' +
-        tarjeta('Jugadores', MC.fmt(filas.length), '') +
-        tarjeta('Fichas en juego', MC.fmt(totalFichas), 'var(--gold)') +
-        tarjeta('Volumen apostado', MC.fmt(totalApostado), '') +
-        tarjeta('Rondas totales', MC.fmt(totalJugadas), '') +
-      '</div>' +
-
-      // ---- la mesa ----
-      '<div class="ag-tabla">' +
-        '<div class="ag-row ag-head">' +
-          '<span>Jugador</span><span>Saldo</span><span>Apostado</span>' +
-          '<span>Rango</span><span>Movimientos</span>' +
-        '</div>' +
-        filas.map(fila).join('') +
-      '</div>' +
-
-      '<div class="ag-note">' +
-        '<strong>Los jugadores son los perfiles de este dispositivo.</strong> ' +
-        'Cargar o descontar fichas mueve un número guardado en este navegador: ' +
-        'no hay dinero, no se cobra nada y no hay nada que pagar. Es la mecánica ' +
-        'de un panel de agente, sin la parte de la plata.' +
-      '</div>';
+      barra() +
+      (pestana === 'stats' ? vistaStats(m)
+        : pestana === 'jugadores' ? vistaJugadores(m)
+        : vistaMovimientos()) +
+      nota();
 
     enganchar();
   }
 
-  function tarjeta(k, v, color) {
-    return '<div class="ag-card">' +
-      '<span>' + k + '</span>' +
-      '<strong' + (color ? ' style="color:' + color + '"' : '') + '>' + v + '</strong>' +
-      '</div>';
+  function barra() {
+    return '<div class="ag-barra">' +
+      '<div class="ag-tabs">' +
+        tab('stats', 'Mis estadisticas') +
+        tab('jugadores', 'Mis jugadores') +
+        tab('movimientos', 'Movimientos') +
+      '</div>' +
+      '<div class="ag-periodos">' +
+        PERIODOS.map(function (p) {
+          return '<button class="ag-per' + (periodo === p.id ? ' on' : '') +
+            '" data-per="' + p.id + '">' + p.label + '</button>';
+        }).join('') +
+      '</div>' +
+    '</div>';
   }
 
-  function fila(f) {
-    var t = rangoDe(f.xp);
-    var netoColor = f.neto >= 0 ? 'var(--green)' : 'var(--red)';
-    return '<div class="ag-row' + (f.activo ? ' activo' : '') + '">' +
+  function tab(id, label) {
+    return '<button class="ag-tab' + (pestana === id ? ' on' : '') +
+      '" data-tab="' + id + '">' + label + '</button>';
+  }
+
+  /* ---------------- pestana: estadisticas ---------------- */
+  function vistaStats(m) {
+    return '<div class="ag-kpis">' +
+        kpi('\uD83D\uDC65', MC.fmt(m.jugadores), 'Jugadores', '') +
+        kpi('\u2705', MC.fmt(m.activos), 'Jugadores activos', '') +
+        kpi('\uD83C\uDFAB', MC.fmt(m.apostado), 'Apuestas totales', 'var(--gold)') +
+        kpi('\uD83C\uDFC5', MC.fmt(m.devuelto), 'Devuelto a jugadores', '') +
+        kpi('\uD83D\uDCB5', (m.netwin >= 0 ? '+' : '') + MC.fmt(m.netwin), 'Netwin de la casa',
+            m.netwin >= 0 ? 'var(--green)' : 'var(--red)') +
+        kpi('\uD83D\uDCC8', (m.margen * 100).toFixed(2).replace('.', ',') + '%', 'Margen',
+            m.margen >= 0 ? 'var(--green)' : 'var(--red)') +
+      '</div>' +
+      grafico(m) +
+      '<div class="ag-mini">' +
+        mini('Fichas en juego', MC.fmt(m.fichas)) +
+        mini('Rondas del periodo', MC.fmt(m.rondas)) +
+        mini('Cargaste', '+' + MC.fmt(m.caja.cargado)) +
+        mini('Descontaste', '\u2212' + MC.fmt(m.caja.descontado)) +
+      '</div>' +
+      avisoDesdeCuando();
+  }
+
+  function kpi(ico, valor, label, color) {
+    return '<div class="ag-kpi">' +
+      '<span class="ag-kpi-ico">' + ico + '</span>' +
+      '<div><strong' + (color ? ' style="color:' + color + '"' : '') + '>' + valor + '</strong>' +
+      '<span>' + label + '</span></div>' +
+    '</div>';
+  }
+
+  function mini(k, v) {
+    return '<div class="ag-minicard"><span>' + k + '</span><strong>' + v + '</strong></div>';
+  }
+
+  /* El grafico: barras de lo apostado por dia, con el netwin encima.
+     Es SVG y no una libreria porque son treinta rectangulos. */
+  function grafico(m) {
+    var dias = Object.keys(m.porDia).sort();
+    if (!dias.length) {
+      return '<div class="ag-grafico ag-vacio">Todavia no hay movimiento en este periodo.</div>';
+    }
+
+    var W = 760, H = 170, pad = 26;
+    var max = 0;
+    dias.forEach(function (d) { if (m.porDia[d].a > max) max = m.porDia[d].a; });
+    if (max <= 0) max = 1;
+
+    /* Ancho de barra con tope. Sin esto, un periodo de un solo dia
+       dibujaba una barra de 700px de ancho: no se lee como un grafico,
+       se lee como un error. Con pocas barras se centra el grupo. */
+    var util = W - pad * 2;
+    var ancho = Math.min(util / dias.length, 64);
+    var arranque = pad + (util - ancho * dias.length) / 2;
+
+    var barras = dias.map(function (d, i) {
+      var v = m.porDia[d];
+      var h = (v.a / max) * (H - pad * 2);
+      var x = arranque + i * ancho + ancho * 0.18;
+      var w = ancho * 0.64;
+      var neto = v.a - v.d;
+      // El netwin se dibuja SOBRE la barra de apostado, a escala. Cuando es
+      // negativo (gano el jugador) se pinta en rojo desde la base: se ve de
+      // un vistazo que ese dia la casa perdio.
+      var hn = Math.min(1, Math.abs(neto) / max) * (H - pad * 2);
+      return '<rect x="' + x.toFixed(1) + '" y="' + (H - pad - h).toFixed(1) +
+             '" width="' + w.toFixed(1) + '" height="' + Math.max(1, h).toFixed(1) +
+             '" rx="2" fill="url(#agGrad)"><title>' + d + '  apostado ' + MC.fmt(v.a) +
+             '  netwin ' + (neto >= 0 ? '+' : '') + MC.fmt(neto) + '</title></rect>' +
+             '<rect x="' + x.toFixed(1) + '" y="' + (H - pad - hn).toFixed(1) +
+             '" width="' + w.toFixed(1) + '" height="' + Math.max(1, hn).toFixed(1) +
+             '" rx="2" fill="' + (neto >= 0 ? 'rgba(80,235,160,.6)' : 'rgba(224,52,76,.6)') + '"/>';
+    }).join('');
+
+    return '<div class="ag-grafico">' +
+      '<div class="ag-grafico-head"><strong>Apostado por dia</strong>' +
+        '<span class="ag-leyenda"><i class="pt-a"></i>apostado <i class="pt-n"></i>netwin</span></div>' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" ' +
+        'aria-label="Apostado por dia">' +
+        '<defs><linearGradient id="agGrad" x1="0" y1="0" x2="0" y2="1">' +
+          '<stop offset="0" stop-color="#f0c243"/><stop offset="1" stop-color="#f0c24333"/>' +
+        '</linearGradient></defs>' +
+        '<line x1="' + pad + '" y1="' + (H - pad) + '" x2="' + (W - pad) + '" y2="' + (H - pad) +
+          '" stroke="rgba(255,255,255,.18)" stroke-width="1"/>' + barras +
+      '</svg>' +
+      '<div class="ag-grafico-pie"><span>' + dias[0] + '</span>' +
+        '<span>' + dias[dias.length - 1] + '</span></div>' +
+    '</div>';
+  }
+
+  /* Decir desde cuando hay datos evita que un cero parezca un dato:
+     el diario se empezo a llevar recien cuando se instalo. */
+  function avisoDesdeCuando() {
+    var primero = null;
+    MC.auth.all().forEach(function (u) {
+      if (MCRoles.esAgente(u)) return;
+      var d = MCDiario.desdeCuando(estadoDe(u));
+      if (d && (!primero || d < primero)) primero = d;
+    });
+    if (!primero) {
+      return '<div class="ag-note">El registro por dia arranca con la primera ronda que se ' +
+        'juegue. Todavia no hay ninguna, asi que los numeros estan en cero porque no hay nada ' +
+        'que contar, no porque falle algo.</div>';
+    }
+    return '<div class="ag-note">Hay registro diario desde el <strong>' + primero + '</strong>. ' +
+      'Lo anterior a esa fecha no se puede mostrar porque nadie lo anoto. Los totales de toda ' +
+      'la vida de cada jugador siguen estando en <strong>Mis jugadores</strong>.</div>';
+  }
+
+  /* ---------------- pestana: jugadores ---------------- */
+  function vistaJugadores(m) {
+    var filas = m.filas.slice().sort(function (a, b) {
+      return b.per.apostado - a.per.apostado;
+    });
+
+    return '<div class="ag-tabla">' +
+      '<div class="ag-row ag-head">' +
+        '<span>Jugador</span><span>Saldo</span><span>Apostado</span>' +
+        '<span>Netwin</span><span>Movimientos</span>' +
+      '</div>' +
+      (filas.length
+        ? filas.map(filaJugador).join('')
+        : '<div class="ag-vacio">No hay jugadores todavia.</div>') +
+    '</div>';
+  }
+
+  function filaJugador(f) {
+    var u = f.u, st = f.st, per = f.per;
+    var neto = per.apostado - per.devuelto;
+    var t = rangoDe(st.xp || 0);
+    return '<div class="ag-row">' +
       '<span class="ag-jugador">' +
         '<span class="ag-av">' +
-          (f.u.photo
-            ? '<img src="' + f.u.photo + '" alt="" referrerpolicy="no-referrer">'
-            : f.u.avatar) +
+          (u.photo ? '<img src="' + u.photo + '" alt="" referrerpolicy="no-referrer">' : u.avatar) +
         '</span>' +
-        '<span class="ag-nombre">' + f.u.name +
-          (f.activo ? '<em>vos</em>' : (f.u.guest ? '<em>invitado</em>' : '')) +
+        '<span class="ag-nombre">' + escapar(u.name) +
+          '<em>' + t.ico + ' ' + t.name + (u.guest ? ' invitado' : '') + '</em>' +
         '</span>' +
       '</span>' +
-      '<span class="ag-mono ag-saldo">' + MC.fmt(f.saldo) + '</span>' +
-      '<span class="ag-mono">' + MC.fmt(f.apostado) +
-        '<em style="color:' + netoColor + '">' +
-          (f.neto >= 0 ? '+' : '') + MC.fmt(f.neto) +
-        '</em>' +
-      '</span>' +
-      '<span class="ag-rango">' + t.ico + ' ' + t.name + '</span>' +
+      '<span class="ag-mono ag-saldo">' + MC.fmt(saldoDe(u)) + '</span>' +
+      '<span class="ag-mono">' + MC.fmt(per.apostado) +
+        '<em>' + MC.fmt(per.rondas) + ' rondas</em></span>' +
+      '<span class="ag-mono" style="color:' + (neto >= 0 ? 'var(--green)' : 'var(--red)') + '">' +
+        (neto >= 0 ? '+' : '') + MC.fmt(neto) + '</span>' +
       '<span class="ag-acciones">' +
-        '<button class="btn btn-gold ag-mas" data-uid="' + f.u.uid + '">Cargar</button>' +
-        '<button class="btn btn-ghost ag-menos" data-uid="' + f.u.uid + '">Quitar</button>' +
+        '<button class="btn btn-gold ag-mas" data-uid="' + u.uid + '">Cargar</button>' +
+        '<button class="btn btn-ghost ag-menos" data-uid="' + u.uid + '">Quitar</button>' +
       '</span>' +
-      '</div>';
+    '</div>';
+  }
+
+  /* ---------------- pestana: movimientos ---------------- */
+  function vistaMovimientos() {
+    var ms = limitesMs();
+    var lista = MCCaja.enRango(ms.desde, ms.hasta);
+
+    if (!lista.length) {
+      return '<div class="ag-tabla"><div class="ag-vacio">' +
+        'No cargaste ni descontaste fichas en este periodo.</div></div>';
+    }
+
+    return '<div class="ag-tabla">' +
+      '<div class="ag-row ag-head ag-row-mov">' +
+        '<span>Cuando</span><span>Jugador</span><span>Movimiento</span><span>Saldo despues</span>' +
+      '</div>' +
+      lista.map(function (mv) {
+        var pos = mv.delta > 0;
+        return '<div class="ag-row ag-row-mov">' +
+          '<span class="ag-cuando">' + cuando(mv.at) + '</span>' +
+          '<span class="ag-nombre">' + escapar(mv.nombre) + '</span>' +
+          '<span class="ag-mono" style="color:' + (pos ? 'var(--green)' : 'var(--red)') + '">' +
+            (pos ? '+' : '\u2212') + MC.fmt(Math.abs(mv.delta)) + '</span>' +
+          '<span class="ag-mono">' + (mv.saldo === undefined ? '\u2014' : MC.fmt(mv.saldo)) + '</span>' +
+        '</div>';
+      }).join('') +
+      '<div class="ag-note">Se guardan los ultimos ' + MCCaja.MAX + ' movimientos.</div>' +
+    '</div>';
+  }
+
+  function cuando(ts) {
+    var d = new Date(ts);
+    var hh = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+    if (MCDiario.clave() === MCDiario.clave(ts)) return 'Hoy ' + hh;
+    return ('0' + d.getDate()).slice(-2) + '/' + ('0' + (d.getMonth() + 1)).slice(-2) + ' ' + hh;
+  }
+
+  // Los nombres los elige quien crea el perfil: nunca van al DOM sin limpiar.
+  function escapar(t) {
+    return String(t || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function nota() {
+    return '<div class="ag-note">' +
+      '<strong>Los jugadores son los perfiles de este dispositivo.</strong> ' +
+      'Cargar o descontar fichas mueve un numero guardado en este navegador: ' +
+      'no hay dinero, no se cobra nada y no hay nada que pagar. Es la mecanica ' +
+      'de un panel de agente, sin la parte de la plata.' +
+    '</div>';
   }
 
   function enganchar() {
+    document.querySelectorAll('.ag-tab').forEach(function (b) {
+      b.onclick = function () { pestana = b.dataset.tab; MC.sound.click(); render(); };
+    });
+    document.querySelectorAll('.ag-per').forEach(function (b) {
+      b.onclick = function () { periodo = b.dataset.per; MC.sound.click(); render(); };
+    });
     document.querySelectorAll('.ag-mas').forEach(function (b) {
       b.onclick = function () { pedirMonto(b.dataset.uid, 1); };
     });
