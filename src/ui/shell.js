@@ -101,7 +101,9 @@ window.MCShell = (function () {
   /* ---------------- barra superior ---------------- */
   function wireTopbar() {
     var soundBtn = document.getElementById('soundBtn');
-    soundBtn.textContent = MC.state.soundOn ? '🔊' : '🔇';
+    // El icono lo dibuja audio.js: es el que sabe si el sonido esta prendido
+    // y ademas evita que cada sistema operativo dibuje su propio altavoz.
+    MC.pintarBotonSonido();
     soundBtn.onclick = function () { MC.toggleSound(); };
 
     // La billetera lleva al cajero, que es donde se consiguen fichas.
