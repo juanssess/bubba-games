@@ -63,7 +63,7 @@
   margin:16px 0 14px; color:var(--txt-dim); font-size:12px;
 }
 .auth-sep::before, .auth-sep::after{
-  content:''; flex:1; height:1px; background:var(--line);
+  content:''; flex:1; height:1px; background:var(--sep);
 }
 
 .auth-label{
@@ -103,7 +103,7 @@
 .acc-id strong{ font-size:17px }
 .acc-id span{ font-size:12.5px; color:var(--txt-dim) }
 
-.acc-grid{ display:grid; gap:1px; background:var(--line); border-radius:10px; overflow:hidden; margin-bottom:16px }
+.acc-grid{ display:grid; gap:1px; background:var(--sep); border-radius:10px; overflow:hidden; margin-bottom:16px }
 .acc-row{
   display:flex; justify-content:space-between; align-items:center; gap:12px;
   padding:10px 13px; background:var(--bg-2); font-size:13.5px;
@@ -159,7 +159,7 @@
 
 /* La tabla: mismo ritmo que un cajero de verdad, sin copiarlo. */
 .cj-table{
-  display:grid; gap:1px; background:var(--line);
+  display:grid; gap:1px; background:var(--sep);
   border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:18px;
 }
 .cj-row{
@@ -226,9 +226,12 @@
 }
 .vip-falta{ display:block; margin-top:7px; font-size:12px; color:var(--txt-dim) }
 
+/* Tres columnas fijas, no auto-fit. Son SEIS rangos: con auto-fit la
+   pantalla ancha armaba cinco columnas y dejaba cuatro celdas huerfanas
+   mostrando el fondo del contenedor. 3x2 los llena exacto. */
 .vip-tiers{
-  display:grid; grid-template-columns:repeat(auto-fit,minmax(158px,1fr));
-  gap:1px; background:var(--line);
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:1px; background:var(--sep);
   border:1px solid var(--line); border-radius:16px; overflow:hidden; margin-bottom:18px;
 }
 .vip-card{
@@ -270,7 +273,7 @@
 
 @media(max-width:760px){
   .vip-name{ font-size:22px }
-  .vip-tiers{ grid-template-columns:repeat(2,1fr) }
+  .vip-tiers{ grid-template-columns:repeat(2,1fr) }   /* 3x2 no entra: 2x3 */
 }
 
 /* ---------------- bono de bienvenida ---------------- */
@@ -298,7 +301,7 @@
 .bv-desc{ margin:14px 0 0; font-size:13.5px; line-height:1.6; color:var(--txt-dim) }
 
 .bv-detalle{
-  display:grid; gap:1px; background:var(--line);
+  display:grid; gap:1px; background:var(--sep);
   border-radius:10px; overflow:hidden; margin:16px 0;
 }
 .bv-row{

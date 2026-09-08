@@ -272,3 +272,29 @@
   .aviso-agente{flex-wrap:wrap}
   .aviso-agente .btn{width:100%}
 }
+
+/* ============================================================
+   EL SALÓN EN PANTALLA CHICA
+   ============================================================ */
+@media (max-width:640px){
+  /* El emoji del hero se comía el texto: a 375px el párrafo pasaba por
+     debajo del dado y quedaba ilegible. En pantalla chica manda el texto;
+     la ficha girando se queda, más tenue, porque es fondo y no estorba. */
+  .promo-emoji{display:none}
+  .promo::before{opacity:.28}
+  .promo p{max-width:100%}
+  .promo{min-height:auto;padding:24px 22px 26px}
+
+  /* La regla de la ficha quedaba reducida a un guioncito entre el
+     subtítulo y las flechas: no se lee como nada. */
+  .rail-head .chip-rule{display:none}
+  .rail-sub{
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
+  }
+}
+
+@media (max-width:420px){
+  /* A este ancho el subtítulo del riel compite con el título y con las
+     flechas por el mismo renglón. El título alcanza. */
+  .rail-sub{display:none}
+}

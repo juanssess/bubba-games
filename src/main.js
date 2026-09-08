@@ -72,19 +72,36 @@
     var row = document.getElementById('quickRow');
     // Tres accesos fijos + un atajo por cada juego VISIBLE. Se arma
     // desde el catálogo para que la fila nunca ofrezca un juego oculto.
+    /* Los accesos llevan icono de trazo y los juegos, una muestra de su
+       propio color. Mezclar emojis de accion con emojis de juego hacia que
+       la tira se leyera como un cajon de stickers en vez de un menu. */
+    function trazo(d) {
+      return '<svg class="quick-svg" viewBox="0 0 24 24" fill="none" ' +
+        'stroke="currentColor" stroke-width="1.8" stroke-linecap="round" ' +
+        'stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+    }
+
     var items = [
-      { ico: '🏅', title: 'Misiones', sub: 'objetivos del día', action: 'missions' },
-      { ico: '🎁', title: 'Bono',     sub: 'fichas gratis',     action: 'bonus' },
-      { ico: '🎲', title: 'Catálogo',
-        sub: MCCatalog.size + (MCCatalog.size === 1 ? ' juego' : ' juegos'), action: 'catalog' }
+      { ico: trazo('<circle cx="12" cy="15" r="5"/><path d="m9 10-2-6M15 10l2-6"/>'),
+        title: 'Misiones', action: 'missions' },
+      { ico: trazo('<rect x="3.5" y="9" width="17" height="11" rx="1.6"/>' +
+                   '<path d="M3.5 13h17M12 9v11"/>' +
+                   '<path d="M12 9C10 9 7.5 8.4 7.5 6.5A2 2 0 0 1 11 5.2c.6.7 1 2.1 1 3.8Z"/>'),
+        title: 'Bono', action: 'bonus' },
+      { ico: trazo('<rect x="3" y="5" width="18" height="14" rx="2"/>' +
+                   '<path d="M8 9v6M12 9v6M16 9v6"/>'),
+        title: 'Catálogo', action: 'catalog' }
     ].concat(MCCatalog.all.slice(0, 5).map(function (g) {
-      return { ico: g.emoji, title: g.name, sub: g.kind, action: 'game:' + g.id };
+      return {
+        ico: '<span class="quick-art" style="background:' + g.art + '"></span>',
+        title: g.name, action: 'game:' + g.id
+      };
     }));
 
     row.innerHTML = items.map(function (q) {
       return '<div class="quick" data-action="' + q.action + '">' +
                '<span class="quick-ico">' + q.ico + '</span>' +
-               '<span class="quick-txt"><strong>' + q.title + '</strong><span>' + q.sub + '</span></span>' +
+               '<span class="quick-txt"><strong>' + q.title + '</strong></span>' +
              '</div>';
     }).join('');
 

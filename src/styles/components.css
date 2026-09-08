@@ -44,3 +44,54 @@
 .modal-box p{color:var(--txt-dim);font-size:14px;line-height:1.65;margin-bottom:9px}
 .modal-box strong{color:var(--txt)}
 .modal-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap}
+
+/* ============================================================
+   FICHA DE RANGO (levels.js)
+
+   Reemplaza a los emojis de nivel. Un bronce, un blanco y una corona
+   sacados del teclado no forman una escala: no se entiende cuál va
+   antes sin leer el nombre. Una ficha que cambia de color sí, y
+   además es el objeto de la marca.
+
+   Se dibuja con gradientes en vez de un SVG por rango porque el único
+   dato que cambia es el color: --vc lo pone cada nivel.
+   ============================================================ */
+.vip-chip{
+  display:inline-block;vertical-align:-.18em;
+  width:1.15em;height:1.15em;border-radius:50%;flex:none;
+  /* Disco lleno + un anillo con seis muescas. Con las muescas llegando
+     hasta el centro se leia como una estrella; recortadas al borde se lee
+     como el canto de una ficha, que es lo que tiene que ser. */
+  background:
+    radial-gradient(circle,
+      var(--vc) 0 34%,
+      rgba(0,0,0,.34) 34% 40%,
+      var(--vc) 40% 100%),
+    repeating-conic-gradient(from 15deg,
+      rgba(0,0,0,.45) 0 16deg, transparent 16deg 60deg);
+  background-blend-mode:overlay,normal;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.45);
+}
+/* Donde el rango es el protagonista, la ficha crece. */
+.vip-name .vip-chip,.rank-ico .vip-chip,.cj-rank-ico .vip-chip{width:1em;height:1em}
+
+/* ============================================================
+   LA MONEDA DEL SALDO
+   Era el emoji 🪙, que cada sistema dibuja distinto. Dibujada, siempre
+   es la misma y toma el oro de la marca.
+   ============================================================ */
+.wallet-ico{
+  display:block;width:20px;height:20px;border-radius:50%;flex:none;
+  background:radial-gradient(circle at 38% 32%,#FFE9A8,var(--gold) 46%,var(--gold-2));
+  box-shadow:inset 0 -1px 2px rgba(0,0,0,.35), 0 1px 3px rgba(0,0,0,.4);
+}
+
+/* ============================================================
+   TIRA DE ACCESOS — icono de trazo para acciones, color para juegos
+   ============================================================ */
+.quick-svg{width:16px;height:16px;flex:none;opacity:.72}
+.quick:hover .quick-svg{opacity:1}
+.quick-art{
+  display:block;width:15px;height:15px;border-radius:4px;flex:none;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+}

@@ -12,14 +12,33 @@ window.MCLevels = (function () {
 
   // min: XP necesaria para entrar al rango
   // bonus: multiplicador que se le aplica al bono recargable
+  /**
+   * La ficha del rango, como HTML.
+   *
+   * Se calcula una sola vez al arrancar y se guarda en `ico`, que es el
+   * campo que ya leen las doce pantallas que muestran el rango. Asi el
+   * cambio de emoji a ficha no obliga a tocar ninguna de las doce.
+   */
+  function fichaDe(color) {
+    return '<span class="vip-chip" style="--vc:' + color + '" aria-hidden="true"></span>';
+  }
+
   var TIERS = [
-    { name: 'Aprendiz',        min: 0,       bonus: 1.00, ico: '🥉' },
-    { name: 'Apostador',       min: 10000,   bonus: 1.10, ico: '🎯' },
-    { name: 'Tahúr',           min: 40000,   bonus: 1.25, ico: '🎩' },
-    { name: 'Veterano',        min: 120000,  bonus: 1.40, ico: '🥈' },
-    { name: 'As de la casa',   min: 300000,  bonus: 1.60, ico: '🥇' },
-    { name: 'Leyenda Bubba',   min: 750000,  bonus: 2.00, ico: '👑' }
+    /* El rango se muestra como una FICHA, no como un emoji.
+       Un bronce, un blanco y una corona sacados del teclado no forman una
+       escala: no se entiende cual va antes sin leer el nombre. Una ficha
+       que cambia de color si, y ademas es el objeto de la marca. El color
+       sube de bronce a carmesi, que es el de la casa. */
+    { name: 'Aprendiz',        min: 0,       bonus: 1.00, color: '#8A5A3B' },
+    { name: 'Apostador',       min: 10000,   bonus: 1.10, color: '#6E7F96' },
+    { name: 'Tahúr',           min: 40000,   bonus: 1.25, color: '#3E9A8C' },
+    { name: 'Veterano',        min: 120000,  bonus: 1.40, color: '#B9C2CE' },
+    { name: 'As de la casa',   min: 300000,  bonus: 1.60, color: '#F5C451' },
+    { name: 'Leyenda Bubba',   min: 750000,  bonus: 2.00, color: '#D81E34' }
   ];
+
+  // `ico` queda como HTML listo para insertar, igual que antes era el emoji.
+  TIERS.forEach(function (t) { t.ico = fichaDe(t.color); });
 
   function getXP() { return MC.state.xp || 0; }
 

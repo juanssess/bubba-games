@@ -18,6 +18,15 @@
   --line:rgba(245,196,81,.13);
   --line-2:rgba(245,196,81,.26);
 
+  /* SEPARADOR DE RELLENO — distinto de --line, y a proposito.
+     Varias grillas fingen lineas de 1px poniendo `gap:1px` y pintando el
+     FONDO del contenedor: lo que se ve entre celdas es ese fondo. Con
+     --line en gris casi invisible andaba; al pasarlo a oro, ese fondo
+     dejo de ser una linea y se volvio un bloque —en el Club VIP, la fila
+     incompleta quedaba como un rectangulo verdoso.
+     Un token para el borde y otro para el relleno: cada uno un trabajo. */
+  --sep:rgba(255,255,255,.07);
+
   /* Marca: los tres colores de la ficha. */
   --brand-red:#d81e34;      /* el rojo de los gajos del logo */
   --brand-red-dark:#8c0f1f;

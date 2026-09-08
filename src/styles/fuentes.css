@@ -1,0 +1,55 @@
+/* ============================================================
+   FUENTES — servidas desde este repo, no desde Google.
+
+   Antes se pedían a fonts.googleapis.com. Eso eran dos pedidas
+   más al abrir y, sobre todo, una dependencia de un tercero para
+   que el casino se viera bien: si Google no contesta, la página
+   se dibuja con Impact y toda la estética se cae.
+
+   Acá pesan 43 KB entre las dos.
+
+   ---------------------------------------------------------------
+   POR QUÉ SÓLO EL SUBCONJUNTO LATIN
+   ---------------------------------------------------------------
+   Google parte cada familia en nueve subconjuntos: cirílico,
+   griego, vietnamita, latin-ext y latin. Latin ya trae las vocales
+   con tilde, la eñe y el signo de apertura, que es todo lo que
+   necesita un casino en castellano. Los otros ocho serían peso
+   muerto que ningún jugador va a leer.
+
+   ---------------------------------------------------------------
+   POR QUÉ MANROPE ES UN SOLO ARCHIVO PARA CUATRO PESOS
+   ---------------------------------------------------------------
+   Es una fuente variable: un único contorno que el navegador
+   interpola entre 200 y 800. Bajar cuatro archivos estáticos
+   pesaría el triple y daría exactamente el mismo resultado.
+
+   `font-display: swap` es deliberado: el texto se lee enseguida
+   con la fuente del sistema y cambia cuando llega la buena. La
+   alternativa —esperar— deja la pantalla en blanco unos cuadros,
+   que en la primera visita se siente como que el casino no carga.
+   ============================================================ */
+
+@font-face{
+  font-family:'Anton';
+  font-style:normal;
+  font-weight:400;
+  font-display:swap;
+  src:url('../../fonts/anton-latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face{
+  font-family:'Manrope';
+  font-style:normal;
+  /* El rango completo de la variable: el navegador interpola el peso
+     exacto que le pida cada regla. */
+  font-weight:200 800;
+  font-display:swap;
+  src:url('../../fonts/manrope-latin.woff2') format('woff2');
+  unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
