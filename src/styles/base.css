@@ -21,7 +21,7 @@
   background:linear-gradient(135deg,#ffe08a,var(--gold) 45%,var(--gold-2));color:#241a02;
   box-shadow:0 8px 22px rgba(245,196,81,.28);
 }
-.btn-ghost{background:rgba(255,255,255,.06);border-color:var(--line)}
+.btn-ghost{background:var(--velo-1);border-color:var(--line)}
 .btn-block{width:100%;display:block}
 
 /* El botón grande de acción de cada juego (girar, repartir, apostar). */

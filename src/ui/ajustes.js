@@ -157,6 +157,21 @@ window.MCAjustes = (function () {
       ) +
 
       bloque('Experiencia', '',
+        /* El tema NO vive en MC.state como el resto de los ajustes: se aplica
+           antes de que exista el estado del perfil (ver tema.js). Por eso
+           tiene su propia lectura y su propio guardado. */
+        '<div class="aj-fila">' +
+          '<div class="aj-txt"><strong>Tema</strong>' +
+          '<span>Cómo se ve el casino. Las mesas de juego no cambian: ' +
+          'un paño es verde con la luz que sea.</span></div>' +
+          '<select class="filter-input aj-sel" id="ajTema">' +
+            ['sistema', 'claro', 'oscuro'].map(function (v) {
+              var etiqueta = { sistema: 'Como el sistema', claro: 'Claro', oscuro: 'Oscuro' }[v];
+              return '<option value="' + v + '"' +
+                (MCTema.leer() === v ? ' selected' : '') + '>' + etiqueta + '</option>';
+            }).join('') +
+          '</select>' +
+        '</div>' +
         interruptor('sonido', 'Sonido', 'Efectos de las mesas y los juegos.', a.sonido) +
         interruptor('animaciones', 'Animaciones', 'Apagalas si el casino te va lento o te marean.', a.animaciones)
       ) +
@@ -229,6 +244,12 @@ window.MCAjustes = (function () {
   }
 
   function enganchar() {
+    var tema = document.getElementById('ajTema');
+    if (tema) tema.onchange = function () {
+      MCTema.poner(tema.value);
+      MC.sound.click();
+    };
+
     document.querySelectorAll('.aj-check').forEach(function (c) {
       c.onchange = function () { set(c.dataset.k, c.checked); MC.sound.click(); };
     });

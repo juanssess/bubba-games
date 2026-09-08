@@ -57,33 +57,37 @@ window.MCCajero = (function () {
       // ---- pedirle fichas al agente ----
       bloquePedido() +
 
-      // ---- saldo, arriba y grande: es el dato que se viene a ver ----
-      '<div class="cj-hero">' +
-        '<div class="cj-hero-main">' +
-          '<span class="cj-kicker">Tu saldo</span>' +
-          '<strong class="cj-balance">' + MC.fmt(MC.getBalance()) + '</strong>' +
-          '<span class="cj-unit">fichas virtuales</span>' +
-        '</div>' +
-        '<div class="cj-hero-rank">' +
-          '<span class="cj-rank-ico">' + t.ico + '</span>' +
-          '<div>' +
-            '<strong>' + t.name + '</strong>' +
-            '<span>Bono ×' + t.bonus.toFixed(2).replace('.', ',') + '</span>' +
-          '</div>' +
-        '</div>' +
+      /* EL SALDO NO ES UNA TARJETA.
+         Era un bloque entero para un numero que ya esta arriba a la derecha
+         en la barra, permanente. Repetirlo con el mismo peso que el bono le
+         robaba el lugar a lo unico que se viene a hacer aca: conseguir mas
+         fichas. Ahora es una tira de contexto, y el rango viaja con ella
+         porque el rango es JUSTAMENTE cuanto multiplica lo que consigas. */
+      '<div class="cj-tira">' +
+        '<span class="cj-tira-cap">Tu saldo</span>' +
+        '<strong class="cj-tira-num">' + MC.fmt(MC.getBalance()) + '</strong>' +
+        '<span class="cj-tira-sep"></span>' +
+        '<span class="cj-tira-rango">' + t.ico + ' ' + t.name + '</span>' +
+        '<span class="cj-tira-bono">bono ×' + t.bonus.toFixed(2).replace('.', ',') + '</span>' +
       '</div>' +
 
-      // ---- la acción principal ----
-      '<div class="cj-claim' + (listo ? ' on' : '') + '">' +
-        '<div class="cj-claim-txt">' +
+      /* LA RECARGA ES LO QUE SE VIENE A HACER, ASI QUE ES LO QUE BRILLA.
+         Antes tenia el mismo peso que el saldo y que el bono, los tres con
+         el mismo borde. Ahora el estado se lee por la FORMA: lista, la
+         tarjeta se enciende y el boton es solido; esperando, se apaga y en
+         vez de un boton muerto que dice "todavia no" muestra el reloj, que
+         es la unica informacion util en ese momento. */
+      '<div class="cj-recarga' + (listo ? ' lista' : '') + '">' +
+        '<span class="cj-recarga-ico">' + (listo ? ICO_REGALO : ICO_RELOJ) + '</span>' +
+        '<div class="cj-recarga-txt">' +
           '<strong>' + MC.fmt(bonoActual()) + ' fichas</strong>' +
           '<span>' + (listo
             ? 'Tu recarga está lista'
-            : 'Próxima recarga en ' + MC.humanTime(MC.bonusReadyIn())) + '</span>' +
+            : 'Vuelve en ' + MC.humanTime(MC.bonusReadyIn())) + '</span>' +
         '</div>' +
-        '<button class="btn btn-gold" id="cjClaim"' + (listo ? '' : ' disabled') + '>' +
-          (listo ? 'Recargar fichas' : 'Todavía no') +
-        '</button>' +
+        (listo
+          ? '<button class="btn btn-gold" id="cjClaim">Recargar</button>'
+          : '<span class="cj-recarga-reloj">' + MC.humanTime(MC.bonusReadyIn()) + '</span>') +
       '</div>' +
 
       // ---- la tabla: mismo ritmo que un cajero de verdad ----
@@ -300,6 +304,18 @@ window.MCCajero = (function () {
     MC.toast('Pedido enviado al agente', 'win');
     pintar();
   }
+
+  var ICO_REGALO =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect x="3.5" y="9" width="17" height="11" rx="1.6"/><path d="M3.5 13h17M12 9v11"/>' +
+    '<path d="M12 9C10 9 7.5 8.4 7.5 6.5A2 2 0 0 1 11 5.2c.6.7 1 2.1 1 3.8Zm0 0c2 0 4.5-.6 ' +
+    '4.5-2.5A2 2 0 0 0 13 5.2c-.6.7-1 2.1-1 3.8Z"/></svg>';
+
+  var ICO_RELOJ =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" stroke-linejoin="round">' +
+    '<circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></svg>';
 
   /* ---------------- ciclo de vida ---------------- */
   function init() {

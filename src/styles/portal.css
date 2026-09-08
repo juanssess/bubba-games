@@ -31,6 +31,18 @@
   background:rgba(8,5,5,.4);border:1px solid rgba(245,196,81,.3);
   color:var(--gold);margin-bottom:14px;
 }
+/* EL PROMO NO SIGUE AL TEMA.
+   Su fondo es un degradado saturado que viene del catalogo y es el mismo
+   en claro y en oscuro, asi que su texto tampoco puede seguir a --txt: en
+   claro se volvia marron oscuro sobre rojo fuerte y se perdia. El texto
+   sobre una superficie de color se decide por ESA superficie, no por el
+   tema de la pagina. */
+.promo,
+.promo h3,
+.promo p,
+.promo .promo-kicker{color:#fff8ee}
+.promo p{color:rgba(255,248,238,.88)}
+
 .promo h3{
   font-family:var(--font-display);font-size:clamp(32px,5.6vw,64px);
   letter-spacing:.5px;line-height:.92;text-transform:uppercase;text-wrap:balance;
@@ -49,10 +61,10 @@
   transform:translateY(-50%);pointer-events:none;opacity:.5;
   background:
     radial-gradient(circle, transparent 0 38%,
-      rgba(255,255,255,.14) 38% 40%, transparent 40% 62%,
-      rgba(255,255,255,.10) 62% 64%, transparent 64%),
+      var(--velo-2) 38% 40%, transparent 40% 62%,
+      var(--velo-2) 62% 64%, transparent 64%),
     repeating-conic-gradient(from 0deg,
-      rgba(255,255,255,.16) 0 5deg, transparent 5deg 45deg);
+      var(--velo-3) 0 5deg, transparent 5deg 45deg);
   -webkit-mask:radial-gradient(circle,#000 0 70%,transparent 70%);
   mask:radial-gradient(circle,#000 0 70%,transparent 70%);
   animation:fichaGira 90s linear infinite;

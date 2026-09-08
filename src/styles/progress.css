@@ -78,3 +78,84 @@
   .tier{grid-template-columns:28px 1fr auto;font-size:12px}
   .tier-xp{display:none}
 }
+
+
+/* ============================================================
+   CAJERO — la jerarquia, arreglada
+
+   Eran tres tarjetas del mismo peso, con oro sobre oro sobre oro: el bono
+   con borde dorado, la cifra dorada, la tabla dorada y encima un boton
+   dorado a todo el ancho. Cuando todo grita, nada se escucha, y la
+   pregunta que trae a alguien al cajero —como consigo mas fichas— quedaba
+   sin respuesta visual.
+
+   Ahora el oro se gasta en UNA cosa por bloque, y el orden de lectura es
+   el orden de importancia: que puedo reclamar, cuanto tengo, y de que
+   otras formas se consiguen fichas.
+   ============================================================ */
+
+/* La tira de saldo: contexto, no protagonista. */
+.cj-tira{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:12px 18px;margin-bottom:14px;border-radius:var(--r-md);
+  background:var(--bg-2);border:1px solid var(--line);
+}
+.cj-tira-cap{
+  font-size:10px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;
+  color:var(--txt-dim);
+}
+.cj-tira-num{
+  font-family:var(--font-display);font-size:26px;letter-spacing:.5px;line-height:1;
+  color:var(--gold);font-variant-numeric:tabular-nums;
+}
+.cj-tira-sep{flex:1;min-width:12px}
+.cj-tira-rango{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700}
+.cj-tira-bono{
+  font-size:11px;color:var(--txt-dim);padding:3px 9px;border-radius:99px;
+  background:var(--velo-1);border:1px solid var(--line);
+}
+
+/* La recarga: el estado se lee por la forma. */
+.cj-recarga{
+  display:flex;align-items:center;gap:15px;
+  padding:16px 18px;margin-bottom:18px;border-radius:var(--r-md);
+  background:var(--bg-2);border:1px solid var(--line);
+}
+.cj-recarga-ico{
+  width:42px;height:42px;flex:none;display:grid;place-items:center;border-radius:12px;
+  background:var(--velo-1);color:var(--txt-dim);
+}
+.cj-recarga-ico svg{width:21px;height:21px}
+.cj-recarga-txt{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.cj-recarga-txt strong{font-size:19px;letter-spacing:-.3px}
+.cj-recarga-txt span{font-size:12px;color:var(--txt-dim)}
+.cj-recarga-reloj{
+  font-size:14px;font-weight:700;color:var(--txt-dim);
+  font-variant-numeric:tabular-nums;padding-right:4px;
+}
+
+/* Lista: se enciende. Es el unico bloque encendido de la pantalla. */
+.cj-recarga.lista{
+  border-color:var(--line-2);
+  background:
+    radial-gradient(120% 200% at 100% 0%, rgba(245,196,81,.16), transparent 62%),
+    var(--bg-2);
+}
+.cj-recarga.lista .cj-recarga-ico{
+  background:rgba(245,196,81,.16);color:var(--gold);
+  box-shadow:0 0 0 1px rgba(245,196,81,.3);
+}
+.cj-recarga.lista .cj-recarga-txt strong{color:var(--gold)}
+
+/* El bono de bienvenida: el boton deja de ser una losa. */
+.bv-card .btn-block{
+  display:inline-flex;width:auto;min-width:200px;align-self:flex-start;
+}
+
+@media (max-width:640px){
+  .cj-tira{gap:8px}
+  .cj-tira-sep{display:none;flex:none}
+  .cj-recarga{flex-wrap:wrap}
+  .cj-recarga .btn{width:100%}
+  .bv-card .btn-block{width:100%}
+}

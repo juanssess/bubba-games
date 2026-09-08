@@ -56,7 +56,7 @@
   padding:3px 7px; border-radius:5px;
   background:rgba(0,0,0,.1); color:inherit; opacity:.75;
 }
-.prov-btn[data-prov="apple"] .prov-soon{ background:rgba(255,255,255,.16) }
+.prov-btn[data-prov="apple"] .prov-soon{ background:var(--velo-3) }
 
 .auth-sep{
   display:flex; align-items:center; gap:12px;

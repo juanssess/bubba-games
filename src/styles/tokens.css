@@ -45,6 +45,16 @@
   --txt:#f5efe9;
   --txt-dim:#9c9089;
 
+  /* VELOS Y SOMBRAS
+     Un velo blanco al 5% sobre negro levanta una superficie; sobre un fondo
+     claro no hace absolutamente nada. Son los dos valores que mas se repiten
+     en la interfaz, asi que van como token: es lo que permite que el tema
+     claro no sea "el oscuro con los colores cambiados y todo plano". */
+  --velo-1:rgba(255,255,255,.05);
+  --velo-2:rgba(255,255,255,.10);
+  --velo-3:rgba(255,255,255,.20);
+  --tinte:rgba(0,0,0,.35);
+
   /* medidas */
   --sb-w:238px;
   --r-sm:10px;
@@ -60,6 +70,85 @@
      de verdad, que es lo que ordena las columnas de plata del casino. */
   --font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-display:"Anton","Arial Narrow Bold","Impact",sans-serif;
+}
+
+/* ============================================================
+   TEMA CLARO
+
+   No es el oscuro invertido. Un casino de dia no es blanco de oficina: es
+   pergamino calido, madera y bronce. El fondo lleva el mismo sesgo calido
+   que los negros del tema oscuro, asi el rojo y el oro de la marca siguen
+   apoyando sobre algo que les pertenece.
+
+   DOS COSAS QUE CAMBIAN DE SENTIDO, NO SOLO DE VALOR:
+
+   1. Las tarjetas pasan a ser MAS CLARAS que el fondo. En oscuro una
+      superficie se levanta aclarandose; en claro se levanta... tambien
+      aclarandose, pero eso obliga a que el fondo general sea mas oscuro
+      que las tarjetas. Invertir --bg y --bg-2 sin pensar deja todo plano.
+
+   2. El oro se vuelve BRONCE. #F5C451 sobre pergamino es ilegible: es un
+      amarillo claro sobre un fondo claro. El mismo color en un tono
+      quemado conserva la identidad y se lee. Es el unico color de marca
+      que cambia, y cambia porque tiene que seguir siendo texto.
+
+   Las MESAS DE JUEGO no cambian. Un paño de casino es verde con la luz
+   que sea, y una ruleta es roja y negra: forzarlas a modo claro las
+   volveria otra cosa. Cambia el mueble, no el juego.
+   ============================================================ */
+:root[data-tema="claro"]{
+  /* EL ORDEN IMPORTA MAS QUE LOS VALORES.
+     En oscuro una superficie se levanta ACLARANDOSE: bg -> bg-2 -> bg-3 va
+     de negro a menos negro. En claro tiene que hacer lo mismo, y para eso
+     el FONDO tiene que ser lo mas oscuro de la paleta clara. La primera
+     version dejo --bg-3 mas oscuro que --bg y las tarjetas se hundian: el
+     mismo CSS, leido al reves. */
+  --bg:#e7dccb;
+  --bg-2:#f6f0e4;
+  --bg-3:#fdfaf3;
+  --bg-4:#ffffff;
+
+  --line:rgba(122,86,26,.24);
+  --line-2:rgba(122,86,26,.46);
+  --sep:rgba(0,0,0,.09);
+
+  --brand-red:#c4162c;
+  --brand-red-dark:#8a0f1e;
+  --accent:#c4162c;
+  --accent-2:#e0576a;
+  --gold:#96690c;
+  --gold-2:#6e4c08;
+
+  --green:#0c7a3d;
+  --red:#b32328;
+
+  --txt:#2a1f14;
+  --txt-dim:#6e5c46;
+
+  --velo-1:rgba(0,0,0,.04);
+  --velo-2:rgba(0,0,0,.07);
+  --velo-3:rgba(0,0,0,.13);
+  --tinte:rgba(0,0,0,.12);
+
+  --shadow:0 18px 44px rgba(92,62,20,.18);
+}
+
+/* Sin eleccion explicita se sigue al sistema. Quien nunca toco el ajuste
+   ve el casino como ve todo lo demas en su maquina. */
+@media (prefers-color-scheme:light){
+  :root:not([data-tema="oscuro"]){
+    --bg:#e7dccb; --bg-2:#f6f0e4; --bg-3:#fdfaf3; --bg-4:#ffffff;
+    --line:rgba(122,86,26,.24); --line-2:rgba(122,86,26,.46);
+    --sep:rgba(0,0,0,.09);
+    --brand-red:#c4162c; --brand-red-dark:#8a0f1e;
+    --accent:#c4162c; --accent-2:#e0576a;
+    --gold:#96690c; --gold-2:#6e4c08;
+    --green:#0c7a3d; --red:#b32328;
+    --txt:#2a1f14; --txt-dim:#6e5c46;
+    --velo-1:rgba(0,0,0,.04); --velo-2:rgba(0,0,0,.07);
+    --velo-3:rgba(0,0,0,.13); --tinte:rgba(0,0,0,.12);
+    --shadow:0 18px 44px rgba(92,62,20,.18);
+  }
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -80,6 +169,21 @@ body::before{
   background:
     radial-gradient(75% 55% at 82% -8%, rgba(245,196,81,.07), transparent 62%),
     radial-gradient(65% 50% at 6% 104%, rgba(216,30,52,.09), transparent 60%);
+}
+/* En claro la misma luz tiene que ser MAS tenue y mas calida: sobre
+   pergamino un halo dorado al 7% se convierte en una mancha. */
+:root[data-tema="claro"] body::before,
+:root:not([data-tema="oscuro"]) body::before{
+  background:
+    radial-gradient(75% 55% at 82% -8%, rgba(150,105,12,.05), transparent 62%),
+    radial-gradient(65% 50% at 6% 104%, rgba(196,22,44,.05), transparent 60%);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-tema="claro"]) body::before{
+    background:
+      radial-gradient(75% 55% at 82% -8%, rgba(245,196,81,.07), transparent 62%),
+      radial-gradient(65% 50% at 6% 104%, rgba(216,30,52,.09), transparent 60%);
+  }
 }
 input,select,button{font-family:inherit}
 

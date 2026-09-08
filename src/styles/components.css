@@ -93,7 +93,7 @@
 .quick:hover .quick-svg{opacity:1}
 .quick-art{
   display:block;width:15px;height:15px;border-radius:4px;flex:none;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+  box-shadow:inset 0 0 0 1px var(--velo-2);
 }
 
 
