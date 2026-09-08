@@ -25,7 +25,14 @@
 .rank-card{
   display:flex;align-items:center;gap:18px;padding:22px;margin-bottom:24px;
   border-radius:var(--r-lg);border:1px solid rgba(245,196,81,.28);
-  background:linear-gradient(120deg,rgba(245,196,81,.14),rgba(139,92,246,.14));
+  /* Antes esto mezclaba oro con violeta (rgba(139,92,246,...)). El violeta
+     no esta en la marca —negro calido, carmesi y oro— y de reojo hacia que
+     la pantalla de rangos pareciera de otro producto. Ahora la mezcla es
+     oro con el carmesi de la casa, que ademas es lo que corresponde: el
+     rango es progreso, y el progreso en este casino se paga en oro. */
+  background:
+    radial-gradient(120% 180% at 88% 8%, rgba(245,196,81,.20), transparent 60%),
+    linear-gradient(120deg, rgba(216,30,52,.16), rgba(245,196,81,.06));
 }
 .rank-ico{font-size:46px;flex:0 0 auto}
 .rank-body{flex:1;min-width:0}

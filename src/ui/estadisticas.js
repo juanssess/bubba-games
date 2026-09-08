@@ -55,6 +55,39 @@ window.MCEstadisticas = (function () {
     return { desde: null, hasta: null };
   }
 
+  /**
+   * ESTADO VACIO.
+   *
+   * Un cero no explica nada. Lo primero que ve un jugador nuevo en esta
+   * pantalla —y en Misiones, y en el Ranking— son ceros sobre negro, y un
+   * cero sin contexto se lee como "esto no anda" y no como "esto todavia
+   * no tiene datos".
+   *
+   * Estas piezas dicen las dos cosas que faltan: QUE va a aparecer ahi y
+   * QUE hay que hacer para que aparezca. Con un boton, porque mandar a
+   * alguien a buscar el camino solo es la mitad del trabajo.
+   */
+  function vacio(ico, titulo, texto, boton) {
+    return '<div class="vacio">' +
+      '<span class="vacio-ico">' + ico + '</span>' +
+      '<strong>' + titulo + '</strong>' +
+      '<p>' + texto + '</p>' +
+      (boton || '') +
+    '</div>';
+  }
+
+  /** Los iconos de los vacios: de trazo, como el resto de la interfaz. */
+  var ICO = {
+    dados: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+      'stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/>' +
+      '<circle cx="8.5" cy="8.5" r="1.1" fill="currentColor"/>' +
+      '<circle cx="15.5" cy="15.5" r="1.1" fill="currentColor"/>' +
+      '<circle cx="12" cy="12" r="1.1" fill="currentColor"/></svg>',
+    grafico: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+      'stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V4M4 20h16"/>' +
+      '<path d="m7 15 3.5-4 3 2.5L20 7"/></svg>',
+  };
+
   /* ---------------- dibujo ---------------- */
   function render() {
     var cont = document.getElementById('statsBody');
@@ -109,8 +142,13 @@ window.MCEstadisticas = (function () {
   /* El margen de error es lo que separa un dato de una superstición. */
   function avisoRTP(r, rtp) {
     if (!r.rondas) {
-      return '<div class="ag-note">Todavía no jugaste en este período. ' +
-        'El registro por día arranca con la primera ronda.</div>';
+      return vacio(
+        ICO.grafico,
+        'Todavía no jugaste en este período',
+        'Acá vas a ver cuánto apostaste, cómo te fue día por día y qué juego ' +
+        'te rinde mejor. El registro arranca con tu primera ronda.',
+        '<button class="btn btn-gold" id="stVacioJugar">Ir al salón</button>',
+      );
     }
     var margen = 1 / Math.sqrt(r.rondas);   // ±, en tanto por uno
     var confiable = r.rondas >= 2000;
@@ -225,6 +263,9 @@ window.MCEstadisticas = (function () {
   }
 
   function enganchar() {
+    var ir = document.getElementById('stVacioJugar');
+    if (ir) ir.onclick = function () { MC.sound.click(); MC.showView('lobby'); };
+
     document.querySelectorAll('#statsBody .ag-per').forEach(function (b) {
       b.onclick = function () { periodo = b.dataset.per; MC.sound.click(); render(); };
     });
@@ -234,5 +275,7 @@ window.MCEstadisticas = (function () {
 
   function init() { MC.onEnter('stats', render); }
 
-  return { init: init, open: open, render: render };
+  // Se exportan para que Misiones y el Ranking usen la MISMA pieza. Tres
+  // estados vacios dibujados por separado se separan al primer retoque.
+  return { init: init, open: open, render: render, vacio: vacio, ICO: ICO };
 })();

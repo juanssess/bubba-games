@@ -29,6 +29,12 @@ window.MCRanking = (function () {
   'use strict';
 
   var TOPE = 25;
+
+  var ICO_CANDADO =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" ' +
+    'stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect x="4" y="10" width="16" height="10" rx="2"/>' +
+    '<path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 14v2"/></svg>';
   var filas = null;      // null = todavía no se cargó
   var error = '';
   var cargando = false;
@@ -88,18 +94,35 @@ window.MCRanking = (function () {
     }
 
     if (error) {
-      cont.innerHTML = aviso('No se pudo cargar la tabla',
-        error === 'sin-conexion'
-          ? 'Necesitás conexión y una cuenta para ver el ranking.'
-          : 'Firestore devolvió: ' + error) +
-        botones();
+      /* El error que de verdad se ve es `permission-denied`, y significa una
+         cosa concreta: las reglas de Firestore no estan publicadas. Decir el
+         codigo y nada mas manda a alguien a buscar en Google; decir que
+         significa y donde se arregla es la mitad del trabajo que falta. */
+      var esPermiso = /permission/i.test(error);
+      cont.innerHTML = MCEstadisticas.vacio(
+        ICO_CANDADO,
+        esPermiso ? 'Falta publicar las reglas' : 'No se pudo cargar la tabla',
+        esPermiso
+          ? 'La tabla lee una colección pública de Firestore y todavía no tiene ' +
+            'permiso. Se arregla en la consola de Firebase: Firestore Database → ' +
+            'Reglas, pegar el contenido de firestore.rules del repo y publicar.'
+          : (error === 'sin-conexion'
+              ? 'Necesitás conexión y una cuenta de Google para ver el ranking.'
+              : 'Firestore devolvió: ' + escapar(error)),
+        '<button class="btn btn-ghost" id="rkRefrescar">Reintentar</button>',
+      );
       enganchar();
       return;
     }
 
     if (!filas.length) {
-      cont.innerHTML = aviso('Todavía no hay nadie en la tabla',
-        'Entrá con Google y jugá una ronda: vas a ser el primero.') + botones();
+      cont.innerHTML = MCEstadisticas.vacio(
+        MCEstadisticas.ICO.dados,
+        'Todavía no hay nadie en la tabla',
+        'Entrá con Google y jugá una ronda: vas a ser el primero de la lista. ' +
+        'Se ordena por total apostado, así que no hace falta ganar para aparecer.',
+        '<button class="btn btn-gold" id="rkJugar">Jugar una ronda</button>',
+      );
       enganchar();
       return;
     }
