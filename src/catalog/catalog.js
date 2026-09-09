@@ -92,6 +92,15 @@ window.MCCatalog = (function () {
       frameUrl: 'games/slots/index.html?game=sebusca'
     },
     {
+      id: 'vendimia', engine: 'proveedor', name: 'La Vendimia', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Media-alta',
+      tag: 'Racimos · cascadas · el multiplicador sube', rtpValue: 0.9658, rtp: 'RTP 96,6%',
+      maxWin: 5000, emoji: '🍇', badge: 'new',
+      art: 'linear-gradient(135deg,#2b1226,#8e1330 55%,#cfa93c)',
+      desc: 'Cinco pegados y explota',
+      frameUrl: 'games/slots/index.html?game=vendimia'
+    },
+    {
       // PLANTILLA: copiá esta entrada para dar de alta tu juego.
       // El campo que manda es `engine`: tiene que coincidir con el
       // nombre que usás en MC.registerEngine() y con el id de la

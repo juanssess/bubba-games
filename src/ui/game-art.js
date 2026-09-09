@@ -348,6 +348,92 @@ window.MCArte = (function () {
     };
   };
 
+  /* ---------- La Vendimia: el racimo que explota y la cascada ---------- */
+  ESCENAS.vendimia = function (w, h) {
+    /* Cuatro cascadas por vuelta. Cada una tiene sus tres tiempos —se
+       enciende, revienta, cae lo de arriba— y el multiplicador sube un
+       escalon en cada una. Es exactamente lo que hace el juego, que es
+       para lo que esta esta animacion: no es un adorno con uvas, es la
+       mecanica contada en cuatro segundos. */
+    var PASOS = 4, DUR = 1.15, CICLO = PASOS * DUR + 0.9;
+    var ESCALERA = [1, 2, 3, 5, 8];
+    var COLORES = ['#7b3fa0', '#4e7d2c', '#cfa93c', '#8e1330'];
+    var col = 5, fil = 4;
+
+    return function (c, t) {
+      var vuelta = Math.floor(t / CICLO), f = t % CICLO;
+      fondo(c, w, h, '#2b1226', '#8e1330');
+
+      var cw = w * 0.15, ch = h * 0.17;
+      var x0 = (w - cw * col) / 2, y0 = h * 0.22;
+
+      c.fillStyle = 'rgba(0,0,0,.32)';
+      rr(c, x0 - 3, y0 - 3, cw * col + 6, ch * fil + 6, 6);
+      c.fill();
+
+      var paso = Math.min(PASOS - 1, Math.floor(f / DUR));
+      var fp = f - paso * DUR;
+      // El racimo que gana en este paso: unas celdas pegadas, elegidas
+      // de forma estable para que la tarjeta se vea igual cada vuelta.
+      var base = Math.floor(az(paso * 13 + vuelta * 7) * (col - 2));
+      var fila = Math.floor(az(paso * 29 + vuelta * 3) * (fil - 1));
+      var color = COLORES[Math.floor(az(paso * 5 + vuelta) * COLORES.length)];
+
+      function enRacimo(i, j) {
+        return (j === fila && i >= base && i <= base + 2) ||
+               (j === fila + 1 && i >= base && i <= base + 1);
+      }
+
+      // 0.00-0.45 se enciende  ·  0.45-0.70 revienta  ·  0.70-1.15 cae
+      var late = suave(fp / 0.45);
+      var revienta = suave((fp - 0.45) / 0.25);
+      var cae = suave((fp - 0.70) / 0.45);
+
+      for (var i = 0; i < col; i++) {
+        for (var j = 0; j < fil; j++) {
+          var dentro = enRacimo(i, j);
+          var r = Math.min(cw, ch) * 0.34;
+          var cx = x0 + i * cw + cw / 2;
+          var cy = y0 + j * ch + ch / 2;
+          var esc = 1, alfa = 1;
+
+          if (dentro) {
+            if (fp < 0.45) { esc = 1 + 0.16 * Math.sin(late * Math.PI * 3); }
+            else if (fp < 0.70) { esc = 1.25 * (1 - revienta); alfa = 1 - revienta; }
+            else { continue; }   // ya no esta: cayo lo de arriba en su lugar
+          } else if (fp >= 0.70 && j > fila && j <= fila + 2) {
+            // Lo que estaba arriba del racimo baja a ocupar el hueco.
+            cy += cae * ch * 0.5;
+          }
+
+          c.globalAlpha = alfa;
+          c.beginPath();
+          c.arc(cx, cy, r * esc, 0, Math.PI * 2);
+          c.fillStyle = dentro ? color : (az(i * 17 + j * 31 + vuelta) < 0.5 ? '#5b2a6e' : '#4e7d2c');
+          c.fill();
+          if (dentro && fp < 0.45) {
+            c.strokeStyle = '#ffd35c';
+            c.lineWidth = 2;
+            c.stroke();
+          }
+          // El brillito de arriba a la izquierda: es lo que las vuelve uvas
+          // y no circulos de color.
+          c.globalAlpha = alfa * 0.45;
+          c.beginPath();
+          c.arc(cx - r * 0.32, cy - r * 0.34, r * 0.3, 0, Math.PI * 2);
+          c.fillStyle = '#fff';
+          c.fill();
+          c.globalAlpha = 1;
+        }
+      }
+
+      var mult = ESCALERA[Math.min(ESCALERA.length - 1, paso + 1)];
+      var creciendo = fp < 0.45 ? 0 : 1;
+      texto(c, '×' + mult, w - 22, y0 - 10, 15 + creciendo * 3, '#ffb347');
+      texto(c, 'La Vendimia', w / 2, h - 12, 13, '#f0d8b0');
+    };
+  };
+
   /* ---------- Doble o Nada: la carta que gira ---------- */
   ESCENAS.plantilla = function (w, h) {
     var CICLO = 3.2;

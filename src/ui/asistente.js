@@ -116,6 +116,19 @@ window.MCAsistente = (function () {
       }
     },
     {
+      claves: ['vendimia', 'racimo', 'racimos', 'cascada', 'cascadas', 'uva', 'uvas'],
+      responde: function () {
+        return '<strong>La Vendimia</strong> es 6×5 y no paga por líneas: paga por ' +
+          '<em>racimos</em>. Cinco o más símbolos iguales PEGADOS entre sí —arriba, abajo ' +
+          'o al costado, en cualquier forma— y cobrás.<br>' +
+          'Lo que gana se va, cae lo de arriba, entra lo nuevo y se vuelve a mirar: cada ' +
+          'cascada de la misma jugada <strong>sube el multiplicador</strong> (×1, ×2, ×3, ' +
+          '×5, ×8…). Y en los giros gratis la escalera <em>no vuelve a empezar</em>: sigue ' +
+          'donde quedó hasta el final de la tanda.<br>' +
+          'RTP 96,6%, volatilidad media-alta, premio máximo 5.000×.';
+      }
+    },
+    {
       claves: ['se busca', 'sebusca', 'pegajoso', 'wild', 'multiplicador'],
       responde: function () {
         return '<strong>Se Busca</strong> es 5×5 con 15 líneas, RTP 96,4%, y es el más ' +
