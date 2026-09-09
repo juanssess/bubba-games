@@ -92,6 +92,12 @@ window.MC = window.MC || {};
     // asi que no sirve para contar nada: esto si.
     if (window.MCDiario) MCDiario.registrar(staked, returned);
 
+    /* El torneo semanal. Va aca por lo mismo que todo lo demas: es el
+       unico punto por donde pasa CADA apuesta del casino. Si el torneo
+       se enganchara en los juegos, el dia que se agregue el cuarto habria
+       que acordarse de engancharlo tambien. */
+    if (window.MCTorneo) MCTorneo.registrar(staked, returned);
+
     /* Y el acumulado POR JUEGO, de toda la vida. Va aparte del diario y
        sin podar: son nueve renglones fijos, contestan "cual me rinde" y
        si se podaran por fecha la respuesta cambiaria sola con el tiempo. */

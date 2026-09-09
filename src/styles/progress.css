@@ -159,3 +159,130 @@
   .cj-recarga .btn{width:100%}
   .bv-card .btn-block{width:100%}
 }
+
+/* ============================================================
+   TORNEO — El Golpe de la Semana
+
+   La pantalla tiene una jerarquia y los estilos la sostienen: el
+   multiplicador propio es lo mas grande que hay, las marcas son
+   una tira de tres, y la tabla es lo mas chico. Al reves —tabla
+   grande arriba, tu numero abajo— la pantalla se lee como "quien
+   va ganando" en vez de "cuanto te falta", que es lo unico sobre
+   lo que el jugador puede hacer algo.
+   ============================================================ */
+.tor-head{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:20px;flex-wrap:wrap;margin-bottom:18px;
+}
+.tor-kicker{
+  display:block;font-size:11px;letter-spacing:2.4px;text-transform:uppercase;
+  color:var(--gold);font-weight:800;margin-bottom:4px;
+}
+.tor-head h3{
+  font-family:var(--font-display);font-size:clamp(26px,3.6vw,38px);
+  letter-spacing:.6px;line-height:1;margin:0 0 6px;
+}
+.tor-head p{margin:0;color:var(--txt-dim);font-size:13.5px;max-width:56ch}
+
+.tor-reloj{
+  display:flex;flex-direction:column;align-items:flex-end;gap:2px;
+  padding:10px 16px;border:1px solid var(--line);border-radius:var(--r-md);
+  background:var(--bg-2);
+}
+.tor-reloj span{font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--txt-dim)}
+.tor-reloj strong{font-size:20px;font-variant-numeric:tabular-nums;color:var(--gold)}
+
+/* ---- tu golpe ---- */
+.tor-mio{
+  display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;
+  padding:22px 24px;border:1px solid var(--line-2);border-radius:var(--r-lg);
+  background:
+    radial-gradient(120% 180% at 0% 0%, rgba(245,196,81,.14), transparent 60%),
+    var(--bg-2);
+  margin-bottom:14px;
+}
+.tor-golpe{display:flex;flex-direction:column;gap:2px;min-width:190px}
+.tor-golpe-lab{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--txt-dim)}
+.tor-golpe-val{
+  font-family:var(--font-display);font-size:clamp(40px,6vw,60px);line-height:.95;
+  color:var(--gold);font-variant-numeric:tabular-nums;
+}
+.tor-golpe-sub{font-size:12.5px;color:var(--txt-dim)}
+
+.tor-prox{display:flex;flex-direction:column;gap:8px;min-width:0}
+.tor-prox-lab{font-size:13px;color:var(--txt-dim)}
+.tor-prox-lab strong{color:var(--txt)}
+.tor-prox-lab.tor-todo{color:var(--gold);font-weight:700}
+.tor-barra{height:8px;border-radius:99px;background:var(--velo-1);overflow:hidden}
+.tor-barra i{
+  display:block;height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--gold-2),var(--gold));
+  transition:width .5s ease;
+}
+.tor-cobrar{white-space:nowrap}
+.tor-cobrado{font-size:12.5px;color:var(--green);font-weight:700;white-space:nowrap}
+
+/* ---- las tres marcas ---- */
+.tor-marcas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+.tor-marca{
+  display:flex;flex-direction:column;gap:2px;padding:14px 16px;
+  border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg-2);
+  opacity:.62;
+}
+/* La marca alcanzada se enciende. Es la unica diferencia visual y
+   alcanza: encender tres cosas distintas seria no encender ninguna. */
+.tor-marca.ok{
+  opacity:1;border-color:var(--line-2);
+  background:radial-gradient(120% 200% at 100% 0%, rgba(245,196,81,.14), transparent 62%),var(--bg-2);
+}
+.tor-marca-x{
+  font-family:var(--font-display);font-size:26px;line-height:1;
+  color:var(--txt);font-variant-numeric:tabular-nums;
+}
+.tor-marca.ok .tor-marca-x{color:var(--gold)}
+.tor-marca-n{font-size:12.5px;font-weight:700}
+.tor-marca-p{font-size:12px;color:var(--txt-dim)}
+.tor-marca-ok{font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--green);font-weight:800}
+
+/* ---- la tabla ---- */
+.tor-tabla-wrap{border-top:1px solid var(--sep);padding-top:20px}
+.tor-tabla{display:flex;flex-direction:column;gap:2px}
+.tor-row{
+  display:grid;grid-template-columns:44px 1fr 110px 110px;gap:12px;align-items:center;
+  padding:11px 14px;border-radius:var(--r-sm);
+}
+.tor-row.tor-th{
+  font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--txt-dim);padding-bottom:4px;
+}
+.tor-tabla .tor-row:not(.tor-th):nth-child(even){background:var(--velo-1)}
+.tor-row.mia{background:rgba(245,196,81,.1);box-shadow:inset 0 0 0 1px var(--line-2)}
+.tor-pos{
+  font-family:var(--font-display);font-size:18px;color:var(--txt-dim);
+  text-align:center;font-variant-numeric:tabular-nums;
+}
+.tor-pos.oro{color:var(--gold)}
+.tor-pos.plata{color:#cfd3d8}
+.tor-pos.bronce{color:#c98a52}
+.tor-jug{display:flex;align-items:center;gap:9px;min-width:0;font-weight:600;font-size:13.5px}
+.tor-jug img,.tor-jug i{
+  width:26px;height:26px;border-radius:50%;flex:none;
+  background:var(--bg-4);object-fit:cover;
+}
+.tor-x{font-family:var(--font-display);font-size:19px;color:var(--gold);font-variant-numeric:tabular-nums}
+.tor-ap{font-size:13px;color:var(--txt-dim);font-variant-numeric:tabular-nums}
+.tor-nota{margin:14px 2px 0;font-size:12px;color:var(--txt-dim)}
+
+@media (max-width:760px){
+  .tor-mio{grid-template-columns:1fr;gap:16px}
+  .tor-marcas{grid-template-columns:1fr}
+  .tor-cobrar{width:100%}
+  .tor-row{grid-template-columns:32px 1fr 74px;gap:8px;padding:10px 8px}
+  /* En un celular la cuarta columna no entra y es la menos importante:
+     el torneo se gana por multiplicador, no por volumen. */
+  .tor-row .tor-ap{display:none}
+}
+
+/* Sin golpes todavia: el guion no puede tener el peso de un premio.
+   A 60px y en oro se leia como una barra rara, no como un vacio. */
+.tor-golpe-val.vacio{color:var(--txt-dim);opacity:.45;font-size:38px}

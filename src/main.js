@@ -32,6 +32,7 @@
     MCCajero.init();
     MCVip.init();
     MCRanking.init();
+    MCTorneo_UI.init();
     MCBote.init();
     MCAgente.init();
     MCEstadisticas.init();

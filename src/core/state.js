@@ -31,6 +31,7 @@ window.MC = window.MC || {};
     // este en esta lista desaparece la primera vez que sincroniza la nube.
     // Es el mismo pozo en el que ya se cayo el sello de hora.
     diario: {},        // por dia: rondas, apostado, devuelto
+    torneo: null,      // El Golpe de la Semana: semana en curso y marcas cobradas
     porJuego: {},      // por juego, de toda la vida
     caja: [],          // libro de movimientos (solo cuentas de agente)
     cajaAgente: null,  // saldo y comision del agente (solo cuentas de agente)

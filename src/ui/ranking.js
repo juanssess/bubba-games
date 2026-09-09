@@ -49,7 +49,7 @@ window.MCRanking = (function () {
     // adorno, porque su "apostado" no costaria nada.
     if (MCRoles.esAgente(u)) return null;
     var s = MC.state.stats || {};
-    return {
+    var fila = {
       nombre: (u.name || 'Jugador').slice(0, 24),
       foto: u.photo || null,
       saldo: MC.getBalance(),
@@ -58,6 +58,24 @@ window.MCRanking = (function () {
       xp: MC.state.xp || 0,
       at: Date.now()
     };
+
+    /* EL TORNEO VIAJA EN LA MISMA FILA, y eso fue a proposito.
+       Podria tener su coleccion propia en Firestore, con su indice y su
+       orden hecho en el servidor. Pero una coleccion nueva son reglas
+       nuevas, y las reglas se publican a mano en la consola de Firebase:
+       cada coleccion que se agrega es una visita mas a la consola y una
+       oportunidad mas de que el casino quede a medias esperando a que
+       alguien se acuerde. Tres campos en un documento que YA es publico
+       no cuestan nada y no piden permiso nuevo.
+       El costo se paga del otro lado: la tabla del torneo se ordena en el
+       navegador. Ver el comentario de src/ui/torneo.js. */
+    if (window.MCTorneo) {
+      var t = MCTorneo.mio();
+      fila.sem = t.sem;
+      fila.golpe = t.golpe || 0;
+      fila.semApostado = t.apostado || 0;
+    }
+    return fila;
   }
 
   /* ---------------- cargar ---------------- */
