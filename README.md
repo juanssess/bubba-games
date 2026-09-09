@@ -24,6 +24,11 @@ Se juega desde el navegador, también en el celular. No hay que instalar ni
 descargar nada. Cada persona arranca con sus propias fichas, guardadas en su
 navegador.
 
+Está en GitHub Pages: cada `git push` lo republica solo, sin que haya que
+tener ninguna computadora prendida. Cómo funciona eso —y qué hay que hacer
+para ponerle un dominio propio, incluido el paso de Firebase que no avisa
+cuando falta— está en [docs/publicar.md](docs/publicar.md).
+
 ## Cómo ejecutarlo localmente
 
 Doble clic en **`ABRIR CASINO.bat`**: levanta el servidor y abre el navegador.
