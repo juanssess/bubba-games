@@ -81,6 +81,80 @@ window.MCRanking = (function () {
     });
   }
 
+  /* ---------------- el vacío, según por qué está vacío ----------------
+
+     Antes acá había UN solo cartel: "Entrá con Google y jugá una ronda".
+     Se veía igual estuvieras como estuvieras, y por eso era inservible
+     justo cuando más hacía falta: alguien que YA entró con Google y YA
+     jugó —compró un bonus, incluso— leía que hiciera exactamente lo que
+     acababa de hacer. Un mensaje que no distingue entre "te falta algo" y
+     "algo se rompió" manda al jugador a repetir la acción para siempre.
+
+     Son cuatro situaciones distintas y cada una tiene su respuesta. La
+     cuarta es la importante: si jugaste logueado y aun así no estás en la
+     tabla, el problema es la SUBIDA, y la pantalla tiene que decirlo con
+     el motivo que reporta Firestore en vez de mandarte a jugar de nuevo. */
+  function vacioSegunElCaso(u) {
+    var esGoogle = !!u && u.provider === 'google';
+
+    if (!esGoogle) {
+      return MCEstadisticas.vacio(
+        MCEstadisticas.ICO.dados,
+        'Estás jugando como invitado',
+        'La tabla compara cuentas de Google, porque es lo único que sigue siendo ' +
+        'vos en otro dispositivo. Tus fichas de invitado viven solo en este ' +
+        'navegador y no compiten. Entrá con Google y jugá una ronda.',
+        '<button class="btn btn-gold" id="rkEntrar">Entrar con Google</button>',
+      );
+    }
+
+    if (window.MCRoles && MCRoles.esAgente(u)) {
+      return MCEstadisticas.vacio(
+        MCEstadisticas.ICO.dados,
+        'El agente no compite',
+        'Tu cuenta de agente crea las fichas que reparte, así que su "apostado" ' +
+        'no le cuesta nada. Dejarla entrar volvería la tabla un adorno. ' +
+        'Entrá con una cuenta de jugador para aparecer.',
+        '<button class="btn btn-ghost" id="rkRefrescar">Reintentar</button>',
+      );
+    }
+
+    var apostado = (MC.state.stats || {}).wagered || 0;
+    if (apostado <= 0) {
+      return MCEstadisticas.vacio(
+        MCEstadisticas.ICO.dados,
+        'Jugá una ronda y sos el primero',
+        'Se ordena por total apostado, así que no hace falta ganar para aparecer.',
+        '<button class="btn btn-gold" id="rkJugar">Jugar una ronda</button>',
+      );
+    }
+
+    // Jugaste, estás logueado, y no estás en la tabla. Acá hay un problema
+    // de verdad, y lo que corresponde es mostrar el motivo.
+    var estado = MC.auth.estadoNube ? MC.auth.estadoNube() : '';
+    var motivo = MC.auth.errorNube ? MC.auth.errorNube() : '';
+
+    if (estado === 'error') {
+      return MCEstadisticas.vacio(
+        ICO_CANDADO,
+        'Tu progreso no está subiendo',
+        'Ya apostaste ' + MC.fmt(apostado) + ' fichas con esta cuenta, pero la nube ' +
+        'rechazó el guardado' + (motivo ? ': <code>' + escapar(motivo) + '</code>' : '') +
+        '. Mientras no suba tu progreso tampoco sube tu fila del ranking.',
+        '<button class="btn btn-ghost" id="rkRefrescar">Reintentar</button>',
+      );
+    }
+
+    return MCEstadisticas.vacio(
+      MCEstadisticas.ICO.dados,
+      'Tu fila está por subir',
+      'Ya apostaste ' + MC.fmt(apostado) + ' fichas. La fila del ranking viaja ' +
+      'con el guardado en la nube, que sale un par de segundos después de cada ' +
+      'ronda. Si después de reintentar seguís sin aparecer, avisame.',
+      '<button class="btn btn-ghost" id="rkRefrescar">Reintentar</button>',
+    );
+  }
+
   /* ---------------- dibujo ---------------- */
   function render() {
     var cont = document.getElementById('rankingBody');
@@ -116,13 +190,7 @@ window.MCRanking = (function () {
     }
 
     if (!filas.length) {
-      cont.innerHTML = MCEstadisticas.vacio(
-        MCEstadisticas.ICO.dados,
-        'Todavía no hay nadie en la tabla',
-        'Entrá con Google y jugá una ronda: vas a ser el primero de la lista. ' +
-        'Se ordena por total apostado, así que no hace falta ganar para aparecer.',
-        '<button class="btn btn-gold" id="rkJugar">Jugar una ronda</button>',
-      );
+      cont.innerHTML = vacioSegunElCaso(u);
       enganchar();
       return;
     }
@@ -195,6 +263,11 @@ window.MCRanking = (function () {
     };
     var j = document.getElementById('rkJugar');
     if (j) j.onclick = function () { MC.showView('lobby'); };
+    var e = document.getElementById('rkEntrar');
+    if (e) e.onclick = function () {
+      MC.sound.click();
+      MC.auth.entrarCon('google');
+    };
   }
 
   function open() {
