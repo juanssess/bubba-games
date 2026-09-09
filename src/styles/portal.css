@@ -4,7 +4,7 @@
    ============================================================ */
 
 /* ---------------- carrusel de promos ---------------- */
-.carousel{position:relative;border-radius:var(--r-lg);overflow:hidden;margin-bottom:20px}
+.carousel{position:relative;border-radius:var(--r-lg);overflow:hidden;margin-bottom:18px}
 .carousel-track{display:flex;transition:transform .55s cubic-bezier(.4,0,.2,1)}
 .promo{
   position:relative;flex:0 0 100%;min-height:clamp(250px,34vw,330px);
@@ -88,7 +88,7 @@
    veia al entrar a un casino era un menu gris. La subtitulo se va —el
    titulo ya dice a donde lleva— y todo entra en una fila que corre. */
 .quick-row{
-  display:flex;gap:9px;margin-bottom:26px;
+  display:flex;gap:9px;margin-bottom:32px;
   overflow-x:auto;padding-bottom:5px;scrollbar-width:none;
 }
 .quick-row::-webkit-scrollbar{display:none}
@@ -103,10 +103,10 @@
 .quick-txt span{display:none}
 
 /* ---------------- rieles ---------------- */
-.rail{margin-bottom:34px}
-.rail-head{display:flex;align-items:center;gap:14px;margin-bottom:15px}
+.rail{margin-bottom:42px}
+.rail-head{display:flex;align-items:center;gap:14px;margin-bottom:17px}
 .rail-head h2{
-  font-family:var(--font-display);font-size:20px;letter-spacing:1.2px;
+  font-family:var(--font-display);font-size:19px;letter-spacing:1px;
   text-transform:uppercase;white-space:nowrap;
 }
 .rail-sub{font-size:11.5px;color:var(--txt-dim);white-space:nowrap}
@@ -132,9 +132,11 @@
 .rail-track{
   display:grid;grid-auto-flow:column;grid-auto-columns:clamp(168px,16.5vw,224px);gap:14px;
   justify-content:start;
-  overflow-x:auto;scroll-behavior:smooth;padding-bottom:6px;scroll-snap-type:x mandatory;
+  overflow-x:auto;scroll-behavior:smooth;padding-bottom:8px;scroll-snap-type:x mandatory;
+  scrollbar-width:thin;scrollbar-color:var(--line-2) transparent;
 }
-.rail-track::-webkit-scrollbar{height:6px}
+.rail-track::-webkit-scrollbar{height:4px}
+.rail-track::-webkit-scrollbar-thumb{background:var(--line-2)}
 
 /* ---------------- tarjeta de juego ---------------- */
 .gcard{
@@ -192,8 +194,8 @@
   background:rgba(8,5,5,.72);padding:3px 8px;border-radius:6px;
   border:1px solid var(--line);font-variant-numeric:tabular-nums;
 }
-.gcard-body{padding:10px 12px 12px}
-.gcard-body strong{display:block;font-size:12.5px;margin-bottom:2px;letter-spacing:-.1px}
+.gcard-body{padding:11px 12px 13px;border-top:1px solid var(--line)}
+.gcard-body strong{display:block;font-size:13px;margin-bottom:3px;letter-spacing:-.1px}
 .gcard-body span{
   display:block;font-size:10.5px;color:var(--txt-dim);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
@@ -297,6 +299,17 @@
   .promo p{max-width:100%}
   .promo{min-height:auto;padding:24px 22px 26px}
 
+  /* En tactil el gesto alcanza: la barra visible sumaba ruido. El velo
+     derecho deja claro que el riel continua sin agregar otro control. */
+  .quick-row,.rail-track{
+    scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 24px),transparent 100%);
+    mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 24px),transparent 100%);
+  }
+  .rail-track::-webkit-scrollbar{display:none}
+  .quick-row{margin-bottom:34px}
+  .rail{margin-bottom:46px}
+
   /* La regla de la ficha quedaba reducida a un guioncito entre el
      subtítulo y las flechas: no se lee como nada. */
   .rail-head .chip-rule{display:none}
@@ -309,4 +322,5 @@
   /* A este ancho el subtítulo del riel compite con el título y con las
      flechas por el mismo renglón. El título alcanza. */
   .rail-sub{display:none}
+  .rail-head h2{font-size:18px;letter-spacing:.8px}
 }

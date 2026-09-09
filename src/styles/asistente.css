@@ -118,7 +118,14 @@
     right:0; bottom:0; width:100vw; height:88vh;
     border-radius:18px 18px 0 0;
   }
-  .as-fab{ right:16px; bottom:16px; padding:12px }
+  .as-fab{
+    right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
+    width:40px;height:40px;padding:0;justify-content:center;gap:0;
+    background:var(--bg-3);border:1px solid rgba(216,30,52,.48);
+    box-shadow:0 7px 20px rgba(0,0,0,.34);opacity:.88;
+  }
+  .as-fab:hover{transform:none;box-shadow:0 7px 20px rgba(0,0,0,.42);opacity:1}
+  .as-fab-ico{font-size:16px}
   .as-fab-txt{ display:none }
 }
 
