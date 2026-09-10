@@ -24,6 +24,16 @@ window.MCTeams = (function () {
   var BADGES = ['🦅', '🪨', '⛰️', '🧂', '🌪️', '🌻', '🗿', '⚓',
                 '🏔️', '🚂', '🗼', '🌅', '🌾', '🦙', '🌿', '🌋'];
 
+  var CODES = ['CFC', 'AFA', 'UDC', 'DSA', 'VEN', 'RMI', 'APE', 'NBA',
+               'SQU', 'FEA', 'DFA', 'ALB', 'MEC', 'OLG', 'ARE', 'JVO'];
+
+  var COLORS = [
+    ['#b71c1c','#f5c451'], ['#37474f','#eceff1'], ['#2e7d32','#f5c451'], ['#1565c0','#e3f2fd'],
+    ['#6a1b9a','#f3e5f5'], ['#ef6c00','#fff3e0'], ['#5d4037','#f5c451'], ['#00838f','#e0f7fa'],
+    ['#283593','#e8eaf6'], ['#263238','#ef5350'], ['#8e0000','#eeeeee'], ['#f9a825','#0d47a1'],
+    ['#558b2f','#f1f8e9'], ['#6d4c41','#efebe9'], ['#1b5e20','#c5e1a5'], ['#d84315','#212121']
+  ];
+
   // Fuerzas alrededor de 1.0: más ataque = marca más,
   // más defensa = le convierten menos.
   var TEAMS = (function build() {
@@ -33,6 +43,9 @@ window.MCTeams = (function () {
         id: 't' + i,
         name: name,
         badge: BADGES[i],
+        code: CODES[i],
+        color: COLORS[i][0],
+        color2: COLORS[i][1],
         attack: 0.72 + rng() * 0.66,
         defense: 0.72 + rng() * 0.66
       };

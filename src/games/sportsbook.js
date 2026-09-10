@@ -39,6 +39,11 @@ window.MCSportsbook = (function () {
     return MC.state.sports.tickets;
   }
 
+  function crest(team) {
+    return '<i class="sp-crest" style="--tc:' + team.color + ';--tc2:' + team.color2 + '">' +
+      team.code + '</i>';
+  }
+
   /* ---------------- cupón ---------------- */
   function combinedOdds() {
     return slip.reduce(function (acc, s) { return acc * s.odds; }, 1);
@@ -213,8 +218,8 @@ window.MCSportsbook = (function () {
       return '<article class="sp-match">' +
                '<div class="sp-match-info">' +
                  '<span class="sp-kickoff">' + horaPartido(matchIndex) + ' · Prepartido</span>' +
-                 '<span class="sp-team"><i>' + h.badge + '</i><strong>' + h.name + '</strong></span>' +
-                 '<span class="sp-team"><i>' + a.badge + '</i><strong>' + a.name + '</strong></span>' +
+                 '<span class="sp-team">' + crest(h) + '<strong>' + h.name + '</strong></span>' +
+                 '<span class="sp-team">' + crest(a) + '<strong>' + a.name + '</strong></span>' +
                '</div>' +
                '<div class="sp-markets">' +
                  '<div class="sp-group"><span class="sp-glabel">Ganador</span><div>' +
@@ -300,9 +305,9 @@ window.MCSportsbook = (function () {
         var h = MCTeams.get(r.home), a = MCTeams.get(r.away);
         return '<div class="sp-result">' +
                  '<small>Final</small>' +
-                 '<span><i>' + h.badge + '</i>' + h.name + '</span>' +
+                 '<span>' + crest(h) + h.name + '</span>' +
                  '<b>' + r.gh + '<em>–</em>' + r.ga + '</b>' +
-                 '<span>' + a.name + '<i>' + a.badge + '</i></span>' +
+                 '<span>' + a.name + crest(a) + '</span>' +
                '</div>';
       }).join('') + '</div>';
   }
@@ -315,7 +320,7 @@ window.MCSportsbook = (function () {
       rows.map(function (r, i) {
         return '<tr class="' + (i < 4 ? 'sp-zone' : '') + '">' +
                  '<td><b>' + (i + 1) + '</b></td>' +
-                 '<td class="sp-tname"><i>' + r.team.badge + '</i><strong>' + r.team.name + '</strong></td>' +
+                 '<td class="sp-tname">' + crest(r.team) + '<strong>' + r.team.name + '</strong></td>' +
                  '<td>' + r.pj + '</td><td>' + r.g + '</td><td>' + r.e + '</td><td>' + r.p + '</td>' +
                  '<td>' + r.gf + '</td><td>' + r.gc + '</td>' +
                  '<td>' + (r.dg > 0 ? '+' : '') + r.dg + '</td>' +
@@ -329,9 +334,12 @@ window.MCSportsbook = (function () {
       var on = b.dataset.spTab === activeTab;
       b.classList.toggle('active', on);
       b.setAttribute('aria-selected', on ? 'true' : 'false');
+      b.tabIndex = on ? 0 : -1;
     });
     document.querySelectorAll('[data-sp-section]').forEach(function (s) {
-      s.classList.toggle('active', s.dataset.spSection === activeTab);
+      var on = s.dataset.spSection === activeTab;
+      s.classList.toggle('active', on);
+      s.hidden = !on;
     });
   }
 
@@ -387,12 +395,24 @@ window.MCSportsbook = (function () {
       MC.sound.click();
       renderSlip();
     };
-    document.querySelector('.sp-tabs').onclick = function (e) {
+    var tabs = document.querySelector('.sp-tabs');
+    tabs.onclick = function (e) {
       var b = e.target.closest('[data-sp-tab]');
       if (!b) return;
       activeTab = b.dataset.spTab;
       MC.sound.click();
       renderTabs();
+    };
+    tabs.onkeydown = function (e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      var botones = Array.prototype.slice.call(tabs.querySelectorAll('[data-sp-tab]'));
+      var actual = botones.indexOf(document.activeElement);
+      if (actual < 0) return;
+      e.preventDefault();
+      var siguiente = (actual + (e.key === 'ArrowRight' ? 1 : -1) + botones.length) % botones.length;
+      activeTab = botones[siguiente].dataset.spTab;
+      renderTabs();
+      botones[siguiente].focus();
     };
 
     MC.registerEngine('sportsbook', { load: load });

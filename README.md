@@ -230,8 +230,9 @@ de cada mercado da 1,05 exacto.
 Reglas: una sola selección por partido en un cupón (dos mercados del mismo
 partido están correlacionados), y en combinada entran todas o no cobra ninguna.
 Los cupones quedan pendientes hasta que simulás la jornada y sobreviven a un F5.
-El fixture se sortea con el número de jornada como semilla, así que las cuotas no
-cambian al recargar.
+La temporada tiene 30 fechas: todos contra todos, ida y vuelta, sin repetir
+cruces dentro de cada rueda. El fixture se genera con el método del círculo,
+así que los partidos y las cuotas no cambian al recargar.
 
 ### Misiones y rango VIP
 

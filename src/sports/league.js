@@ -1,9 +1,9 @@
 /* ============================================================
    DEPORTES / LIGA — fixture, cuotas, simulación y tabla.
 
-   El fixture de cada jornada se sortea con el NÚMERO DE JORNADA
-   como semilla: no hace falta guardarlo, y al recargar la página
-   los partidos y las cuotas son exactamente los mismos.
+   El fixture usa el método del círculo: 15 jornadas de ida y 15 de
+   vuelta, sin repetir cruces y con las localías invertidas. No hace
+   falta guardarlo y al recargar los partidos siguen siendo los mismos.
 
    Depende de: rng, state, MCTeams, MCPoisson.
    ============================================================ */
