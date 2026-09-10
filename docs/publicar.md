@@ -1,4 +1,8 @@
-# Cómo está publicado Bubba, y cómo ponerle un dominio propio
+# Publicar Bubba
+
+Tres cosas, y las tres están hechas: **dónde vive hoy**, **cómo ponerle
+un dominio propio** (pendiente, cuesta plata) y **cómo armar el Firebase
+desde cero** (ya hecho; sirve para rearmarlo o para quien clone el repo).
 
 ## Dónde vive hoy
 
@@ -103,6 +107,93 @@ Firebase". Si aparece ese cartel, es exactamente esto.
 
 Hoy la lista tiene: `localhost`, `bubba-games.firebaseapp.com`,
 `bubba-games.web.app` y `juanssess.github.io`.
+
+---
+
+## Armar el Firebase desde cero
+
+Esto **ya está hecho** en `bubba-games` y no hay que volver a tocarlo. Sirve
+el día que alguien clone el repo y quiera su propio backend, o el día que
+haya que rearmar el proyecto.
+
+El orden importa: cada paso rompe de una forma distinta, y saber **cómo se
+ve cada falla** es lo que ahorra la tarde. Un paso saltado casi nunca dice
+lo que le falta.
+
+### 0. El proyecto y la configuración
+
+Crear el proyecto en la consola de Firebase y copiar su configuración a
+`CONFIG`, arriba de `src/core/auth-firebase.js`.
+
+La `apiKey` que está ahí es **pública por diseño** y está bien que se vea en
+el repo: identifica al proyecto, no autoriza nada. Lo que autoriza son las
+reglas de Firestore y la lista de dominios — los dos pasos de abajo.
+
+> **Si esto falla:** nada arranca y la consola del navegador muestra un error
+> de `initializeApp`. Es el único paso que falla de forma obvia.
+
+### 1. Authentication → Sign-in method → Google
+
+Habilitar el proveedor Google y guardar.
+
+> **Si falta:** el botón de entrar abre el popup y se cierra solo. El casino
+> muestra "No se pudo entrar con Google" y en la consola aparece
+> `auth/operation-not-allowed`. Todo lo demás del casino anda perfecto —
+> las fichas de invitado no pasan por Firebase— así que es fácil creer que
+> el problema está en el login y no en la consola.
+
+### 2. Firestore Database → crear la base
+
+**Ojo con el nombre.** La base que Firebase crea por defecto se llama
+`(default)`, **con paréntesis**, y el SDK la asume sola. La de este proyecto
+se llama literalmente `default`, **sin paréntesis**, que es una base
+*distinta*: por eso `auth-firebase.js` la pasa explícita.
+
+```js
+const DB_ID = 'default';
+```
+
+Si al crear la tuya la dejás como `(default)`, poné `DB_ID = '(default)'` o
+sacá el segundo argumento de `getFirestore()`. Lo que no se puede es que el
+nombre del código y el de la consola no coincidan.
+
+> **Si no coincide:** todo falla con `NOT_FOUND` y sin decir por qué. Es el
+> peor de los errores de esta lista porque no menciona la base en ningún
+> lado. La forma de distinguirlo: pedir `databases/(default)` devuelve
+> `NOT_FOUND` y `databases/default` devuelve `PERMISSION_DENIED`. El segundo
+> error solo aparece **si la base existe**, así que ahí está la que sirve.
+
+### 3. Firestore → Rules → pegar `firestore.rules` y publicar
+
+El archivo está en la raíz del repo. Son dos colecciones con permisos
+distintos: `players/{uid}` privada del dueño, y `leaderboard/{uid}` de
+lectura pública y escritura del dueño. Están separadas para que mostrar el
+ranking no obligue a abrir la lectura de todo el progreso de todos.
+
+> **Si falta:** el login anda, el juego anda, y **la tabla de posiciones
+> tira `permission-denied`**. El casino ya lo traduce en pantalla: si dice
+> "Falta publicar las reglas", es exactamente esto. El progreso tampoco
+> sube, y aparece el aviso "Tu progreso no se está guardando en la nube".
+
+### 4. Authentication → Settings → Authorized domains
+
+Agregar el dominio donde va a vivir el casino. Hoy la lista tiene
+`localhost`, `bubba-games.firebaseapp.com`, `bubba-games.web.app` y
+`juanssess.github.io`.
+
+> **Si falta:** este es el que no avisa. **El sitio anda perfecto en todo
+> salvo el login, y solo en el dominio nuevo.** Probar en `localhost` no
+> prueba nada, porque `localhost` viene autorizado de fábrica. El casino
+> captura `auth/unauthorized-domain` y muestra "Falta autorizar este dominio
+> en Firebase", que es la pista.
+
+### Cómo comprobar que quedó bien
+
+Sin abrir la consola de Firebase: entrar con Google, jugar una ronda, y
+abrir la tabla de posiciones. Si aparece tu nombre, **los cuatro pasos
+funcionan** — esa fila no puede existir si falta alguno. Requiere estar
+logueado (1), que la base sea la correcta (2), que las reglas dejen escribir
+(3), desde un dominio autorizado (4).
 
 ---
 
