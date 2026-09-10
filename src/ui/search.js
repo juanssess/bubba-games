@@ -11,8 +11,38 @@ window.MCSearch = (function () {
   function init() {
     var input = document.getElementById('searchInput');
     var box = document.getElementById('searchResults');
+    var results = [];
+    var activeIndex = -1;
 
-    function close() { box.classList.remove('open'); }
+    function close() {
+      box.classList.remove('open');
+      input.setAttribute('aria-expanded', 'false');
+      input.removeAttribute('aria-activedescendant');
+      activeIndex = -1;
+    }
+
+    function open() {
+      box.classList.add('open');
+      input.setAttribute('aria-expanded', 'true');
+    }
+
+    function select(index) {
+      if (!results[index]) return;
+      input.value = '';
+      close();
+      MC.sound.click();
+      MC.showView(results[index].id);
+    }
+
+    function paintActive() {
+      box.querySelectorAll('.sr-item[data-game]').forEach(function (item, index) {
+        var active = index === activeIndex;
+        item.classList.toggle('selected', active);
+        item.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      if (results[activeIndex]) input.setAttribute('aria-activedescendant', 'sr-' + results[activeIndex].id);
+      else input.removeAttribute('aria-activedescendant');
+    }
 
     input.oninput = function () {
       var q = input.value.trim().toLowerCase();
@@ -22,6 +52,8 @@ window.MCSearch = (function () {
         return (g.name + ' ' + g.kind + ' ' + g.studio).toLowerCase().indexOf(q) >= 0;
       });
       var shown = hits.slice(0, MAX_RESULTS);
+      results = shown;
+      activeIndex = -1;
 
       box.innerHTML = shown.length
         ? shown.map(itemHTML).join('') +
@@ -30,7 +62,26 @@ window.MCSearch = (function () {
             : '')
         : '<p class="sr-empty">No hay ningún juego con ese nombre.</p>';
 
-      box.classList.add('open');
+      open();
+    };
+
+    input.onkeydown = function (e) {
+      if (e.key === 'Escape') {
+        close();
+        return;
+      }
+      if (!results.length || !box.classList.contains('open')) return;
+
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = e.key === 'ArrowDown'
+          ? (activeIndex + 1) % results.length
+          : (activeIndex - 1 + results.length) % results.length;
+        paintActive();
+      } else if (e.key === 'Enter' && activeIndex >= 0) {
+        e.preventDefault();
+        select(activeIndex);
+      }
     };
 
     box.onclick = function (e) {
@@ -42,12 +93,9 @@ window.MCSearch = (function () {
         return;
       }
 
-      var item = e.target.closest('.sr-item');
+      var item = e.target.closest('.sr-item[data-game]');
       if (!item) return;
-      input.value = '';
-      close();
-      MC.sound.click();
-      MC.showView(item.dataset.game);
+      select(results.findIndex(function (g) { return g.id === item.dataset.game; }));
     };
 
     // Cerrar al tocar fuera del buscador.
@@ -57,7 +105,7 @@ window.MCSearch = (function () {
   }
 
   function itemHTML(g) {
-    return '<div class="sr-item" data-game="' + g.id + '">' +
+    return '<div class="sr-item" id="sr-' + g.id + '" role="option" aria-selected="false" data-game="' + g.id + '">' +
              '<span class="sr-thumb" style="background:' + g.art + '">' + g.emoji + '</span>' +
              '<span><strong>' + g.name + '</strong><br>' +
                '<span style="font-size:11.5px;color:var(--txt-dim)">' + g.studio + ' · ' + g.rtp + '</span>' +

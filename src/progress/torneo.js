@@ -171,8 +171,46 @@ window.MCTorneo = (function () {
     var t = mio();
     t.apostado += staked;
     t.rondas += 1;
+
     var x = returned / staked;
-    if (x > t.golpe) t.golpe = x;
+    if (x <= t.golpe) { pintarBadge(); return; }
+
+    /* CRUZAR UNA MARCA TIENE QUE AVISARSE EN EL MOMENTO.
+       Sin esto el torneo es invisible mientras jugás: podés pegar un
+       ×120 en la ronda 40 y no enterarte de que ganaste 14.000 fichas
+       hasta que se te ocurra abrir la pantalla del torneo. Un premio del
+       que no te enterás no es un premio, es un dato.
+       Se compara ANTES contra DESPUÉS para avisar una sola vez por marca
+       y no en cada ronda que la supere. */
+    var antes = alcanzadas(t.golpe);
+    t.golpe = x;
+    var ahora = alcanzadas(t.golpe);
+
+    if (ahora > antes) {
+      var m = MARCAS[ahora - 1];
+      MC.toast('¡' + m.nombre + ' ×' + m.x + '! Pasá por el torneo a cobrar ' +
+               MC.fmt(m.premio) + ' fichas.', 'win');
+      if (MC.sound && MC.sound.win) MC.sound.win();
+    }
+    pintarBadge();
+  }
+
+  /** Cuántas marcas cubre un multiplicador. */
+  function alcanzadas(x) {
+    var n = 0;
+    for (var i = 0; i < MARCAS.length; i++) if (x >= MARCAS[i].x) n++;
+    return n;
+  }
+
+  /**
+   * El puntito de la barra lateral: encendido = tenés fichas sin cobrar.
+   *
+   * Mismo criterio que el de Misiones, y por lo mismo: es la única señal
+   * que ve alguien que está en el lobby y no pensó en el torneo.
+   */
+  function pintarBadge() {
+    var b = document.getElementById('sbTorneoBadge');
+    if (b) b.classList.toggle('off', porCobrar().length === 0);
   }
 
   /* ---------------- los premios ---------------- */
@@ -207,6 +245,7 @@ window.MCTorneo = (function () {
     }
     MC.save();
     MC.addBalance(total);
+    pintarBadge();
     return total;
   }
 
@@ -239,6 +278,7 @@ window.MCTorneo = (function () {
     porCobrar: porCobrar,
     cobrar: cobrar,
     marcaAlcanzada: marcaAlcanzada,
-    proximaMarca: proximaMarca
+    proximaMarca: proximaMarca,
+    pintarBadge: pintarBadge
   };
 })();

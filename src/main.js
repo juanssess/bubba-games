@@ -54,6 +54,7 @@
     MCPortal.renderJackpot();
     MCLevels.render();
     MCMissions.render();
+    MCTorneo.pintarBadge();
     MC.refreshBonusButton();
     setInterval(MC.refreshBonusButton, BONUS_REFRESH_MS);
 
