@@ -83,6 +83,12 @@ window.MCTeams = (function () {
     if (data.logo) team.logo = data.logo;
     if (data.attack) team.attack = data.attack;
     if (data.defense) team.defense = data.defense;
+    /* Los números CRUDOS de la tabla. Antes solo viajaban `attack` y
+       `defense` ya masticados con una constante fija, y eso ataba el modelo
+       a esa constante: no se podía recalcular nada sin volver a la API.
+       Guardando partidos, goles a favor y en contra, league.js arma las
+       lambdas con los promedios de la temporada que está corriendo. */
+    if (data.pj !== undefined) { team.pj = data.pj; team.gf = data.gf; team.gc = data.gc; }
     return team;
   }
 

@@ -64,8 +64,10 @@ const MCPoisson = ventana.MCPoisson;
 function constante(nombre) {
   const src = fs.readFileSync(path.join(RAIZ, 'src/sports/league.js'), 'utf8');
   const m = src.match(new RegExp('var\\s+' + nombre + '\\s*=\\s*([0-9.]+)'));
-  if (!m) throw new Error('no encontre ' + nombre + ' en league.js');
-  return Number(m[1]);
+  /* Si no esta, es porque el modelo viejo ya no existe en league.js —se
+     midio que estaba mal y se saco—. Se usan los valores historicos para
+     poder seguir mostrando contra que se compara. */
+  return m ? Number(m[1]) : { LEAGUE_AVG: 1.35, HOME_ADV: 1.15 }[nombre];
 }
 const LEAGUE_AVG = constante('LEAGUE_AVG');
 const HOME_ADV = constante('HOME_ADV');

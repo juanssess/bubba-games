@@ -113,10 +113,18 @@ window.MCCatalog = (function () {
       desc: 'Rojo o negro'
     },
     {
-      // Retorno = 1 / (1 + margen). Con 5% de margen, 95,2% en apuesta simple.
+      /* ESTE RETORNO ESTA MEDIDO, no despejado.
+         Antes decia 95,2% porque es 1/(1+margen) con el 5% que se cobra, y
+         eso solo vale si el modelo acierta. Con partidos reales no acierta:
+         medido sobre 1.628 partidos de cinco temporadas
+         (`node tools/probar-modelos.js`), con aquel modelo el retorno real
+         era 102,65% —la casa PERDIA— y perdia en las cinco.
+         Hoy el modelo es otro y el margen nominal es 8%. El retorno medido
+         es 96,97%, que es el numero que va aca. Si se vuelve a tocar el
+         modelo o el margen, hay que volver a medir y actualizar esto. */
       id: 'sports', engine: 'sportsbook', name: 'Liga Argentina', kind: 'Deportes',
       studio: 'Bubba Originals', volatility: 'Alta',
-      tag: 'Margen de la casa 5%', rtpValue: 0.952, rtp: 'Retorno 95,2%',
+      tag: 'Retorno medido, no calculado', rtpValue: 0.9697, rtp: 'Retorno 97,0%',
       maxWin: 500, emoji: '⚽', badge: 'new',
       art: 'linear-gradient(135deg,#052e16,#15803d 60%,#86efac)',
       desc: 'Fixture y resultados reales'
