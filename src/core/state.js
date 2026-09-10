@@ -43,7 +43,7 @@ window.MC = window.MC || {};
 
     xp: 0,                                        // rango VIP
     missions: { day: '', items: [] },             // objetivos del día
-    // liga simulada: jornada actual, tabla, últimos resultados y cupones pendientes
+    // liga deportiva: compatibilidad y cupones pendientes de resultados reales
     sports: { round: 1, standings: {}, results: [], tickets: [] }
   };
 

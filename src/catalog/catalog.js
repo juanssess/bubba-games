@@ -114,12 +114,12 @@ window.MCCatalog = (function () {
     },
     {
       // Retorno = 1 / (1 + margen). Con 5% de margen, 95,2% en apuesta simple.
-      id: 'sports', engine: 'sportsbook', name: 'Liga Bubba', kind: 'Deportes',
+      id: 'sports', engine: 'sportsbook', name: 'Liga Argentina', kind: 'Deportes',
       studio: 'Bubba Originals', volatility: 'Alta',
       tag: 'Margen de la casa 5%', rtpValue: 0.952, rtp: 'Retorno 95,2%',
       maxWin: 500, emoji: '⚽', badge: 'new',
       art: 'linear-gradient(135deg,#052e16,#15803d 60%,#86efac)',
-      desc: '16 equipos simulados'
+      desc: 'Fixture y resultados reales'
     },
     {
       id: 'roulette', engine: 'roulette', name: 'Ruleta Europea', kind: 'Mesa',
@@ -185,7 +185,7 @@ window.MCCatalog = (function () {
       games: ids(take(byVolatility('Baja'), 14)) },
     { id: 'mesa', title: 'Juegos de mesa', sub: 'ruleta y cartas',
       games: ['roulette', 'blackjack'] },
-    { id: 'deportes', title: 'Deportes', sub: 'liga ficticia con cuotas calculadas',
+    { id: 'deportes', title: 'Deportes', sub: 'partidos reales y cuotas virtuales',
       games: ['sports'] },
     { id: 'nova', title: 'Nova Play', sub: 'estudio destacado',
       games: ids(take(byStudio('Nova Play'), 14)) },
@@ -226,9 +226,9 @@ window.MCCatalog = (function () {
     },
     {
       kicker: 'Mesa abierta',
-      title: 'Liga Bubba',
-      text: 'Dieciséis clubes, cuotas calculadas con un modelo de goles y jornadas que se simulan de verdad.',
-      cta: 'Ir a la mesa', action: 'game:sports', emoji: '⚽',
+      title: 'Liga Argentina',
+      text: 'Partidos y resultados reales de la temporada 2026, con apuestas exclusivamente en fichas virtuales.',
+      cta: 'Ver partidos', action: 'game:sports', emoji: '⚽',
       bg: 'linear-gradient(120deg,#0b3b2b,#17c964 60%,#7ef0b0)'
     }
   ];

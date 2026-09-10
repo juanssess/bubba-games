@@ -24,7 +24,7 @@
 <link rel="stylesheet" href="src/styles/cuenta.css?v=47">
 <link rel="stylesheet" href="src/styles/asistente.css?v=47">
 <link rel="stylesheet" href="src/styles/games/slots.css?v=47">
-<link rel="stylesheet" href="src/styles/games/sportsbook.css?v=47">
+<link rel="stylesheet" href="src/styles/games/sportsbook.css?v=48">
 <link rel="stylesheet" href="src/styles/games/proveedor.css?v=47">
 <link rel="stylesheet" href="src/styles/games/plantilla.css?v=47">
 <link rel="stylesheet" href="src/styles/games/crash.css?v=47">
@@ -68,7 +68,7 @@
     <button class="sb-item" data-rail="mesa"><svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="11" height="15" rx="2"/><path d="M17 7l3 1.2a2 2 0 0 1 1.1 2.6l-3.3 8.4"/><path d="M9.5 9.5 11 12l-3 0 1.5-2.5Z"/></svg>Juegos de mesa</button>
 
     <p class="sb-label">Deportes</p>
-    <button class="sb-item" id="sbSports"><svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m12 8 3.2 2.3-1.2 3.8h-4l-1.2-3.8L12 8Z"/><path d="M12 3v5M4.2 9.5 8.9 11M19.8 9.5 15.1 11M7.3 20l2.7-6M16.7 20 14 14"/></svg>Liga Bubba</button>
+    <button class="sb-item" id="sbSports"><svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m12 8 3.2 2.3-1.2 3.8h-4l-1.2-3.8L12 8Z"/><path d="M12 3v5M4.2 9.5 8.9 11M19.8 9.5 15.1 11M7.3 20l2.7-6M16.7 20 14 14"/></svg>Liga Argentina</button>
 
     <p class="sb-label">Cuenta</p>
     <button class="sb-item" id="sbRanking"><svg class="sb-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.5 2.5M17 6h2.5A2.5 2.5 0 0 1 17 8.5"/><path d="M12 14v3M9 20h6"/></svg>Tabla de posiciones</button>
@@ -342,21 +342,21 @@
         <section class="view" id="view-sportsbook">
           <header class="sp-hero">
             <div class="sp-hero-copy">
-              <span class="sp-live"><i></i> Temporada en juego</span>
-              <h2>Liga Bubba</h2>
-              <p>16 clubes · 30 jornadas · ida y vuelta</p>
+              <span class="sp-live"><i></i> Datos reales · Temporada 2026</span>
+              <h2>Liga Profesional</h2>
+              <p>Argentina · Fixture y resultados reales · Fichas virtuales</p>
             </div>
             <div class="sp-hero-stats">
-              <div><span>Fecha</span><strong><b id="spHeroRound">1</b>/30</strong></div>
-              <div><span>Partidos</span><strong>8</strong></div>
+              <div><span>Fecha</span><strong><b id="spHeroRound">—</b></strong></div>
+              <div><span>Partidos</span><strong id="spHeroMatches">En vivo</strong></div>
               <div><span>Retorno</span><strong>95,2%</strong></div>
             </div>
           </header>
 
-          <nav class="sp-tabs" role="tablist" aria-label="Secciones de Liga Bubba">
+          <nav class="sp-tabs" role="tablist" aria-label="Secciones de Liga Profesional Argentina">
             <button class="active" role="tab" aria-selected="true" data-sp-tab="matches">Partidos <span id="spMatchCount">8</span></button>
             <button role="tab" aria-selected="false" data-sp-tab="results">Resultados <span id="spResultCount">0</span></button>
-            <button role="tab" aria-selected="false" data-sp-tab="table">Posiciones <span>16</span></button>
+            <button role="tab" aria-selected="false" data-sp-tab="table">Posiciones <span id="spTableCount">0</span></button>
           </nav>
 
           <div class="sp-layout">
@@ -365,10 +365,10 @@
                 <div class="sp-round-head">
                   <div>
                     <span class="sp-eyebrow">Próximos partidos</span>
-                    <h3>Jornada <span id="spRound">1</span> <small>de 30</small></h3>
+                    <h3>Fecha <span id="spRound">—</span> <small>Temporada 2026</small></h3>
                   </div>
-                  <button class="btn btn-accent" id="spSimulate">Jugar jornada</button>
-                  <p class="sp-note">Cuotas calculadas con el mismo modelo Poisson que resuelve cada partido. Margen transparente del 5%.</p>
+                  <button class="btn btn-accent" id="spSimulate">Actualizar datos</button>
+                  <p class="sp-note">Fixture y marcadores reales. Cuotas virtuales calculadas con modelo Poisson y margen transparente del 5%.</p>
                 </div>
                 <div class="sp-market-head" aria-hidden="true">
                   <span>Partido</span><span>Ganador</span><span>Total 2.5</span><span>Ambos marcan</span>
@@ -385,8 +385,8 @@
 
               <section class="sp-section" role="tabpanel" data-sp-section="table" hidden>
                 <div class="sp-section-head">
-                  <div><span class="sp-eyebrow">Clasificación</span><h3>Tabla de posiciones</h3></div>
-                  <span class="sp-zone-key"><i></i> Zona campeonato</span>
+                  <div><span class="sp-eyebrow">Clasificación</span><h3>Posiciones destacadas</h3></div>
+                  <span class="sp-zone-key"><i></i> Top 5 disponible</span>
                 </div>
                 <div id="spTable"></div>
               </section>
@@ -631,10 +631,10 @@
 <script src="src/progress/caja-agente.js?v=47"></script>
 <script src="src/progress/peticiones.js?v=47"></script>
 
-<!-- 3. Liga simulada (equipos → modelo → liga) -->
-<script src="src/sports/teams.js?v=47"></script>
+<!-- 3. Liga Argentina real (equipos → cuotas virtuales → datos reales) -->
+<script src="src/sports/teams.js?v=48"></script>
 <script src="src/sports/poisson.js?v=47"></script>
-<script src="src/sports/league.js?v=47"></script>
+<script src="src/sports/league.js?v=48"></script>
 
 <!-- 4. Motores de juego -->
 <script src="src/games/slots.js?v=47"></script>
@@ -642,7 +642,7 @@
 <script src="src/games/blackjack.js?v=47"></script>
 <script src="src/games/crash.js?v=47"></script>
 <script src="src/games/mines.js?v=47"></script>
-<script src="src/games/sportsbook.js?v=47"></script>
+<script src="src/games/sportsbook.js?v=48"></script>
 <script src="src/games/plantilla.js?v=47"></script>
 <script src="src/games/proveedor.js?v=47"></script>
 
@@ -650,7 +650,7 @@
 <script src="src/catalog/themes.js?v=47"></script>
 <script src="src/catalog/slot-math.js?v=47"></script>
 <script src="src/catalog/generator.js?v=47"></script>
-<script src="src/catalog/catalog.js?v=47"></script>
+<script src="src/catalog/catalog.js?v=48"></script>
 
 <!-- 6. Interfaz del portal -->
 <script src="src/ui/game-card.js?v=47"></script>
@@ -673,7 +673,7 @@
 <script src="src/ui/agente.js?v=47"></script>
 <script src="src/ui/estadisticas.js?v=47"></script>
 <script src="src/ui/ajustes.js?v=47"></script>
-<script src="src/ui/asistente.js?v=47"></script>
+<script src="src/ui/asistente.js?v=48"></script>
 
 <!-- 7. Arranque -->
 <script src="src/main.js?v=47"></script>

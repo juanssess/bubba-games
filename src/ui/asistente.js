@@ -188,11 +188,11 @@ window.MCAsistente = (function () {
     {
       claves: ['deporte', 'futbol', 'fútbol', 'liga', 'apuesta deportiva', 'cuota'],
       responde: function () {
-        return '<strong>Liga Bubba</strong> son 16 equipos inventados. Las cuotas salen ' +
-          'de un modelo de Poisson sobre la fuerza de cada equipo, y <em>el partido ' +
-          'después se simula con ese mismo modelo</em>.<br>' +
-          'Por eso el retorno del 95,2% es real y no un cartel: la cuota y el resultado ' +
-          'vienen del mismo lugar. <a data-ir="sports">Ir a la mesa</a>';
+        return '<strong>Liga Argentina</strong> usa el fixture y los marcadores reales ' +
+          'de la temporada 2026. Las cuotas son virtuales, calculadas con un modelo ' +
+          'Poisson y margen del 5%; no son cuotas oficiales de una casa real.<br>' +
+          'Los tickets se liquidan cuando se publica el resultado. ' +
+          '<a data-ir="sports">Ir a la liga</a>';
       }
     },
     {

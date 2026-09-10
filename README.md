@@ -179,7 +179,7 @@ para que comprar no sea estrategia dominante.
 | **Bubba Jet** | Crash | 3% (RTP 97%) |
 | **Mines** | Instantáneo, 5x5 | 3% (RTP 97%) |
 | **Bubba 777** | Tragamonedas 3 rodillos | RTP 97,4% (jackpot 250x) |
-| **Liga Bubba** | Apuestas deportivas | 5% (retorno 95,2%) |
+| **Liga Argentina** | Apuestas deportivas virtuales | 5% (retorno 95,2%) |
 | **Ruleta Europea** | Mesa, un solo cero | 2,7% |
 | **Blackjack Clásico** | Mesa, zapato de 6 mazos | ~1% |
 
@@ -205,11 +205,12 @@ Dos garantías del generador (`js/gamegen.js`):
    96,99%, promedio 95,56%. Verificado contra simulación de 1,5 millones de
    giros por juego con desvío menor a 0,5%.
 
-### Liga Bubba (apuestas deportivas)
+### Liga Argentina (apuestas deportivas virtuales)
 
-Dieciséis clubes **inventados**, con fuerza de ataque y de defensa sorteadas con
-semilla fija. Nada de esto sale de internet: no hay API, funciona offline y
-ningún nombre corresponde a un club real.
+El fixture, los horarios, los escudos y los marcadores corresponden a la Liga
+Profesional Argentina 2026. Se consultan desde la API pública de TheSportsDB y
+se guardan diez minutos en el navegador; si la fuente no responde, se conserva
+la última copia válida. El plan gratuito muestra las cinco posiciones líderes.
 
 Los goles de cada equipo se modelan como una **Poisson**:
 
@@ -222,17 +223,15 @@ De la grilla de marcadores posibles salen las probabilidades de los tres
 mercados (Ganador · Más/Menos 2.5 goles · Ambos marcan), y de esas
 probabilidades salen las cuotas con un 5% de margen.
 
-**La parte que importa: el partido después se simula muestreando esas mismas λ.**
-La cuota y el resultado vienen del mismo modelo, así que el 95,2% declarado es
-real. Verificado con 300.000 apuestas simuladas: retorno 95,31%, y el overround
-de cada mercado da 1,05 exacto.
+Las cuotas son virtuales: no vienen de una casa de apuestas ni se presentan
+como oficiales. El modelo Poisson aplica un margen del 5%; el resultado que
+liquida el cupón, en cambio, es el marcador real publicado por la fuente.
 
 Reglas: una sola selección por partido en un cupón (dos mercados del mismo
 partido están correlacionados), y en combinada entran todas o no cobra ninguna.
-Los cupones quedan pendientes hasta que simulás la jornada y sobreviven a un F5.
-La temporada tiene 30 fechas: todos contra todos, ida y vuelta, sin repetir
-cruces dentro de cada rueda. El fixture se genera con el método del círculo,
-así que los partidos y las cuotas no cambian al recargar.
+Los cupones quedan pendientes hasta que se publica el resultado y sobreviven a
+un F5. Al migrar desde la antigua liga simulada, cualquier ticket viejo se
+anula y sus fichas se devuelven automáticamente.
 
 ### Misiones y rango VIP
 
@@ -289,9 +288,9 @@ src/
     levels.js         rango VIP por experiencia acumulada
     missions.js       objetivos diarios y su seguimiento
   sports/
-    teams.js          los 16 clubes inventados y sus fuerzas
+    teams.js          registro de clubes y escudos reales
     poisson.js        modelo de goles, mercados y cuotas
-    league.js         fixture, simulación y tabla de posiciones
+    league.js         fixture, resultados y posiciones desde TheSportsDB
   catalog/
     themes.js         temáticas, estudios y perfiles de volatilidad
     slot-math.js      pesos, tabla de pagos y RTP exacto

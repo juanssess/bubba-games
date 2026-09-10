@@ -57,11 +57,40 @@ window.MCTeams = (function () {
 
   function get(id) { return BY_ID[id] || null; }
 
+  /* La fuente real trae los clubes junto con cada partido. Se incorporan
+     en caliente para que el sportsbook pueda seguir usando MCTeams.get()
+     sin conocer el formato del proveedor. */
+  function register(data) {
+    if (!data || data.id === undefined || !data.name) return null;
+    var id = String(data.id);
+    var team = BY_ID[id];
+    if (!team) {
+      var rng = MC.seeded(MC.hashSeed('liga-real-' + id));
+      team = {
+        id: id,
+        name: data.name,
+        badge: '⚽',
+        code: data.code || data.name.replace(/[^A-Za-zÀ-ÿ]/g, '').slice(0, 3).toUpperCase(),
+        color: '#173b78',
+        color2: '#e6eefc',
+        attack: 0.82 + rng() * 0.36,
+        defense: 0.82 + rng() * 0.36
+      };
+      BY_ID[id] = team;
+      TEAMS.push(team);
+    }
+    team.name = data.name;
+    if (data.logo) team.logo = data.logo;
+    if (data.attack) team.attack = data.attack;
+    if (data.defense) team.defense = data.defense;
+    return team;
+  }
+
   // Sólo para mostrar: convierte las fuerzas en una nota de 1 a 5.
   function rating(team) {
     var score = team.attack + team.defense;
     return Math.max(1, Math.min(5, Math.round((score - 1.44) / 0.264)));
   }
 
-  return { TEAMS: TEAMS, get: get, rating: rating };
+  return { TEAMS: TEAMS, get: get, register: register, rating: rating };
 })();
