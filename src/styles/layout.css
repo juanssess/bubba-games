@@ -23,11 +23,11 @@
 .sb-mark{width:38px;height:38px;flex:0 0 auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
 .foot-mark{width:32px;height:32px}
 .sb-logo-image{
-  width:58px;height:44px;object-fit:cover;border-radius:10px;
+  width:52px;height:52px;object-fit:cover;border-radius:50%;
   border:1px solid rgba(245,196,81,.72);
   box-shadow:0 0 0 2px rgba(245,196,81,.1),0 4px 14px rgba(216,30,52,.28);
 }
-.foot-mark.sb-logo-image{width:52px;height:39px}
+.foot-mark.sb-logo-image{width:44px;height:44px}
 .chip-base{fill:none;stroke:#15100f;stroke-width:16}
 .chip-red{fill:none;stroke:var(--brand-red);stroke-width:16;stroke-dasharray:32.99 32.99}
 .chip-edge{fill:none;stroke:var(--gold-2);stroke-width:1.6}
