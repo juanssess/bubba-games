@@ -45,6 +45,12 @@ window.MCTorneo_UI = (function () {
     '<path d="M7 6H4.5a2.5 2.5 0 0 0 2.5 2.5M17 6h2.5A2.5 2.5 0 0 1 17 8.5"/>' +
     '<path d="M12 14v3M9 20h6"/></svg>';
 
+  var ICO_COMPARTIR =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" '  +
+    'stroke-linecap="round" stroke-linejoin="round" class="tor-ico">' +
+    '<circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/>' +
+    '<circle cx="18" cy="19" r="2.6"/><path d="m8.3 10.8 7.4-4.3M8.3 13.2l7.4 4.3"/></svg>';
+
   function escapar(t) {
     return String(t == null ? '' : t)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -127,12 +133,21 @@ window.MCTorneo_UI = (function () {
               '<div class="tor-barra"><i style="width:' + pct.toFixed(1) + '%"></i></div>'
             : '<span class="tor-prox-lab tor-todo">Alcanzaste las tres marcas de la semana.</span>') +
         '</div>' +
-        (total > 0
-          ? '<button class="btn btn-gold tor-cobrar" id="torCobrar">' +
-              'Cobrar ' + MC.fmt(total) + ' fichas</button>'
-          : (alc
-              ? '<span class="tor-cobrado">✓ ' + alc.nombre + ' ' + equis(alc.x) + ' cobrado</span>'
-              : '')) +
+        '<div class="tor-acciones">' +
+          (total > 0
+            ? '<button class="btn btn-gold tor-cobrar" id="torCobrar">' +
+                'Cobrar ' + MC.fmt(total) + ' fichas</button>'
+            : (alc
+                ? '<span class="tor-cobrado">✓ ' + alc.nombre + ' ' + equis(alc.x) + ' cobrado</span>'
+                : '')) +
+          /* Compartir aparece en cuanto hay UN golpe, por chico que sea.
+             Atarlo a una marca sería perder justo al que recién empieza,
+             que es el que más ganas tiene de mostrar algo. */
+          (t.golpe > 0
+            ? '<button class="btn btn-ghost tor-compartir" id="torCompartir">' +
+                ICO_COMPARTIR + 'Compartir</button>'
+            : '') +
+        '</div>' +
       '</div>';
   }
 
@@ -244,6 +259,26 @@ window.MCTorneo_UI = (function () {
       }
       render();
     };
+    var s = document.getElementById('torCompartir');
+    if (s) s.onclick = async function () {
+      s.disabled = true;
+      var antes = s.innerHTML;
+      s.textContent = 'Preparando…';
+      try {
+        var como = await MCCompartir.compartir();
+        /* Se dice QUÉ pasó y no un "listo" genérico: en escritorio la
+           imagen se baja y el texto va al portapapeles, y si nadie lo
+           avisa el jugador cree que no funcionó. */
+        if (como === 'copiado') MC.toast('Mensaje copiado y tarjeta descargada', 'win');
+        else if (como === 'bajado') MC.toast('Tarjeta descargada', 'win');
+        else if (como === 'imagen' || como === 'texto') MC.toast('¡Compartido!', 'win');
+      } catch (e) {
+        MC.toast('No se pudo compartir', 'lose');
+      }
+      s.disabled = false;
+      s.innerHTML = antes;
+    };
+
     var r = document.getElementById('torRefrescar');
     if (r) r.onclick = function () { filas = null; error = ''; MC.sound.click(); render(); };
     var j = document.getElementById('torJugar');

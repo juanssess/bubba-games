@@ -12,24 +12,33 @@ window.MCLeague = (function () {
 
   var LEAGUE_AVG = 1.35;    // goles medios por equipo y partido
   var HOME_ADV = 1.15;      // ventaja de local
+  var TOTAL_ROUNDS = (MCTeams.TEAMS.length - 1) * 2;
 
   /* ---------------- fixture ---------------- */
   function fixture(round) {
-    var teams = MCTeams.TEAMS.slice();
-    var rng = MC.seeded(MC.hashSeed('jornada-' + round));
-
-    for (var i = teams.length - 1; i > 0; i--) {
-      var j = Math.floor(rng() * (i + 1));
-      var t = teams[i]; teams[i] = teams[j]; teams[j] = t;
+    /* Método del círculo: 15 fechas sin repetir cruces y una segunda
+       rueda con las localías invertidas. Así la tabla corresponde a una
+       temporada real, no a emparejamientos sorteados fecha por fecha. */
+    round = Math.max(1, Math.min(TOTAL_ROUNDS, Number(round) || 1));
+    var vuelta = round > TOTAL_ROUNDS / 2;
+    var fecha = (round - 1) % (TOTAL_ROUNDS / 2);
+    var teams = MCTeams.TEAMS.map(function (t) { return t.id; });
+    for (var rot = 0; rot < fecha; rot++) {
+      teams.splice(1, 0, teams.pop());
     }
-
     var matches = [];
-    for (var k = 0; k < teams.length; k += 2) {
+    for (var k = 0; k < teams.length / 2; k++) {
+      var left = teams[k];
+      var right = teams[teams.length - 1 - k];
+      var invertir = (fecha + k) % 2 === 1;
+      var home = invertir ? right : left;
+      var away = invertir ? left : right;
+      if (vuelta) { var tmp = home; home = away; away = tmp; }
       matches.push({
-        id: 'r' + round + 'm' + (k / 2),
+        id: 'r' + round + 'm' + k,
         round: round,
-        home: teams[k].id,
-        away: teams[k + 1].id
+        home: home,
+        away: away
       });
     }
     return matches;
@@ -136,9 +145,20 @@ window.MCLeague = (function () {
 
   function currentRound() { return MC.state.sports.round || 1; }
 
+  function seasonComplete() { return currentRound() > TOTAL_ROUNDS; }
+
+  function newSeason() {
+    MC.state.sports.round = 1;
+    MC.state.sports.standings = {};
+    MC.state.sports.results = [];
+    MC.state.sports.tickets = [];
+    MC.save();
+  }
+
   return {
     fixture: fixture, lambdas: lambdas, odds: odds,
     simulate: simulate, isWinner: isWinner,
-    applyResults: applyResults, table: table, currentRound: currentRound
+    applyResults: applyResults, table: table, currentRound: currentRound,
+    TOTAL_ROUNDS: TOTAL_ROUNDS, seasonComplete: seasonComplete, newSeason: newSeason
   };
 })();

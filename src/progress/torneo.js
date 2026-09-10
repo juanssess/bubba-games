@@ -141,7 +141,14 @@ window.MCTorneo = (function () {
   function mio() {
     var st = MC.state;
     if (!st.torneo || typeof st.torneo !== 'object') {
-      st.torneo = { sem: '', golpe: 0, apostado: 0, rondas: 0, cobradas: [], prev: null };
+      st.torneo = {
+        sem: '', golpe: 0, apostado: 0, rondas: 0, cobradas: [], prev: null,
+        /* De qué juego fue el mejor golpe y con qué números. No hace falta
+           para el torneo —le alcanza el multiplicador— pero sí para poder
+           contarlo: "×45 en La Vendimia, 40 fichas que volvieron 1.800" es
+           una historia, y "×45" a secas es un número. */
+        juego: '', apuesta: 0, pago: 0
+      };
     }
     var t = st.torneo;
     if (!Array.isArray(t.cobradas)) t.cobradas = [];
@@ -154,6 +161,9 @@ window.MCTorneo = (function () {
       t.apostado = 0;
       t.rondas = 0;
       t.cobradas = [];
+      t.juego = '';
+      t.apuesta = 0;
+      t.pago = 0;
     }
     return t;
   }
@@ -166,7 +176,7 @@ window.MCTorneo = (function () {
    * un premio acreditado suelto) tiene multiplicador infinito. No
    * cuenta.
    */
-  function registrar(staked, returned) {
+  function registrar(staked, returned, gameId) {
     if (!(staked > 0)) return;
     var t = mio();
     t.apostado += staked;
@@ -184,6 +194,9 @@ window.MCTorneo = (function () {
        y no en cada ronda que la supere. */
     var antes = alcanzadas(t.golpe);
     t.golpe = x;
+    t.juego = gameId || '';
+    t.apuesta = staked;
+    t.pago = returned;
     var ahora = alcanzadas(t.golpe);
 
     if (ahora > antes) {

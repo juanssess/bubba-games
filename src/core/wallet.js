@@ -96,7 +96,7 @@ window.MC = window.MC || {};
        unico punto por donde pasa CADA apuesta del casino. Si el torneo
        se enganchara en los juegos, el dia que se agregue el cuarto habria
        que acordarse de engancharlo tambien. */
-    if (window.MCTorneo) MCTorneo.registrar(staked, returned);
+    if (window.MCTorneo) MCTorneo.registrar(staked, returned, gameId);
 
     /* Y el acumulado POR JUEGO, de toda la vida. Va aparte del diario y
        sin podar: son nueve renglones fijos, contestan "cual me rinde" y

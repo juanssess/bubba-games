@@ -56,6 +56,14 @@ const CONFIG = {
 
 const SDK = 'https://www.gstatic.com/firebasejs/10.12.2/';
 
+/* En un teléfono los navegadores suelen bloquear o perder los popups al
+   cambiar de aplicación para elegir la cuenta. Firebase recomienda el flujo
+   de redirección para ese caso; en escritorio el popup evita sacar al
+   jugador del casino. onAuthStateChanged, más abajo, atiende ambos flujos. */
+function usarRedireccion() {
+  return window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+}
+
 /**
  * ID de la base de Firestore.
  *
@@ -277,6 +285,10 @@ async function init() {
       }
       try {
         const prov = new auth.GoogleAuthProvider();
+        if (usarRedireccion()) {
+          await auth.signInWithRedirect(fbAuth, prov);
+          return;
+        }
         await auth.signInWithPopup(fbAuth, prov);
         // onAuthStateChanged se encarga del resto.
       } catch (e) {

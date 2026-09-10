@@ -286,3 +286,18 @@
 /* Sin golpes todavia: el guion no puede tener el peso de un premio.
    A 60px y en oro se leia como una barra rara, no como un vacio. */
 .tor-golpe-val.vacio{color:var(--txt-dim);opacity:.45;font-size:38px}
+
+/* Cobrar y compartir: las dos acciones del golpe, apiladas a la
+   derecha en escritorio y en fila abajo en el celular. */
+.tor-acciones{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.tor-acciones:empty{display:none}
+.tor-compartir{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  white-space:nowrap;
+}
+.tor-ico{width:17px;height:17px;flex:none}
+
+@media (max-width:760px){
+  .tor-acciones{flex-direction:row;flex-wrap:wrap}
+  .tor-acciones .btn{flex:1 1 auto}
+}

@@ -32,6 +32,7 @@ window.MCSportsbook = (function () {
 
   var slip = [];      // selecciones aún no confirmadas
   var el = {};
+  var activeTab = 'matches';
 
   function tickets() {
     if (!MC.state.sports.tickets) MC.state.sports.tickets = [];
@@ -111,6 +112,34 @@ window.MCSportsbook = (function () {
 
   /* ---------------- jornada ---------------- */
   function simulateRound() {
+    if (MCLeague.seasonComplete()) {
+      MC.modal('¿Comenzar una nueva temporada?',
+        '<p>La tabla y los resultados de la temporada terminada volverán a cero.</p>',
+        [
+          { label: 'Cancelar' },
+          { label: 'Nueva temporada', kind: 'primary', onClick: function () {
+            MCLeague.newSeason();
+            slip = [];
+            activeTab = 'matches';
+            renderAll();
+          } }
+        ]);
+      return;
+    }
+
+    var round = MCLeague.currentRound();
+    var pendientes = tickets().filter(function (t) { return t.round === round; }).length;
+    MC.modal('Jugar la jornada ' + round,
+      '<p>Se simulan los 8 partidos y se liquidan ' + pendientes +
+      (pendientes === 1 ? ' cupón pendiente.' : ' cupones pendientes.') + '</p>' +
+      '<p>Una vez jugada, la fecha no se puede repetir.</p>',
+      [
+        { label: 'Cancelar' },
+        { label: 'Jugar ahora', kind: 'primary', onClick: resolverJornada }
+      ]);
+  }
+
+  function resolverJornada() {
     var round = MCLeague.currentRound();
     var results = MCLeague.simulate(round);
 
@@ -144,59 +173,85 @@ window.MCSportsbook = (function () {
       MC.sound.click();
     }
 
+    activeTab = 'results';
     renderAll();
   }
 
   /* ---------------- pintado ---------------- */
   function renderMatches() {
     var round = MCLeague.currentRound();
-    el.round.textContent = round;
+    var completa = MCLeague.seasonComplete();
+    var visibleRound = Math.min(round, MCLeague.TOTAL_ROUNDS);
+    el.round.textContent = visibleRound;
+    el.heroRound.textContent = visibleRound;
+    el.simulate.textContent = completa ? 'Nueva temporada' : 'Jugar jornada';
 
     var picked = {};
     slip.forEach(function (s) { picked[s.matchId] = s.pick; });
 
-    el.matches.innerHTML = MCLeague.fixture(round).map(function (m) {
+    if (completa) {
+      el.matches.innerHTML = '<div class="sp-empty"><span>🏆</span><strong>Temporada finalizada</strong>' +
+        '<p>Revisá la clasificación final o comenzá una nueva temporada.</p></div>';
+      return;
+    }
+
+    el.matches.innerHTML = MCLeague.fixture(round).map(function (m, matchIndex) {
       var o = MCLeague.odds(m);
       var h = MCTeams.get(m.home);
       var a = MCTeams.get(m.away);
 
       function odd(pick, extraClass) {
         var on = picked[m.id] === pick ? ' active' : '';
-        return '<button class="sp-odd' + on + (extraClass || '') + '" data-m="' + m.id + '" data-p="' + pick + '">' +
+        var label = PICKS[pick].long(m) + ', cuota ' + o[pick].toFixed(2);
+        return '<button class="sp-odd' + on + (extraClass || '') + '" data-m="' + m.id +
+          '" data-p="' + pick + '" aria-pressed="' + (on ? 'true' : 'false') +
+          '" aria-label="' + label + '">' +
                  '<b>' + PICKS[pick].short + '</b><span>' + o[pick].toFixed(2) + '</span>' +
                '</button>';
       }
 
       return '<article class="sp-match">' +
-               '<div class="sp-teams">' +
-                 '<span class="sp-team">' + h.badge + ' ' + h.name + '</span>' +
-                 '<span class="sp-vs">vs</span>' +
-                 '<span class="sp-team">' + a.badge + ' ' + a.name + '</span>' +
+               '<div class="sp-match-info">' +
+                 '<span class="sp-kickoff">' + horaPartido(matchIndex) + ' · Prepartido</span>' +
+                 '<span class="sp-team"><i>' + h.badge + '</i><strong>' + h.name + '</strong></span>' +
+                 '<span class="sp-team"><i>' + a.badge + '</i><strong>' + a.name + '</strong></span>' +
                '</div>' +
                '<div class="sp-markets">' +
-                 '<div class="sp-group"><span class="sp-glabel">Ganador</span>' +
-                   odd('home') + odd('draw') + odd('away') + '</div>' +
-                 '<div class="sp-group"><span class="sp-glabel">Goles</span>' +
-                   odd('over') + odd('under') + '</div>' +
-                 '<div class="sp-group"><span class="sp-glabel">Ambos marcan</span>' +
-                   odd('btts') + odd('nobtts') + '</div>' +
+                 '<div class="sp-group"><span class="sp-glabel">Ganador</span><div>' +
+                   odd('home') + odd('draw') + odd('away') + '</div></div>' +
+                 '<div class="sp-group"><span class="sp-glabel">Total 2.5</span><div>' +
+                   odd('over') + odd('under') + '</div></div>' +
+                 '<div class="sp-group"><span class="sp-glabel">Ambos marcan</span><div>' +
+                   odd('btts') + odd('nobtts') + '</div></div>' +
                '</div>' +
              '</article>';
     }).join('');
   }
 
+  function horaPartido(index) {
+    var minutos = 18 * 60 + index * 35;
+    var h = Math.floor(minutos / 60);
+    var m = minutos % 60;
+    return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+  }
+
   function renderSlip() {
+    el.slipCount.textContent = slip.length;
     if (!slip.length) {
-      el.slip.innerHTML = '<p class="empty-msg">Tocá una cuota para armar tu cupón.</p>';
+      el.slip.innerHTML = '<div class="sp-slip-empty"><span>＋</span><strong>Tu cupón está vacío</strong>' +
+        '<p>Elegí una cuota de los partidos para empezar.</p></div>';
       el.summary.innerHTML = '';
       el.place.disabled = true;
+      el.clear.disabled = true;
       return;
     }
 
     el.slip.innerHTML = slip.map(function (s) {
       return '<div class="slip-item" data-m="' + s.matchId + '">' +
-               '<div><strong>' + s.label + '</strong><span>' + s.match + '</span></div>' +
+               '<div><span class="slip-league">Liga Bubba</span><strong>' + s.label + '</strong>' +
+                 '<span>' + s.match + '</span></div>' +
                '<b>' + s.odds.toFixed(2) + '</b>' +
+               '<button class="slip-remove" aria-label="Quitar ' + s.label + '">×</button>' +
              '</div>';
     }).join('');
 
@@ -206,10 +261,13 @@ window.MCSportsbook = (function () {
     el.summary.innerHTML =
       '<div><span>' + (slip.length > 1 ? 'Combinada de ' + slip.length : 'Cuota') + '</span>' +
         '<strong>' + odds.toFixed(2) + '</strong></div>' +
-      '<div><span>Ganancia posible</span>' +
-        '<strong style="color:var(--green)">' + MC.fmt(Math.floor(stake * odds)) + '</strong></div>';
+      '<div><span>Retorno potencial</span>' +
+        '<strong class="sp-return">' + MC.fmt(Math.floor(stake * odds)) + '</strong></div>' +
+      '<div><span>Ganancia neta</span>' +
+        '<strong>' + MC.fmt(Math.max(0, Math.floor(stake * odds) - stake)) + '</strong></div>';
 
-    el.place.disabled = false;
+    el.place.disabled = stake < MIN_STAKE;
+    el.clear.disabled = false;
   }
 
   function renderTickets() {
@@ -218,55 +276,63 @@ window.MCSportsbook = (function () {
       el.tickets.innerHTML = '';
       return;
     }
-    el.tickets.innerHTML = '<h4 class="sp-subtitle">Cupones pendientes</h4>' +
+    el.tickets.innerHTML = '<div class="sp-ticket-head"><span>Abiertas</span><b>' + list.length + '</b></div>' +
       list.map(function (t) {
         return '<div class="sp-ticket">' +
-                 '<div><strong>' + (t.selections.length > 1 ? 'Combinada x' + t.selections.length : t.selections[0].label) + '</strong>' +
-                   '<span>jornada ' + t.round + ' · cuota ' + t.odds.toFixed(2) + '</span></div>' +
-                 '<b>' + MC.fmt(t.stake) + '</b>' +
+                 '<div class="sp-ticket-top"><span>Ticket #' + String(t.id).slice(-6) + '</span><em>Pendiente</em></div>' +
+                 '<strong>' + (t.selections.length > 1 ? 'Combinada · ' + t.selections.length + ' selecciones' : t.selections[0].label) + '</strong>' +
+                 '<span>Jornada ' + t.round + ' · Cuota ' + t.odds.toFixed(2) + '</span>' +
+                 '<div class="sp-ticket-money"><span>Apuesta <b>' + MC.fmt(t.stake) + '</b></span>' +
+                   '<span>Retorno <b>' + MC.fmt(Math.floor(t.stake * t.odds)) + '</b></span></div>' +
                '</div>';
       }).join('');
   }
 
   function renderResults() {
     var res = MC.state.sports.results || [];
+    el.resultCount.textContent = res.length;
     if (!res.length) {
-      el.results.innerHTML = '';
+      el.results.innerHTML = '<div class="sp-empty"><span>⚽</span><strong>Todavía no hay resultados</strong>' +
+        '<p>Jugá la primera jornada para inaugurar la temporada.</p></div>';
       return;
     }
-    el.results.innerHTML = '<h4 class="sp-subtitle">Última jornada</h4>' +
-      '<div class="sp-results">' + res.map(function (r) {
+    el.results.innerHTML = '<div class="sp-results">' + res.map(function (r) {
         var h = MCTeams.get(r.home), a = MCTeams.get(r.away);
         return '<div class="sp-result">' +
-                 '<span>' + h.badge + ' ' + h.name + '</span>' +
-                 '<b>' + r.gh + ' - ' + r.ga + '</b>' +
-                 '<span>' + a.name + ' ' + a.badge + '</span>' +
+                 '<small>Final</small>' +
+                 '<span><i>' + h.badge + '</i>' + h.name + '</span>' +
+                 '<b>' + r.gh + '<em>–</em>' + r.ga + '</b>' +
+                 '<span>' + a.name + '<i>' + a.badge + '</i></span>' +
                '</div>';
       }).join('') + '</div>';
   }
 
   function renderTable() {
     var rows = MCLeague.table();
-    var jugadas = rows.reduce(function (s, r) { return s + r.pj; }, 0);
-    if (!jugadas) {
-      el.table.innerHTML = '<h4 class="sp-subtitle">Tabla de posiciones</h4>' +
-        '<p class="empty-msg">La liga todavía no arrancó. Simulá la primera jornada.</p>';
-      return;
-    }
-
-    el.table.innerHTML = '<h4 class="sp-subtitle">Tabla de posiciones</h4>' +
-      '<table class="sp-table"><thead><tr>' +
-        '<th>#</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>DG</th><th>Pts</th>' +
+    el.table.innerHTML = '<div class="sp-table-wrap"><table class="sp-table"><thead><tr>' +
+        '<th>Pos</th><th>Club</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>GF</th><th>GC</th><th>DG</th><th>Pts</th>' +
       '</tr></thead><tbody>' +
       rows.map(function (r, i) {
-        return '<tr>' +
-                 '<td>' + (i + 1) + '</td>' +
-                 '<td class="sp-tname">' + r.team.badge + ' ' + r.team.name + '</td>' +
+        return '<tr class="' + (i < 4 ? 'sp-zone' : '') + '">' +
+                 '<td><b>' + (i + 1) + '</b></td>' +
+                 '<td class="sp-tname"><i>' + r.team.badge + '</i><strong>' + r.team.name + '</strong></td>' +
                  '<td>' + r.pj + '</td><td>' + r.g + '</td><td>' + r.e + '</td><td>' + r.p + '</td>' +
+                 '<td>' + r.gf + '</td><td>' + r.gc + '</td>' +
                  '<td>' + (r.dg > 0 ? '+' : '') + r.dg + '</td>' +
                  '<td><strong>' + r.pts + '</strong></td>' +
                '</tr>';
-      }).join('') + '</tbody></table>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  function renderTabs() {
+    document.querySelectorAll('[data-sp-tab]').forEach(function (b) {
+      var on = b.dataset.spTab === activeTab;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-sp-section]').forEach(function (s) {
+      s.classList.toggle('active', s.dataset.spSection === activeTab);
+    });
   }
 
   function renderAll() {
@@ -275,6 +341,7 @@ window.MCSportsbook = (function () {
     renderTickets();
     renderResults();
     renderTable();
+    renderTabs();
   }
 
   /* ---------------- ciclo de vida ---------------- */
@@ -282,6 +349,9 @@ window.MCSportsbook = (function () {
 
   function init() {
     el.round = document.getElementById('spRound');
+    el.heroRound = document.getElementById('spHeroRound');
+    el.resultCount = document.getElementById('spResultCount');
+    el.slipCount = document.getElementById('spSlipCount');
     el.matches = document.getElementById('spMatches');
     el.slip = document.getElementById('spSlip');
     el.summary = document.getElementById('spSummary');
@@ -292,13 +362,14 @@ window.MCSportsbook = (function () {
     el.tickets = document.getElementById('spTickets');
     el.results = document.getElementById('spResults');
     el.table = document.getElementById('spTable');
+    el.quick = document.getElementById('spQuick');
 
     el.matches.onclick = function (e) {
       var b = e.target.closest('.sp-odd');
       if (b) toggle(b.dataset.m, b.dataset.p);
     };
     el.slip.onclick = function (e) {
-      var item = e.target.closest('.slip-item');
+      var item = e.target.closest('.slip-remove') && e.target.closest('.slip-item');
       if (!item) return;
       slip = slip.filter(function (s) { return s.matchId !== item.dataset.m; });
       MC.sound.click();
@@ -309,6 +380,20 @@ window.MCSportsbook = (function () {
     el.place.onclick = place;
     el.clear.onclick = clearSlip;
     el.simulate.onclick = simulateRound;
+    el.quick.onclick = function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      el.stake.value = b.dataset.value === 'max' ? MC.getBalance() : b.dataset.value;
+      MC.sound.click();
+      renderSlip();
+    };
+    document.querySelector('.sp-tabs').onclick = function (e) {
+      var b = e.target.closest('[data-sp-tab]');
+      if (!b) return;
+      activeTab = b.dataset.spTab;
+      MC.sound.click();
+      renderTabs();
+    };
 
     MC.registerEngine('sportsbook', { load: load });
   }
