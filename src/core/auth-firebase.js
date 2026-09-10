@@ -158,7 +158,28 @@ async function bajarEstado(setDoc, getDoc, doc) {
        cuando no hay con que comparar. */
     const horaNube = snap.data().updatedAt || 0;
     let horaLocal = 0;
-    try { horaLocal = (JSON.parse(local || '{}') || {}).at || 0; } catch (e) {}
+    let esHeredado = false;
+    try {
+      const l = JSON.parse(local || '{}') || {};
+      horaLocal = l.at || 0;
+      esHeredado = l.heredado === true;
+    } catch (e) {}
+
+    /* Un estado HEREDADO del invitado nunca le gana a la nube, mire lo que
+       mire el reloj. Es progreso de otra cuenta al que se le puso fecha
+       nueva al copiarlo: por sello siempre parece mas reciente, y por eso
+       se comia la cuenta de verdad. Si la nube tiene algo, la nube manda. */
+    if (esHeredado) {
+      localStorage.setItem(MC.auth.claveEstado(uidPerfil), nube);
+      if (!MC.aplicarEstado(nube)) {
+        console.warn('[bubba] el estado de la nube no se pudo aplicar');
+        estadoNube = 'error';
+        errorNube = 'estado-invalido';
+        return;
+      }
+      MC.toast('Progreso recuperado de tu cuenta', 'win');
+      return;
+    }
 
     if (horaNube && horaLocal && horaLocal > horaNube) {
       await subirEstado(setDoc, doc, true);
@@ -197,10 +218,25 @@ async function subirEstado(setDoc, doc, ahora) {
       // updatedAt es la hora DEL ESTADO, no la de la subida: si fueran
       // distintas, subir sin cambios haria "ganar" a la nube por reloj.
       let horaEstado = Date.now();
-      try { horaEstado = (JSON.parse(raw) || {}).at || horaEstado; } catch (e) {}
+      let subir = raw;
+      try {
+        const st = JSON.parse(raw) || {};
+        horaEstado = st.at || horaEstado;
+        /* Si lo que sube es el regalo del invitado, deja de ser heredado en
+           cuanto llega: ya es el progreso de esta cuenta y de ahora en mas
+           compite por sello como cualquier otro. */
+        if (st.heredado) {
+          st.heredado = false;
+          st.at = horaEstado = Date.now();
+          subir = JSON.stringify(st);
+          localStorage.setItem(MC.auth.claveEstado(uidPerfil), subir);
+          MC.state.heredado = false;
+          MC.state.at = horaEstado;
+        }
+      } catch (e) {}
 
       await setDoc(doc(db, 'players', uidNube), {
-        state: raw,
+        state: subir,
         updatedAt: horaEstado
       }, { merge: true });
 

@@ -363,7 +363,32 @@ window.MC = window.MC || {};
       photo: info.photo
     });
     if (heredar) {
-      try { localStorage.setItem(claveEstado(uidRemoto), heredar); } catch (e) {}
+      /* EL REGALO NO PUEDE PISAR UNA CUENTA QUE YA EXISTE.
+         -------------------------------------------------------------
+         Regalarle el progreso de invitado a una cuenta nueva esta bien.
+         El problema es que copiarlo tal cual le pone a datos viejos un
+         sello de AHORA, y la sincronia decide por sello: gana la copia
+         mas nueva.
+
+         Lo que pasaba, y le paso a nacho: jugas de invitado en el
+         celular, entras con Google —ese navegador nunca vio tu cuenta,
+         asi que cae por aca—, y el progreso del invitado sube encima del
+         que tenias en la nube. Medido: 688.807 apostadas quedaron en
+         26.935.
+
+         Se marca `heredado` y se le saca el sello. Con eso el estado
+         heredado PIERDE contra cualquier copia real de la nube, y solo
+         se conserva si la nube esta vacia — que es el unico caso en el
+         que el regalo tiene sentido. */
+      try {
+        var h = JSON.parse(heredar);
+        h.at = 0;
+        h.heredado = true;
+        localStorage.setItem(claveEstado(uidRemoto), JSON.stringify(h));
+      } catch (e) {
+        // Si el estado del invitado esta corrupto, mejor no heredar nada
+        // que heredar algo que despues pise la nube.
+      }
     }
     return recargar('primera vez con esta cuenta');
   }

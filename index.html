@@ -10,33 +10,33 @@
      (y la CDN de GitHub Pages) siguen sirviendo la version vieja
      despues de una actualizacion, y el sitio queda mezclado: mitad
      codigo nuevo, mitad viejo. Al publicar cambios, SUBIR EL NUMERO.
-     Buscar y reemplazar "?v=46" por "?v=46" y listo. -->
+     Buscar y reemplazar "?v=47" por "?v=47" y listo. -->
 
 <!-- Hojas de estilo, de lo general a lo particular.
      El orden importa: tokens define las variables que usa todo lo demás. -->
-<link rel="stylesheet" href="src/styles/fuentes.css?v=46">
-<link rel="stylesheet" href="src/styles/tokens.css?v=46">
-<link rel="stylesheet" href="src/styles/base.css?v=46">
-<link rel="stylesheet" href="src/styles/layout.css?v=46">
-<link rel="stylesheet" href="src/styles/portal.css?v=46">
-<link rel="stylesheet" href="src/styles/components.css?v=46">
-<link rel="stylesheet" href="src/styles/progress.css?v=46">
-<link rel="stylesheet" href="src/styles/cuenta.css?v=46">
-<link rel="stylesheet" href="src/styles/asistente.css?v=46">
-<link rel="stylesheet" href="src/styles/games/slots.css?v=46">
-<link rel="stylesheet" href="src/styles/games/sportsbook.css?v=46">
-<link rel="stylesheet" href="src/styles/games/proveedor.css?v=46">
-<link rel="stylesheet" href="src/styles/games/plantilla.css?v=46">
-<link rel="stylesheet" href="src/styles/games/crash.css?v=46">
-<link rel="stylesheet" href="src/styles/games/mines.css?v=46">
-<link rel="stylesheet" href="src/styles/games/roulette.css?v=46">
-<link rel="stylesheet" href="src/styles/games/blackjack.css?v=46">
+<link rel="stylesheet" href="src/styles/fuentes.css?v=47">
+<link rel="stylesheet" href="src/styles/tokens.css?v=47">
+<link rel="stylesheet" href="src/styles/base.css?v=47">
+<link rel="stylesheet" href="src/styles/layout.css?v=47">
+<link rel="stylesheet" href="src/styles/portal.css?v=47">
+<link rel="stylesheet" href="src/styles/components.css?v=47">
+<link rel="stylesheet" href="src/styles/progress.css?v=47">
+<link rel="stylesheet" href="src/styles/cuenta.css?v=47">
+<link rel="stylesheet" href="src/styles/asistente.css?v=47">
+<link rel="stylesheet" href="src/styles/games/slots.css?v=47">
+<link rel="stylesheet" href="src/styles/games/sportsbook.css?v=47">
+<link rel="stylesheet" href="src/styles/games/proveedor.css?v=47">
+<link rel="stylesheet" href="src/styles/games/plantilla.css?v=47">
+<link rel="stylesheet" href="src/styles/games/crash.css?v=47">
+<link rel="stylesheet" href="src/styles/games/mines.css?v=47">
+<link rel="stylesheet" href="src/styles/games/roulette.css?v=47">
+<link rel="stylesheet" href="src/styles/games/blackjack.css?v=47">
 
 <!-- El tema va en el HEAD y no con el resto: si se aplicara despues, quien
      tiene el tema claro veria el fondo negro un instante y despues el
      cambio de golpe. Ese destello es la marca de que el tema se pego
      encima en vez de estar pensado. -->
-<script src="src/core/tema.js?v=46"></script>
+<script src="src/core/tema.js?v=47"></script>
 </head>
 <body>
 
@@ -353,15 +353,15 @@
             </div>
           </header>
 
-          <nav class="sp-tabs" aria-label="Secciones de Liga Bubba">
-            <button class="active" data-sp-tab="matches">Partidos <span id="spMatchCount">8</span></button>
-            <button data-sp-tab="results">Resultados <span id="spResultCount">0</span></button>
-            <button data-sp-tab="table">Posiciones <span>16</span></button>
+          <nav class="sp-tabs" role="tablist" aria-label="Secciones de Liga Bubba">
+            <button class="active" role="tab" aria-selected="true" data-sp-tab="matches">Partidos <span id="spMatchCount">8</span></button>
+            <button role="tab" aria-selected="false" data-sp-tab="results">Resultados <span id="spResultCount">0</span></button>
+            <button role="tab" aria-selected="false" data-sp-tab="table">Posiciones <span>16</span></button>
           </nav>
 
           <div class="sp-layout">
             <div class="sp-main">
-              <section class="sp-section active" data-sp-section="matches">
+              <section class="sp-section active" role="tabpanel" data-sp-section="matches">
                 <div class="sp-round-head">
                   <div>
                     <span class="sp-eyebrow">Próximos partidos</span>
@@ -376,14 +376,14 @@
                 <div id="spMatches"></div>
               </section>
 
-              <section class="sp-section" data-sp-section="results">
+              <section class="sp-section" role="tabpanel" data-sp-section="results" hidden>
                 <div class="sp-section-head">
                   <div><span class="sp-eyebrow">Marcadores oficiales</span><h3>Última jornada</h3></div>
                 </div>
                 <div id="spResults"></div>
               </section>
 
-              <section class="sp-section" data-sp-section="table">
+              <section class="sp-section" role="tabpanel" data-sp-section="table" hidden>
                 <div class="sp-section-head">
                   <div><span class="sp-eyebrow">Clasificación</span><h3>Tabla de posiciones</h3></div>
                   <span class="sp-zone-key"><i></i> Zona campeonato</span>
@@ -610,77 +610,77 @@
   </form>
 </aside>
 
-<script src="src/core/format.js?v=46"></script>
-<script src="src/core/auth.js?v=46"></script>
-<script src="src/core/roles.js?v=46"></script>
-<script src="src/core/rng.js?v=46"></script>
-<script src="src/core/state.js?v=46"></script>
-<script src="src/core/audio.js?v=46"></script>
-<script src="src/core/ui.js?v=46"></script>
-<script src="src/core/wallet.js?v=46"></script>
-<script src="src/core/router.js?v=46"></script>
+<script src="src/core/format.js?v=47"></script>
+<script src="src/core/auth.js?v=47"></script>
+<script src="src/core/roles.js?v=47"></script>
+<script src="src/core/rng.js?v=47"></script>
+<script src="src/core/state.js?v=47"></script>
+<script src="src/core/audio.js?v=47"></script>
+<script src="src/core/ui.js?v=47"></script>
+<script src="src/core/wallet.js?v=47"></script>
+<script src="src/core/router.js?v=47"></script>
 
 <!-- 2. Progresión (rango VIP y misiones diarias) -->
-<script src="src/progress/levels.js?v=46"></script>
-<script src="src/progress/missions.js?v=46"></script>
-<script src="src/progress/bienvenida.js?v=46"></script>
-<script src="src/progress/bote.js?v=46"></script>
-<script src="src/progress/diario.js?v=46"></script>
-<script src="src/progress/torneo.js?v=46"></script>
-<script src="src/progress/caja.js?v=46"></script>
-<script src="src/progress/caja-agente.js?v=46"></script>
-<script src="src/progress/peticiones.js?v=46"></script>
+<script src="src/progress/levels.js?v=47"></script>
+<script src="src/progress/missions.js?v=47"></script>
+<script src="src/progress/bienvenida.js?v=47"></script>
+<script src="src/progress/bote.js?v=47"></script>
+<script src="src/progress/diario.js?v=47"></script>
+<script src="src/progress/torneo.js?v=47"></script>
+<script src="src/progress/caja.js?v=47"></script>
+<script src="src/progress/caja-agente.js?v=47"></script>
+<script src="src/progress/peticiones.js?v=47"></script>
 
 <!-- 3. Liga simulada (equipos → modelo → liga) -->
-<script src="src/sports/teams.js?v=46"></script>
-<script src="src/sports/poisson.js?v=46"></script>
-<script src="src/sports/league.js?v=46"></script>
+<script src="src/sports/teams.js?v=47"></script>
+<script src="src/sports/poisson.js?v=47"></script>
+<script src="src/sports/league.js?v=47"></script>
 
 <!-- 4. Motores de juego -->
-<script src="src/games/slots.js?v=46"></script>
-<script src="src/games/roulette.js?v=46"></script>
-<script src="src/games/blackjack.js?v=46"></script>
-<script src="src/games/crash.js?v=46"></script>
-<script src="src/games/mines.js?v=46"></script>
-<script src="src/games/sportsbook.js?v=46"></script>
-<script src="src/games/plantilla.js?v=46"></script>
-<script src="src/games/proveedor.js?v=46"></script>
+<script src="src/games/slots.js?v=47"></script>
+<script src="src/games/roulette.js?v=47"></script>
+<script src="src/games/blackjack.js?v=47"></script>
+<script src="src/games/crash.js?v=47"></script>
+<script src="src/games/mines.js?v=47"></script>
+<script src="src/games/sportsbook.js?v=47"></script>
+<script src="src/games/plantilla.js?v=47"></script>
+<script src="src/games/proveedor.js?v=47"></script>
 
 <!-- 5. Catálogo (themes → matemática → generador → armado) -->
-<script src="src/catalog/themes.js?v=46"></script>
-<script src="src/catalog/slot-math.js?v=46"></script>
-<script src="src/catalog/generator.js?v=46"></script>
-<script src="src/catalog/catalog.js?v=46"></script>
+<script src="src/catalog/themes.js?v=47"></script>
+<script src="src/catalog/slot-math.js?v=47"></script>
+<script src="src/catalog/generator.js?v=47"></script>
+<script src="src/catalog/catalog.js?v=47"></script>
 
 <!-- 6. Interfaz del portal -->
-<script src="src/ui/game-card.js?v=46"></script>
-<script src="src/ui/game-art.js?v=46"></script>
-<script src="src/ui/actions.js?v=46"></script>
-<script src="src/ui/carousel.js?v=46"></script>
-<script src="src/ui/rails.js?v=46"></script>
-<script src="src/ui/catalog-view.js?v=46"></script>
-<script src="src/ui/search.js?v=46"></script>
-<script src="src/ui/portal.js?v=46"></script>
-<script src="src/ui/shell.js?v=46"></script>
-<script src="src/ui/modals.js?v=46"></script>
-<script src="src/ui/missions-view.js?v=46"></script>
-<script src="src/ui/cuenta.js?v=46"></script>
-<script src="src/ui/cajero.js?v=46"></script>
-<script src="src/ui/vip.js?v=46"></script>
-<script src="src/ui/ranking.js?v=46"></script>
-<script src="src/ui/compartir.js?v=46"></script>
-<script src="src/ui/torneo.js?v=46"></script>
-<script src="src/ui/agente.js?v=46"></script>
-<script src="src/ui/estadisticas.js?v=46"></script>
-<script src="src/ui/ajustes.js?v=46"></script>
-<script src="src/ui/asistente.js?v=46"></script>
+<script src="src/ui/game-card.js?v=47"></script>
+<script src="src/ui/game-art.js?v=47"></script>
+<script src="src/ui/actions.js?v=47"></script>
+<script src="src/ui/carousel.js?v=47"></script>
+<script src="src/ui/rails.js?v=47"></script>
+<script src="src/ui/catalog-view.js?v=47"></script>
+<script src="src/ui/search.js?v=47"></script>
+<script src="src/ui/portal.js?v=47"></script>
+<script src="src/ui/shell.js?v=47"></script>
+<script src="src/ui/modals.js?v=47"></script>
+<script src="src/ui/missions-view.js?v=47"></script>
+<script src="src/ui/cuenta.js?v=47"></script>
+<script src="src/ui/cajero.js?v=47"></script>
+<script src="src/ui/vip.js?v=47"></script>
+<script src="src/ui/ranking.js?v=47"></script>
+<script src="src/ui/compartir.js?v=47"></script>
+<script src="src/ui/torneo.js?v=47"></script>
+<script src="src/ui/agente.js?v=47"></script>
+<script src="src/ui/estadisticas.js?v=47"></script>
+<script src="src/ui/ajustes.js?v=47"></script>
+<script src="src/ui/asistente.js?v=47"></script>
 
 <!-- 7. Arranque -->
-<script src="src/main.js?v=46"></script>
+<script src="src/main.js?v=47"></script>
 
 <!-- Login con Google y saldo en la nube. Es un módulo (el SDK de Firebase lo
      es) y va último a propósito: si falla, el casino ya arrancó con perfiles
      locales y se juega igual. -->
-<script type="module" src="src/core/auth-firebase.js?v=46"></script>
+<script type="module" src="src/core/auth-firebase.js?v=47"></script>
 </body>
 </html>

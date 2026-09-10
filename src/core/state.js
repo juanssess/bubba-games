@@ -31,6 +31,11 @@ window.MC = window.MC || {};
     // este en esta lista desaparece la primera vez que sincroniza la nube.
     // Es el mismo pozo en el que ya se cayo el sello de hora.
     diario: {},        // por dia: rondas, apostado, devuelto
+    /* Marca "este progreso lo traje de invitado y todavia no lo compare
+       contra la nube". Va declarada aca por lo mismo que las de abajo: si
+       no esta en defaults, load() la borra en el primer guardado y el
+       arreglo de la herencia deja de funcionar justo cuando hace falta. */
+    heredado: false,
     torneo: null,      // El Golpe de la Semana: semana en curso y marcas cobradas
     porJuego: {},      // por juego, de toda la vida
     caja: [],          // libro de movimientos (solo cuentas de agente)
