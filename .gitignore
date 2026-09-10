@@ -2,3 +2,6 @@ desktop.ini
 Thumbs.db
 .DS_Store
 *.tmp
+
+# Volcado de la API de la liga (se vuelve a bajar con --bajar)
+tools/.cache/
