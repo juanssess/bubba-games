@@ -79,6 +79,35 @@
   box-shadow:0 3px 8px rgba(0,0,0,.6);z-index:2;
 }
 
+/* ---------------- selector de tipo de apuesta ----------------
+   El pago que muestra cada botón lo calcula el motor a partir de
+   cuántos números cubre. No hay una tabla escrita acá que se pueda
+   desincronizar de la matemática. */
+.bet-modes{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.bet-mode{
+  flex:1;min-width:92px;display:flex;flex-direction:column;gap:2px;
+  padding:8px 10px;border-radius:var(--r-sm);cursor:pointer;text-align:left;
+  background:var(--bg-3);border:1px solid var(--line);color:var(--txt-dim);
+  transition:.14s;
+}
+.bet-mode:hover{background:var(--bg-4);color:var(--txt)}
+.bet-mode b{font-size:13px;font-weight:700}
+.bet-mode span{font-size:10.5px;line-height:1.3}
+.bet-mode.active{
+  background:rgba(245,196,81,.14);border-color:rgba(245,196,81,.45);color:var(--txt);
+}
+.bet-mode.active b{color:var(--gold)}
+
+/* Números que agarraría la apuesta, al pasar el mouse. */
+.bet-cell.cubierto{
+  box-shadow:0 0 0 2px var(--gold) inset;
+  filter:brightness(1.35);
+}
+/* Parpadeo corto al confirmar, para ver qué se cubrió. */
+.bet-cell.recien-apostado{
+  box-shadow:0 0 0 2px var(--gold) inset, 0 0 18px rgba(245,196,81,.7);
+}
+
 .roulette-actions{display:flex;align-items:center;gap:11px;margin-top:16px;flex-wrap:wrap}
 .staked{margin-right:auto;color:var(--txt-dim);font-size:13px}
 .staked strong{color:var(--gold);font-size:16px;font-variant-numeric:tabular-nums}
