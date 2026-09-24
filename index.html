@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="src/styles/cuenta.css?v=49">
 <link rel="stylesheet" href="src/styles/asistente.css?v=49">
 <link rel="stylesheet" href="src/styles/games/slots.css?v=49">
+<link rel="stylesheet" href="src/styles/games/slots5.css?v=53">
 <link rel="stylesheet" href="src/styles/games/sportsbook.css?v=49">
 <link rel="stylesheet" href="src/styles/games/proveedor.css?v=49">
 <link rel="stylesheet" href="src/styles/games/plantilla.css?v=49">
@@ -275,6 +276,58 @@
       </div>
 
       <div class="stage-body">
+
+        <!-- ---------- BUBBA GOLD — 5 rodillos, 3 filas, 20 líneas ----------
+             La matemática vive en src/games/slots5-math.js, que es el mismo
+             archivo que mide `node tools/slots5-rtp.js`. -->
+        <section class="view" id="view-slots5">
+          <div class="g5-layout">
+            <div class="g5-main">
+
+              <div class="g5-free" id="g5Free">
+                <span class="g5-free-lab">Giros gratis</span>
+                <strong id="g5FreeCount">0</strong>
+                <span class="g5-free-sum">acumulado <b id="g5FreeSum">0</b></span>
+              </div>
+
+              <div class="g5-board" id="g5Board">
+                <div class="g5-reel"><div class="g5-strip"></div></div>
+                <div class="g5-reel"><div class="g5-strip"></div></div>
+                <div class="g5-reel"><div class="g5-strip"></div></div>
+                <div class="g5-reel"><div class="g5-strip"></div></div>
+                <div class="g5-reel"><div class="g5-strip"></div></div>
+              </div>
+
+              <div class="g5-linetag" id="g5LineTag"></div>
+              <div class="g5-win" id="g5Win"></div>
+              <div class="g5-msg" id="g5Msg">Apostá y girá. 20 líneas, siempre activas.</div>
+
+              <div class="g5-controls">
+                <div class="bet-control">
+                  <button class="btn btn-ghost" id="g5BetDown">−</button>
+                  <div class="bet-display">
+                    <span>Por línea</span><strong id="g5LineBet">5</strong>
+                  </div>
+                  <button class="btn btn-ghost" id="g5BetUp">+</button>
+                </div>
+
+                <button class="btn btn-spin" id="g5Spin">GIRAR</button>
+
+                <div class="bet-display g5-total">
+                  <span>Apuesta total</span><strong id="g5TotalBet">100</strong>
+                </div>
+              </div>
+            </div>
+
+            <aside class="g5-side">
+              <h4 class="g5-side-title">Tabla de pagos</h4>
+              <div class="g5-paytable" id="g5Paytable"></div>
+              <p class="hint">Los premios de línea multiplican la apuesta <strong>por línea</strong>.
+                 Se pagan de izquierda a derecha desde el primer rodillo. El tigre reemplaza
+                 a cualquier símbolo menos la bolsa.</p>
+            </aside>
+          </div>
+        </section>
 
         <!-- ---------- PROVEEDOR EXTERNO ----------
              Juegos servidos en un iframe (Maverick, Se Busca). Comparten la
@@ -620,6 +673,8 @@
 
 <!-- 4. Motores de juego -->
 <script src="src/games/slots.js?v=48"></script>
+<script src="src/games/slots5-math.js?v=52"></script>
+<script src="src/games/slots5.js?v=53"></script>
 <script src="src/games/roulette.js?v=48"></script>
 <script src="src/games/blackjack.js?v=48"></script>
 <script src="src/games/crash.js?v=48"></script>

@@ -105,6 +105,21 @@ window.MCCatalog = (function () {
       // El campo que manda es `engine`: tiene que coincidir con el
       // nombre que usás en MC.registerEngine() y con el id de la
       // <section class="view" id="view-plantilla"> del HTML.
+      /* El RTP y el máximo NO están elegidos a mano: salen de
+         `node tools/slots5-rtp.js`, que mide la misma matemática que
+         juega el motor. 95,46% es el cálculo exacto, confirmado por
+         Monte Carlo de 5M de rondas (95,78%, dentro del ruido). El
+         máximo es el golpe más grande que apareció en esas 5M: con
+         retriggers no hay tope teórico, así que se publica lo medido. */
+      id: 'slots5', engine: 'slots5', name: 'Bubba Gold', kind: 'Tragamonedas',
+      studio: 'Bubba Originals', volatility: 'Alta',
+      rtpValue: 0.9546, rtp: 'RTP 95,5%',
+      maxWin: 596, tag: '20 líneas · comodín y giros gratis',
+      emoji: '🐯', badge: 'new',
+      art: 'linear-gradient(135deg,#2a0d12,#a8141f 55%,#f5c451)',
+      desc: '5 rodillos · 20 líneas'
+    },
+    {
       id: 'plantilla', engine: 'plantilla', name: 'Doble o Nada', kind: 'Instantáneo',
       studio: 'Bubba Originals', volatility: 'Media',
       tag: 'Plantilla de referencia · paga 1.95x', rtpValue: 0.975, rtp: 'RTP 97,5%',

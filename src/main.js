@@ -14,7 +14,7 @@
   // registro es barato y así basta con sacarlo de OCULTOS en el
   // catálogo para que vuelva a estar jugable, sin tocar nada acá.
   var ENGINES = [
-    MCSlots, MCRoulette, MCBlackjack, MCCrash, MCMines,
+    MCSlots, MCSlots5, MCRoulette, MCBlackjack, MCCrash, MCMines,
     MCSportsbook, MCPlantilla, MCProveedor
   ];
 
