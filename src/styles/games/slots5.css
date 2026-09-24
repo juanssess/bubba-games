@@ -70,6 +70,12 @@
 /* El premio grande se lee distinto ANTES de leer el número: por tamaño
    y por brillo. Que un 2x y un 200x se vean igual es el error más caro
    que puede tener la pantalla de una tragamonedas. */
+/* Pagó, pero menos de lo apostado: se informa, no se festeja.
+   Mismo lugar, otro peso y otro color. */
+.g5-win.flojo{
+  font-size:15px;font-weight:600;color:var(--txt-dim);
+  animation:none;
+}
 .g5-win.grande{
   font-family:var(--font-display);font-size:clamp(34px,5.4vw,52px);
   letter-spacing:1.5px;text-shadow:0 0 30px rgba(245,196,81,.7);
