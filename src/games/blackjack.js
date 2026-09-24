@@ -340,8 +340,12 @@
     MC.recordRound(staked, returned, detail);
     render();
 
-    if (returned > staked) MC.toast('+' + MC.fmt(returned - staked) + ' fichas', 'win');
-    else if (returned === 0) MC.toast('-' + MC.fmt(staked) + ' fichas', 'lose');
+    /* Antes sólo avisaba al ganar o al perderlo todo. Con manos divididas
+       —una gana, otra pierde— se devuelve menos de lo apostado y la
+       pantalla se quedaba muda: el jugador perdía plata sin que nada se
+       lo dijera. Y un empate tampoco avisaba. Ahora habla siempre. */
+    var v = MC.veredicto(staked, returned);
+    MC.toast(v.texto, v.tono);
   }
 
   /* ---------------- init ---------------- */

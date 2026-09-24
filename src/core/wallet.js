@@ -177,10 +177,53 @@ window.MC = window.MC || {};
     badge.classList.toggle('off', !ready);
   }
 
+  /* ============================================================
+     VEREDICTO DE UNA RONDA — una sola definición de "ganaste"
+
+     Un juego puede devolverte algo y aun así haberte sacado plata.
+     Un par de campanas paga 1x: recuperás justo lo que apostaste.
+     Tres gemas de cinco en Bubba Gold pagan 15 sobre una apuesta de
+     100. En los dos casos la pantalla decía "+fichas" en oro y con
+     sonido de premio, que es la mentira más común de las
+     tragamonedas: al jugador le acaban de sacar plata y lo felicitan.
+
+     Acá se decide UNA vez qué pasó realmente, y todos los juegos
+     preguntan lo mismo. Antes cada motor tenía su propio criterio (o
+     ninguno), así que la misma situación se contaba distinto según
+     dónde estuvieras parado.
+
+       gano    devolvió MÁS de lo apostado    → festejo
+       empate  devolvió EXACTAMENTE lo mismo  → se informa
+       perdio  devolvió menos (aunque sea >0) → se informa
+     ============================================================ */
+  function veredicto(staked, returned) {
+    var neto = returned - staked;
+    var gano = neto > 0;
+    var empate = neto === 0 && returned > 0;
+    var vacio = returned === 0;
+
+    var texto;
+    if (gano) texto = '+' + MC.fmt(neto) + ' fichas';
+    else if (empate) texto = 'Recuperás tu apuesta';
+    else if (vacio) texto = '−' + MC.fmt(staked) + ' fichas';
+    else texto = 'Recuperás ' + MC.fmt(returned) + ' de ' + MC.fmt(staked);
+
+    return {
+      neto: neto,
+      gano: gano,
+      empate: empate,
+      perdio: !gano && !empate,
+      texto: texto,
+      // 'win' sólo cuando de verdad ganó: el color también informa.
+      tono: gano ? 'win' : (vacio ? 'lose' : 'info')
+    };
+  }
+
   MC.getBalance = getBalance;
   MC.canBet = canBet;
   MC.addBalance = addBalance;
   MC.recordRound = recordRound;
+  MC.veredicto = veredicto;
   MC.renderBalance = renderBalance;
   MC.renderStats = renderStats;
   MC.BONUS_AMOUNT = BONUS_AMOUNT;

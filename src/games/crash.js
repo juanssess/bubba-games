@@ -163,15 +163,18 @@
     var payout = Math.floor(bet * cashedAt);
     MC.addBalance(payout);
     MC.recordRound(bet, payout, 'retiro en ' + MC.fmtMult(cashedAt));
-    MC.sound.win();
+
+    // Retirarse clavado en 1.00x devuelve la apuesta: no es un premio.
+    var v = MC.veredicto(bet, payout);
+    if (v.gano) MC.sound.win(); else MC.sound.click();
 
     el.mult.className = 'crash-mult cashed';
     el.mult.textContent = MC.fmtMult(cashedAt);
-    el.state.textContent = (auto ? 'Retiro automático' : 'Retiraste') + ' en ' + MC.fmtMult(cashedAt) +
-                           ' · +' + MC.fmt(payout - bet) + ' fichas';
+    el.state.textContent = (auto ? 'Retiro automático' : 'Retiraste') + ' en ' +
+                           MC.fmtMult(cashedAt) + ' · ' + v.texto;
     el.action.textContent = 'ESPERANDO EL REVENTÓN...';
     el.action.disabled = true;
-    MC.toast('Retirado en ' + MC.fmtMult(cashedAt) + ': +' + MC.fmt(payout - bet), 'win');
+    MC.toast('Retirado en ' + MC.fmtMult(cashedAt) + ': ' + v.texto, v.tono);
   }
 
   function bust() {

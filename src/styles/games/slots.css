@@ -40,6 +40,9 @@
 .slot-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap}
 .slot-win{text-align:center;margin-top:16px;min-height:30px;font-size:21px;font-weight:800;color:var(--gold)}
 .slot-win.show{animation:winPop .6s ease}
+/* Pagó, pero no superó la apuesta: se informa, no se festeja.
+   Un par de campanas paga 1x y devuelve justo lo que entró. */
+.slot-win.flojo{font-size:15px;font-weight:600;color:var(--txt-dim);animation:none}
 
 .paytable{max-width:600px;margin:24px auto 0}
 .paytable h3{font-size:14px;letter-spacing:.5px;margin-bottom:14px}

@@ -114,11 +114,16 @@
     var payout = Math.floor(bet * multiplierAt(revealed));
     MC.addBalance(payout);
     MC.recordRound(bet, payout, revealed + ' gemas · ' + MC.fmtMult(multiplierAt(revealed)));
-    MC.sound.win();
 
-    el.msg.className = 'mines-msg win';
-    el.msg.textContent = 'Retiraste ' + MC.fmt(payout) + ' fichas (+' + MC.fmt(payout - bet) + ')';
-    if (!auto) MC.toast('+' + MC.fmt(payout - bet) + ' fichas', 'win');
+    // El multiplicador de Mines siempre supera 1, así que retirarse siempre
+    // es ganar. Se usa igual el veredicto para que los seis juegos cuenten
+    // lo mismo de la misma forma.
+    var v = MC.veredicto(bet, payout);
+    if (v.gano) MC.sound.win(); else MC.sound.click();
+
+    el.msg.className = 'mines-msg ' + (v.gano ? 'win' : '');
+    el.msg.textContent = 'Retiraste ' + MC.fmt(payout) + ' fichas (' + v.texto + ')';
+    if (!auto) MC.toast(v.texto, v.tono);
     endRound();
   }
 

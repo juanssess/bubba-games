@@ -145,11 +145,19 @@
     spinning = false;
     var outcome = evaluate(result, bet);
 
+    // Un par de campanas paga 1x: devuelve la apuesta, no la supera.
+    // La billetera decide si eso es ganar; acá sólo se muestra.
+    var v = MC.veredicto(bet, outcome.payout);
+
     if (outcome.payout > 0) {
       MC.addBalance(outcome.payout);
-      document.querySelectorAll('.reel').forEach(function (r) { r.classList.add('win'); });
-      el.win.textContent = '+' + MC.fmt(outcome.payout) + ' fichas';
+      el.win.textContent = v.texto;
       el.win.classList.add('show');
+      el.win.classList.toggle('flojo', !v.gano);
+      // Los rodillos sólo se encienden si de verdad ganó.
+      if (v.gano) {
+        document.querySelectorAll('.reel').forEach(function (r) { r.classList.add('win'); });
+      }
 
       var isJackpot = outcome.kind === 'triple' && outcome.symbol.triple >= game.maxWin;
       if (isJackpot) {
@@ -162,10 +170,12 @@
       } else if (outcome.kind === 'triple') {
         el.message.textContent = 'Tres ' + outcome.symbol.name + ' — ' + outcome.symbol.triple + 'x';
         MC.sound.win();
-        MC.toast('¡Tres ' + outcome.symbol.name + '! +' + MC.fmt(outcome.payout), 'win');
+        MC.toast('¡Tres ' + outcome.symbol.name + '! ' + v.texto, v.tono);
       } else {
         el.message.textContent = 'Par de ' + outcome.symbol.name + ' — ' + outcome.symbol.pair + 'x';
-        MC.sound.win();
+        // Sonido de premio sólo si hubo premio. Un par de campanas
+        // devuelve la apuesta clavada: eso no se festeja.
+        if (v.gano) MC.sound.win(); else MC.sound.click();
       }
     } else {
       el.message.textContent = 'Sin premio. Probá de nuevo.';

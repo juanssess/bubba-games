@@ -226,20 +226,18 @@ window.MCSlots5 = (function () {
   function pintarResultado(ev, ganado) {
     if (ganado > 0) {
       var apuesta = totalBet();
-      /* Un giro gratis no costó nada, así que cualquier pago es ganancia.
-         En el juego base NO: si el giro devolvió menos de lo que salió,
-         el jugador perdió plata. Festejar "+15" en oro cuando la ronda
-         costó 100 es la mentira más común de las tragamonedas, y acá
-         venimos declarando el RTP real desde el primer juego. */
-      var esGanancia = freeLeft > 0 || ganado >= apuesta;
+      /* Un giro gratis no costó nada: se le pasa apuesta 0 y el veredicto
+         lo trata como ganancia pura, sin necesidad de un caso especial.
+         En el juego base el costo es real, así que un pago menor a la
+         apuesta se informa en vez de festejarse. */
+      var v = MC.veredicto(freeLeft > 0 ? 0 : apuesta, ganado);
       var grande = ganado >= apuesta * 20;
 
-      if (esGanancia) {
-        el.win.textContent = '+' + MC.fmt(ganado) + ' fichas';
+      el.win.textContent = v.texto;
+      if (v.gano) {
         el.win.className = 'g5-win visible' + (grande ? ' grande' : '');
         if (grande) MC.sound.jackpot(); else MC.sound.win();
       } else {
-        el.win.textContent = 'Recuperás ' + MC.fmt(ganado) + ' de ' + MC.fmt(apuesta);
         el.win.className = 'g5-win visible flojo';
         MC.sound.click();
       }

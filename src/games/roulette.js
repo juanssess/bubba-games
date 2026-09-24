@@ -224,11 +224,15 @@
       if (c) c.classList.add('win-flash');
     });
 
+    var v = MC.veredicto(staked, returned);
+
     if (returned > 0) {
       MC.addBalance(returned);
-      MC.sound.win();
-      var net = returned - staked;
-      MC.toast('Salió el ' + n + '. ' + (net >= 0 ? 'Ganás ' : 'Recuperás ') + MC.fmt(returned) + ' fichas', 'win');
+      /* Cubrir rojo y un pleno y que salga rojo devuelve fichas pero deja
+         al jugador abajo. El texto ya lo decía; el color no: salía verde
+         de victoria igual. Ahora el tono lo pone el veredicto. */
+      if (v.gano) MC.sound.win(); else MC.sound.click();
+      MC.toast('Salió el ' + n + '. ' + v.texto, v.tono);
     } else {
       MC.sound.lose();
       MC.toast('Salió el ' + n + '. Se la lleva la casa.', 'lose');
