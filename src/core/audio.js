@@ -242,6 +242,23 @@ window.MC = window.MC || {};
       barrido(ahora(), 0.11, 7000, 1400, 0.075);
     },
 
+    /* Anticipación: el rodillo que puede disparar la función frena
+       lento y esto sube con él. Un barrido ascendente largo más una
+       quinta que late. El resultado ya está decidido —esto no cambia
+       nada— pero es lo que convierte "esperar" en "aguantar". */
+    tension: function (segundos) {
+      if (!activo()) return;
+      var t = ahora();
+      var d = segundos || 1.6;
+      barrido(t, d, 150, 820, 0.055);
+      barrido(t, d, 225, 1230, 0.028);
+      // Latido: se acelera hacia el final.
+      for (var i = 0, p = 0; p < d - 0.1; i++) {
+        golpe(t + p, 0.05, 320 * var_(0.05), 4, 0.10);
+        p += Math.max(0.09, 0.30 - i * 0.022);
+      }
+    },
+
     /* El diente del rodillo al pasar. */
     tick: function () {
       if (!activo()) return;

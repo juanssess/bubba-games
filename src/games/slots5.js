@@ -31,14 +31,48 @@ window.MCSlots5 = (function () {
      mirando sin poder tocar nada, que es exactamente al revés de lo que
      tiene que sentirse ganar. */
   var REEL_MS_FREE = [340, 430, 520, 610, 700];
+  var REEL_MS_TURBO = [110, 150, 190, 230, 270];
   var STOP_AT = 18;                              // símbolos que "pasan" antes de frenar
   var WIN_STEP_MS = 620;                         // cuánto dura cada línea encendida
+
+  /* Cuánto se estira el rodillo que puede disparar la función. Es el
+     número que decide si el juego "se siente" o no: sin esto, que
+     caigan dos bolsas y que caigan tres se ven exactamente igual.
+
+     Con dos bolsas, TODOS los rodillos que faltan siguen vivos, así que
+     todos anticipan. Pero no pueden durar lo mismo: a 1,7s cada uno el
+     giro se iba a más de seis segundos y la tensión se volvía tedio.
+     El primero es el dramático; los siguientes sostienen sin estirar. */
+  var ANTICIPA_1 = 1500;
+  var ANTICIPA_N = 800;
+  var ANTICIPA_TOPE = 3200;   // techo del estirón total
+
+  /* Escalones del premio, en múltiplos de la apuesta total. El rótulo
+     aparece ANTES que la cifra y el conteo dura más cuanto más grande
+     es: un premio de 200x no puede terminar en el mismo tiempo que
+     uno de 12x, o los dos se sienten igual. */
+  var TIERS = [
+    { min: 150, nombre: 'Premio épico', ms: 3400 },
+    { min: 60,  nombre: 'Mega premio',  ms: 2500 },
+    { min: 25,  nombre: 'Gran premio',  ms: 1800 },
+    { min: 10,  nombre: 'Buena',        ms: 1200 }
+  ];
+  var ROLL_MIN_MS = 500;      // conteo de un premio chico
+
+  var turbo = false;
+  var autoLeft = 0;
+  var rollTimer = null;
 
   var spinning = false;
   var freeLeft = 0;
   var freeTotal = 0;
   var freeWin = 0;
   var roundReturn = 0;
+  /* Lo que costó ESTA ronda. Casi siempre es la apuesta, pero comprar
+     la función cuesta 16x: si el cierre contable siguiera usando
+     totalBet(), una compra quedaría registrada como si hubiera salido
+     una apuesta normal y las estadísticas mentirían. */
+  var roundStake = 0;
 
   /* DOS relojes distintos, a propósito. Antes compartían variable y el
      ciclo de líneas ganadoras pisaba al que programa el próximo giro
@@ -97,6 +131,50 @@ window.MCSlots5 = (function () {
     strip.style.transform = 'translateY(' + (-STOP_AT * cellHeight()) + 'px)';
   }
 
+  /* Enciende el rodillo mientras dura su anticipación: arranca cuando
+     frena el anterior y se apaga cuando frena él. */
+  function encenderAnticipacion(reel, desde, hasta) {
+    var caja = el.strips[reel].parentElement;
+    setTimeout(function () {
+      caja.classList.add('anticipa');
+      MC.sound.tension((hasta - desde) / 1000);
+    }, desde);
+    setTimeout(function () { caja.classList.remove('anticipa'); }, hasta);
+  }
+
+  function apagarAnticipacion() {
+    el.board.querySelectorAll('.anticipa').forEach(function (c) { c.classList.remove('anticipa'); });
+  }
+
+  /* ---------------- conteo del premio ----------------
+     Un premio grande no aparece: se cuenta. Es la diferencia entre
+     leer una cifra y verla subir, y es gratis de implementar. */
+  function contarPremio(hasta, ms, alTerminar) {
+    clearInterval(rollTimer);
+    var t0 = Date.now();
+    var ultimoTick = 0;
+
+    rollTimer = setInterval(function () {
+      var p = Math.min(1, (Date.now() - t0) / ms);
+      // Desacelera al final, como un contador mecánico.
+      var suave = 1 - Math.pow(1 - p, 3);
+      el.win.textContent = '+' + MC.fmt(Math.floor(hasta * suave)) + ' fichas';
+
+      if (Date.now() - ultimoTick > 55) { MC.sound.tick(); ultimoTick = Date.now(); }
+
+      if (p >= 1) {
+        clearInterval(rollTimer);
+        el.win.textContent = '+' + MC.fmt(hasta) + ' fichas';
+        if (alTerminar) alTerminar();
+      }
+    }, 40);
+  }
+
+  function escalonDe(multiplo) {
+    for (var i = 0; i < TIERS.length; i++) if (multiplo >= TIERS[i].min) return TIERS[i];
+    return null;
+  }
+
   /* ---------------- una ronda ---------------- */
   function spin() {
     if (spinning) return;
@@ -107,6 +185,7 @@ window.MCSlots5 = (function () {
       if (!MC.canBet(cost)) { MC.toast('No te alcanzan las fichas. Pedí el bono.', 'lose'); return; }
       MC.addBalance(-cost);
       roundReturn = 0;
+      roundStake = cost;
     }
 
     spinning = true;
@@ -126,18 +205,43 @@ window.MCSlots5 = (function () {
     var mult = freeLeft > 0 ? M.FS_WILD_MULT : 1;
     var evaluated = M.evaluate(result.grid, mult);
 
-    var ritmo = freeLeft > 0 ? REEL_MS_FREE : REEL_MS;
+    /* ---------------- anticipación ----------------
+       Si ya cayeron dos bolsas, el rodillo que falta frena mucho más
+       lento y se enciende. El resultado está decidido desde antes: lo
+       que se estira es el rato que el jugador pasa sin saberlo. Sin
+       esto, que caigan dos bolsas y que caigan tres se ven igual. */
+    var base = turbo ? REEL_MS_TURBO : (freeLeft > 0 ? REEL_MS_FREE : REEL_MS);
+    var extra = 0;
+    var vistos = 0;          // bolsas en los rodillos YA resueltos
+    var cuantasAnticiparon = 0;
+    var fin = 0;
+
     for (var reel = 0; reel < M.REELS; reel++) {
+      var anticipa = reel >= 2 && vistos >= 2;
+      if (anticipa) {
+        var suma = cuantasAnticiparon === 0 ? ANTICIPA_1 : ANTICIPA_N;
+        if (turbo) suma *= 0.4;
+        extra = Math.min(ANTICIPA_TOPE, extra + suma);
+        cuantasAnticiparon++;
+      }
+
+      var dura = base[reel] + extra;
       var column = [];
-      for (var r = 0; r < M.ROWS; r++) column.push(result.grid[r][reel]);
-      animateReel(reel, column, ritmo[reel]);
+      for (var r = 0; r < M.ROWS; r++) {
+        column.push(result.grid[r][reel]);
+        if (result.grid[r][reel] === M.SCATTER) vistos++;
+      }
+      animateReel(reel, column, dura);
+      if (anticipa) encenderAnticipacion(reel, fin, dura);
+      fin = dura;
     }
 
-    setTimeout(function () { resolver(evaluated); }, ritmo[M.REELS - 1] + 120);
+    setTimeout(function () { resolver(evaluated); }, fin + 120);
   }
 
   function resolver(ev) {
     spinning = false;
+    apagarAnticipacion();   // por si algún rodillo quedó encendido
 
     var lineaGanada = ev.lineTotal * lineBet();
     var scatterGanado = ev.scatterPay * totalBet();
@@ -175,16 +279,22 @@ window.MCSlots5 = (function () {
   }
 
   /* ---------------- giros gratis ---------------- */
-  function abrirFuncion(spins, scatters) {
+  function abrirFuncion(spins, scatters, comprada) {
     freeLeft = spins;
     freeTotal = spins;
     freeWin = 0;
+    // El automático para acá: es el momento que el jugador quiere mirar.
+    if (autoLeft > 0) detenerAuto('Automático en pausa: entraste a la función');
+    apagarAnticipacion();
     MC.sound.jackpot();
     actualizarControles();
 
     MC.modal('¡GIROS GRATIS!',
-      '<p>Cayeron <strong>' + scatters + ' bolsas</strong>: te ganaste ' +
-      '<strong style="color:var(--gold)">' + spins + ' giros gratis</strong>.</p>' +
+      (comprada
+        ? '<p>Compraste la función: <strong style="color:var(--gold)">' + spins +
+          ' giros gratis</strong>.</p>'
+        : '<p>Cayeron <strong>' + scatters + ' bolsas</strong>: te ganaste ' +
+          '<strong style="color:var(--gold)">' + spins + ' giros gratis</strong>.</p>') +
       '<p>Durante la función, cada premio con el tigre paga <strong>x' +
       M.FS_WILD_MULT + '</strong>.</p>',
       [{ label: 'Que giren', kind: 'primary', onClick: function () {
@@ -217,13 +327,106 @@ window.MCSlots5 = (function () {
     else if (ev.wins.length === 1) detalle = ev.wins[0].count + ' ' + M.NAME[ev.wins[0].symbol];
     else detalle = ev.wins.length + ' líneas premiadas';
 
-    MC.recordRound(totalBet(), roundReturn, detalle);
+    MC.recordRound(roundStake, roundReturn, detalle);
     roundReturn = 0;
+    roundStake = 0;
     actualizarControles();
+
+    // El automático encadena acá: una ronda es el giro pago más toda su
+    // función, así que recién ahora se puede contar como "un giro".
+    if (autoLeft > 0) {
+      autoLeft--;
+      actualizarControles();
+      if (autoLeft > 0 && MC.canBet(totalBet())) {
+        nextTimer = setTimeout(spin, turbo ? 260 : 700);
+      } else {
+        detenerAuto(autoLeft > 0 ? 'Sin fichas para seguir' : null);
+      }
+    }
+  }
+
+  /* ---------------- turbo ---------------- */
+  function alternarTurbo() {
+    turbo = !turbo;
+    MC.sound.click();
+    actualizarControles();
+  }
+
+  /* ---------------- automático ----------------
+     Se detiene solo al disparar la función: es el momento en que el
+     jugador quiere mirar, y seguir girando encima sería taparlo. */
+  function arrancarAuto(n) {
+    if (spinning || inFreeMode()) return;
+    if (!MC.canBet(totalBet())) { MC.toast('No te alcanzan las fichas.', 'lose'); return; }
+    autoLeft = n;
+    actualizarControles();
+    spin();
+  }
+
+  function detenerAuto(motivo) {
+    if (autoLeft <= 0 && !motivo) { actualizarControles(); return; }
+    autoLeft = 0;
+    clearTimeout(nextTimer);
+    if (motivo) MC.toast(motivo, 'info');
+    actualizarControles();
+  }
+
+  function pedirAuto() {
+    if (autoLeft > 0) { detenerAuto('Automático detenido'); return; }
+    MC.sound.click();
+    MC.modal('Giros automáticos',
+      '<p>Gira solo la cantidad que elijas. <strong>Se detiene al disparar la función</strong>, ' +
+      'para que no te pierdas la entrada, y también si te quedás sin fichas.</p>',
+      [10, 25, 50, 100].map(function (n) {
+        return { label: String(n), kind: n === 25 ? 'primary' : undefined,
+                 onClick: function () { arrancarAuto(n); } };
+      }).concat([{ label: 'Cancelar' }]));
+  }
+
+  /* ---------------- comprar la función ----------------
+     El precio lo calcula la matemática (valor de la función / RTP), no
+     está escrito acá ni en el HTML. Ver tools/slots5-rtp.js. */
+  function precioCompra() {
+    return Math.round(M.buyPrice(M.exactRTP().total));
+  }
+
+  function comprar() {
+    if (spinning || inFreeMode() || autoLeft > 0) return;
+    var veces = precioCompra();
+    var costo = veces * totalBet();
+
+    if (!MC.canBet(costo)) {
+      MC.toast('Comprar la función cuesta ' + MC.fmt(costo) + ' fichas.', 'lose');
+      return;
+    }
+
+    var rtpCompra = M.featureValue().value / veces;
+    MC.sound.click();
+    MC.modal('Comprar la función',
+      '<p>Entrás directo a <strong>' + M.FREE_SPINS[3] + ' giros gratis</strong>, con el tigre ' +
+      'pagando <strong>x' + M.FS_WILD_MULT + '</strong> y con retriggers.</p>' +
+      '<p>Cuesta <strong style="color:var(--gold)">' + MC.fmt(costo) + ' fichas</strong> ' +
+      '(' + veces + ' veces tu apuesta).</p>' +
+      '<p style="font-size:12.5px">El precio sale de cuánto vale la función, no de un número ' +
+      'elegido a ojo: comprando, el retorno es <strong>' + (rtpCompra * 100).toFixed(1).replace('.', ',') +
+      '%</strong> contra ' + (M.exactRTP().total * 100).toFixed(1).replace('.', ',') +
+      '% del juego base.</p>',
+      [
+        { label: 'Cancelar' },
+        { label: 'Comprar', kind: 'primary', onClick: function () {
+          MC.addBalance(-costo);
+          roundReturn = 0;
+          roundStake = costo;
+          abrirFuncion(M.FREE_SPINS[3], 3, true);
+        } }
+      ]);
   }
 
   /* ---------------- pintado del resultado ---------------- */
   function pintarResultado(ev, ganado) {
+    el.tier.classList.remove('visible');
+    clearInterval(rollTimer);
+
     if (ganado > 0) {
       var apuesta = totalBet();
       /* Un giro gratis no costó nada: se le pasa apuesta 0 y el veredicto
@@ -231,15 +434,25 @@ window.MCSlots5 = (function () {
          En el juego base el costo es real, así que un pago menor a la
          apuesta se informa en vez de festejarse. */
       var v = MC.veredicto(freeLeft > 0 ? 0 : apuesta, ganado);
-      var grande = ganado >= apuesta * 20;
+      // El escalón se mide sobre la GANANCIA, no sobre lo devuelto: un
+      // pago de 105 sobre 100 no es un premio de 1x, es 0,05x.
+      var escalon = v.gano ? escalonDe(v.neto / apuesta) : null;
 
-      el.win.textContent = v.texto;
-      if (v.gano) {
-        el.win.className = 'g5-win visible' + (grande ? ' grande' : '');
-        if (grande) MC.sound.jackpot(); else MC.sound.win();
-      } else {
+      if (!v.gano) {
+        el.win.textContent = v.texto;
         el.win.className = 'g5-win visible flojo';
         MC.sound.click();
+      } else if (escalon) {
+        // Primero el rótulo, después la cifra subiendo.
+        el.tier.textContent = escalon.nombre;
+        el.tier.classList.add('visible');
+        el.win.className = 'g5-win visible grande';
+        MC.sound.jackpot();
+        contarPremio(v.neto, turbo ? escalon.ms * 0.35 : escalon.ms);
+      } else {
+        el.win.className = 'g5-win visible';
+        MC.sound.win();
+        contarPremio(v.neto, turbo ? 200 : ROLL_MIN_MS);
       }
     } else {
       el.win.textContent = '';
@@ -308,12 +521,24 @@ window.MCSlots5 = (function () {
   /* ---------------- controles ---------------- */
   function actualizarControles() {
     var libre = !spinning && freeLeft === 0;
+    var quieto = libre && autoLeft === 0;   // sin girar Y sin automático
+
     el.lineBet.textContent = MC.fmt(lineBet());
     el.totalBet.textContent = MC.fmt(totalBet());
-    el.betUp.disabled = !libre || betIndex === LINE_BETS.length - 1;
-    el.betDown.disabled = !libre || betIndex === 0;
-    el.spin.disabled = !libre;
+    el.betUp.disabled = !quieto || betIndex === LINE_BETS.length - 1;
+    el.betDown.disabled = !quieto || betIndex === 0;
+    el.spin.disabled = !libre || autoLeft > 0;
     el.spin.textContent = freeLeft > 0 ? 'GIRANDO GRATIS' : 'GIRAR';
+
+    el.turbo.classList.toggle('activo', turbo);
+    el.auto.classList.toggle('activo', autoLeft > 0);
+    el.auto.textContent = autoLeft > 0 ? 'Detener' : 'Automático';
+    el.autoBar.classList.toggle('visible', autoLeft > 0);
+    el.autoLeftLbl.textContent = autoLeft;
+
+    // La compra muestra su precio real, con la apuesta puesta.
+    el.buy.disabled = !quieto;
+    el.buy.textContent = 'Comprar función · ' + MC.fmt(precioCompra() * totalBet());
 
     el.freeBox.classList.toggle('visible', freeLeft > 0);
     if (freeLeft > 0) {
@@ -342,8 +567,26 @@ window.MCSlots5 = (function () {
 
   /* ---------------- ciclo de vida ---------------- */
   function load() {
+    // Se entra limpio: sin conteo a medias, sin rótulo colgado, sin
+    // automático heredado de la vez anterior y sin rodillo encendido.
+    clearInterval(rollTimer);
+    clearTimeout(nextTimer);
+    clearTimeout(winTimer);
+    /* Se limpia TODO el estado de ronda, no sólo el automático. Faltaba
+       esto: si quedaba una función a medias, al volver a entrar el juego
+       arrancaba con freeLeft > 0 — botón trabado en "GIRANDO GRATIS",
+       barra de giros gratis encendida y ninguna apuesta cobrada. */
+    autoLeft = 0;
+    freeLeft = 0;
+    freeTotal = 0;
+    freeWin = 0;
+    roundReturn = 0;
+    roundStake = 0;
+    spinning = false;
+    apagarAnticipacion();
     limpiarGanadoras();
     seedReels();
+    el.tier.classList.remove('visible');
     el.win.textContent = '';
     el.win.className = 'g5-win';
     el.msg.textContent = 'Apostá y girá. 20 líneas, siempre activas.';
@@ -366,6 +609,18 @@ window.MCSlots5 = (function () {
     el.freeBox = document.getElementById('g5Free');
     el.freeCount = document.getElementById('g5FreeCount');
     el.freeSum = document.getElementById('g5FreeSum');
+    el.tier = document.getElementById('g5Tier');
+    el.turbo = document.getElementById('g5Turbo');
+    el.auto = document.getElementById('g5Auto');
+    el.buy = document.getElementById('g5Buy');
+    el.autoBar = document.getElementById('g5AutoBar');
+    el.autoLeftLbl = document.getElementById('g5AutoLeft');
+    el.autoStop = document.getElementById('g5AutoStop');
+
+    el.turbo.onclick = alternarTurbo;
+    el.auto.onclick = pedirAuto;
+    el.buy.onclick = comprar;
+    el.autoStop.onclick = function () { detenerAuto('Automático detenido'); };
 
     el.spin.onclick = spin;
     el.betUp.onclick = function () {

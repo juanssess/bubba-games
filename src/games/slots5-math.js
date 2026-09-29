@@ -286,6 +286,42 @@
     };
   }
 
+  /* ---------------- comprar la función ----------------
+     Pagar de una para entrar a los giros gratis. El precio no se
+     elige: se calcula, o el juego regala plata o la roba.
+
+         valor de la función = giros esperados × valor de un giro
+         precio              = valor / RTP objetivo
+
+     Comprar entrega el disparo mínimo (3 bolsas → 10 giros), y esos
+     giros retriggean como cualquier otro, así que los giros esperados
+     salen del mismo N/(1−g) del proceso de ramificación.
+
+     Ojo con lo que NO incluye: el pago por scatter del giro que
+     dispara. Cuando la función salta sola, ese pago viene de arriba;
+     comprando no hay giro que lo pague. Contarlo sería cobrarle al
+     jugador algo que no recibe. */
+  function featureValue() {
+    var fsLine = expectedLineWin(FS_WILD_MULT);
+    var dist = scatterDistribution();
+
+    var scatterRTP = 0;
+    for (var k = 0; k < dist.length; k++) scatterRTP += dist[k] * (SCATTER_PAYS[k] || 0);
+
+    var growth = 0;
+    for (var g = 3; g < dist.length; g++) growth += dist[g] * (FREE_SPINS[g] || 0);
+
+    var perSpin = fsLine + scatterRTP;          // en apuestas totales
+    var spins = FREE_SPINS[3] / (1 - growth);   // con retriggers
+
+    return { perSpin: perSpin, spins: spins, value: spins * perSpin, growth: growth };
+  }
+
+  // Precio en apuestas totales, para que comprar tenga el RTP pedido.
+  function buyPrice(targetRTP) {
+    return featureValue().value / (targetRTP || 0.9546);
+  }
+
   /* ---------------- un giro concreto ----------------
      `rnd` es la fuente de azar (MC.rand en el casino, Math.random en
      el tool). El resultado se decide acá; la animación sólo lo muestra. */
@@ -347,6 +383,7 @@
     PAYLINES: PAYLINES,
     lineWin: lineWin, expectedLineWin: expectedLineWin,
     scatterDistribution: scatterDistribution, symbolProbs: symbolProbs,
-    exactRTP: exactRTP, spin: spin, evaluate: evaluate
+    exactRTP: exactRTP, spin: spin, evaluate: evaluate,
+    featureValue: featureValue, buyPrice: buyPrice
   };
 });

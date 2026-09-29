@@ -117,6 +117,75 @@ function montecarlo() {
   return { rtp: devuelto / apostado, ee: ee };
 }
 
+/* ---------------- comprar la función ----------------
+   El precio sale de una cuenta; esto lo verifica jugando compras de
+   verdad. Si el Monte Carlo no coincide con el RTP declarado, el
+   precio está mal y el juego regala o roba en cada compra. */
+function comprarFuncion(precioEnApuestas, rondas) {
+  const rnd = Math.random;
+  let pagado = 0, devuelto = 0, max = 0, suma = 0, suma2 = 0;
+
+  for (let i = 0; i < rondas; i++) {
+    pagado += precioEnApuestas * APUESTA;
+    let won = 0;
+
+    // Comprar entrega el disparo mínimo: 3 bolsas → 10 giros.
+    let restantes = M.FREE_SPINS[3];
+    let jugados = 0;
+    while (restantes > 0 && jugados < 5000) {
+      restantes--; jugados++;
+      const fs = M.evaluate(M.spin(rnd).grid, M.FS_WILD_MULT);
+      won += fs.lineTotal + fs.scatterPay * APUESTA;
+      restantes += fs.freeSpins;               // retrigger
+    }
+    devuelto += won;
+    if (won > max) max = won;
+
+    // Una compra es carísima en varianza: sin el error estándar no se
+    // puede saber si una diferencia contra el precio calculado es un
+    // error o es que 20.000 compras siguen siendo pocas.
+    const x = won / (precioEnApuestas * APUESTA);
+    suma += x; suma2 += x * x;
+  }
+
+  const media = suma / rondas;
+  const sigma = Math.sqrt(Math.max(0, suma2 / rondas - media * media));
+  return {
+    rtp: devuelto / pagado,
+    max: max / APUESTA,
+    sigma: sigma,
+    ee: sigma / Math.sqrt(rondas)
+  };
+}
+
+function compra() {
+  const f = M.featureValue();
+  const precioExacto = M.buyPrice(M.exactRTP().total);
+  const precio = Math.round(precioExacto);
+
+  console.log('\n=== COMPRAR LA FUNCIÓN ===\n');
+  console.log('  Valor de un giro gratis  ' + pct(f.perSpin) + ' de la apuesta');
+  console.log('  Giros esperados          ' + f.spins.toFixed(2) + '  (10 + retriggers)');
+  console.log('  Valor de la función      ' + f.value.toFixed(3) + 'x la apuesta');
+  console.log('  Precio para igualar RTP  ' + precioExacto.toFixed(3) + 'x  →  se cobra ' + precio + 'x');
+  console.log('  RTP de la compra         ' + pct(f.value / precio) +
+              '   (base: ' + pct(M.exactRTP().total) + ')');
+
+  if (GIROS > 0) {
+    const declarado = f.value / precio;
+    const n = Math.max(200000, Math.floor(GIROS / 4));
+    const mc = comprarFuncion(precio, n);
+    const sigmas = Math.abs(declarado - mc.rtp) / mc.ee;
+
+    console.log('\n  Monte Carlo de ' + n.toLocaleString('es') + ' compras:');
+    console.log('    RTP medido             ' + pct(mc.rtp) + ' ± ' + (mc.ee * 100).toFixed(3));
+    console.log('    Volatilidad (σ)        ' + mc.sigma.toFixed(2) + 'x lo pagado');
+    console.log('    Mejor compra           ' + mc.max.toFixed(0) + 'x la apuesta');
+    console.log('    Contra el declarado    ' + sigmas.toFixed(2) + ' errores estándar → ' +
+                (sigmas < 3 ? 'coinciden' : 'NO COINCIDEN, el precio está mal'));
+  }
+}
+
 /* ---------------- tabla de pagos, para revisarla a ojo ---------------- */
 function tabla() {
   console.log('\n=== TABLA DE PAGOS (x apuesta por línea) ===\n');
@@ -148,6 +217,7 @@ function main() {
 
   tabla();
   const e = exacto();
+  compra();
 
   // Con 0 giros sólo corre el cálculo exacto: es instantáneo y sirve
   // para iterar la tabla de pagos sin esperar el Monte Carlo.
