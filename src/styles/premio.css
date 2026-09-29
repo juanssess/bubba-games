@@ -1,0 +1,106 @@
+/* ============================================================
+   PREMIO — el cartel del premio y el festejo, para todos los juegos
+
+   Un mismo premio se ve igual en las ocho mesas. Antes cada juego
+   tenía su propio tamaño, su color y su animación para decir lo
+   mismo, y el jugador tenía que aprender un idioma por mesa.
+   ============================================================ */
+
+/* ---------------- el cartel ---------------- */
+.premio{
+  text-align:center;min-height:34px;margin-top:4px;
+  font-size:24px;font-weight:800;color:var(--gold);
+  opacity:0;transition:opacity .2s;
+  font-variant-numeric:tabular-nums;
+}
+.premio.visible{opacity:1;animation:premioEntra .55s ease}
+@keyframes premioEntra{
+  0%{transform:scale(.6);opacity:0}
+  60%{transform:scale(1.14)}
+  100%{transform:scale(1);opacity:1}
+}
+
+/* Pagó menos que la apuesta: se informa, no se festeja. */
+.premio.flojo{
+  font-size:15px;font-weight:600;color:var(--txt-dim);animation:none;
+}
+
+/* Premio grande: la cifra cambia de peso, no sólo de tamaño. */
+.premio.grande{
+  font-family:var(--font-display);font-size:clamp(34px,5.4vw,52px);
+  letter-spacing:1.5px;text-shadow:0 0 30px rgba(245,196,81,.7);
+}
+
+/* El rótulo del escalón, ARRIBA de la cifra. */
+.premio-tier{
+  text-align:center;min-height:0;font-family:var(--font-display);
+  letter-spacing:4px;text-transform:uppercase;color:var(--gold);
+  opacity:0;transform:scale(.7);transition:opacity .25s, transform .25s;
+}
+.premio-tier.visible{
+  opacity:1;transform:scale(1);min-height:30px;
+  font-size:clamp(17px,2.6vw,25px);
+  text-shadow:0 0 26px rgba(245,196,81,.65);
+  animation:premioPulso 1.1s ease-in-out infinite;
+}
+@keyframes premioPulso{50%{text-shadow:0 0 40px rgba(245,196,81,.95)}}
+
+/* ---------------- festejo a pantalla completa ----------------
+   Se dispara solo desde MC.recordRound() cuando la ronda devolvió 25
+   veces la apuesta o más. Cubre la pantalla pero NO bloquea: un toque
+   en cualquier lado lo cierra, y se va solo a los 1,6s de terminar de
+   contar. Un festejo que hay que sacarse de encima deja de ser un
+   festejo al tercer premio. */
+.festejo{
+  position:fixed;inset:0;z-index:95;display:none;
+  align-items:center;justify-content:center;cursor:pointer;
+  background:radial-gradient(circle at 50% 45%, rgba(216,30,52,.30), rgba(6,3,4,.86) 62%);
+  backdrop-filter:blur(3px);
+}
+.festejo.visible{display:flex;animation:festejoEntra .45s ease}
+@keyframes festejoEntra{from{opacity:0}to{opacity:1}}
+
+.festejo-caja{
+  position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:clamp(26px,5vw,44px) clamp(34px,7vw,70px);border-radius:var(--r-lg);
+  background:
+    radial-gradient(120% 160% at 50% 0%, rgba(245,196,81,.22), transparent 62%),
+    rgba(21,16,15,.92);
+  border:1px solid rgba(245,196,81,.45);
+  box-shadow:0 30px 80px rgba(0,0,0,.7), inset 0 0 60px rgba(245,196,81,.10);
+  animation:festejoCaja .5s cubic-bezier(.2,.9,.3,1.4);
+}
+@keyframes festejoCaja{from{transform:scale(.7) translateY(20px)}to{transform:none}}
+
+/* Rayos detrás de la caja: puro CSS, sin imágenes. */
+.festejo-caja::before{
+  content:"";position:absolute;inset:-40% -25%;z-index:-1;border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,
+    rgba(245,196,81,.13) 0deg 7deg, transparent 7deg 18deg);
+  animation:festejoRayos 16s linear infinite;
+}
+@keyframes festejoRayos{to{transform:rotate(360deg)}}
+
+.festejo-rotulo{
+  font-family:var(--font-display);letter-spacing:6px;text-transform:uppercase;
+  font-size:clamp(15px,2.4vw,22px);color:var(--gold);
+  text-shadow:0 0 26px rgba(245,196,81,.7);
+}
+.festejo-cifra{
+  font-family:var(--font-display);font-size:clamp(44px,9vw,86px);line-height:1;
+  letter-spacing:1px;color:#fff;font-variant-numeric:tabular-nums;
+  text-shadow:0 0 40px rgba(245,196,81,.8), 0 4px 0 var(--gold-2);
+}
+.festejo-pie{font-size:13px;color:var(--txt-dim);letter-spacing:.4px}
+
+@media(max-width:560px){
+  .premio.grande{font-size:30px}
+  .festejo-caja{padding:26px 28px}
+}
+
+/* Quien no quiere movimiento, no lo tiene. */
+@media (prefers-reduced-motion: reduce){
+  .premio.visible,.festejo.visible,.festejo-caja{animation:none}
+  .premio-tier.visible{animation:none}
+  .festejo-caja::before{animation:none}
+}

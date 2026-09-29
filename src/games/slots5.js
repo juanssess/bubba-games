@@ -47,21 +47,11 @@ window.MCSlots5 = (function () {
   var ANTICIPA_N = 800;
   var ANTICIPA_TOPE = 3200;   // techo del estirón total
 
-  /* Escalones del premio, en múltiplos de la apuesta total. El rótulo
-     aparece ANTES que la cifra y el conteo dura más cuanto más grande
-     es: un premio de 200x no puede terminar en el mismo tiempo que
-     uno de 12x, o los dos se sienten igual. */
-  var TIERS = [
-    { min: 150, nombre: 'Premio épico', ms: 3400 },
-    { min: 60,  nombre: 'Mega premio',  ms: 2500 },
-    { min: 25,  nombre: 'Gran premio',  ms: 1800 },
-    { min: 10,  nombre: 'Buena',        ms: 1200 }
-  ];
-  var ROLL_MIN_MS = 500;      // conteo de un premio chico
+  /* Los escalones del premio y el conteo viven en MCPremio: los usan
+     los ocho juegos y tienen que verse igual en todos. */
 
   var turbo = false;
   var autoLeft = 0;
-  var rollTimer = null;
 
   var spinning = false;
   var freeLeft = 0;
@@ -88,10 +78,21 @@ window.MCSlots5 = (function () {
   function inFreeMode() { return freeLeft > 0 || freeTotal > 0; }
 
   /* ---------------- armado de los rodillos ---------------- */
+  /* El rango sale de lo que PAGA el símbolo, no de una lista aparte:
+     si mañana se retoca la tabla, el color acompaña solo. */
+  var RANGOS = { W: 'wild', S: 'scatter' };
+  M.SYMBOLS.forEach(function (s) {
+    if (RANGOS[s.id]) return;
+    var p = M.PAYS[s.id] ? M.PAYS[s.id][5] : 0;
+    RANGOS[s.id] = p >= 600 ? 'alta' : p >= 150 ? 'media' : 'baja';
+  });
+
   function cellHTML(id, extra) {
     var cls = 'g5-cell' + (id === M.WILD ? ' es-wild' : '') +
                           (id === M.SCATTER ? ' es-scatter' : '') + (extra || '');
-    return '<div class="' + cls + '" data-sym="' + id + '">' + M.FACE[id] + '</div>';
+    return '<div class="' + cls + '" data-sym="' + id + '" data-rango="' + RANGOS[id] + '">' +
+             '<span class="simbolo">' + M.FACE[id] + '</span>' +
+           '</div>';
   }
 
   function randomSymbol(reel) {
@@ -146,35 +147,6 @@ window.MCSlots5 = (function () {
     el.board.querySelectorAll('.anticipa').forEach(function (c) { c.classList.remove('anticipa'); });
   }
 
-  /* ---------------- conteo del premio ----------------
-     Un premio grande no aparece: se cuenta. Es la diferencia entre
-     leer una cifra y verla subir, y es gratis de implementar. */
-  function contarPremio(hasta, ms, alTerminar) {
-    clearInterval(rollTimer);
-    var t0 = Date.now();
-    var ultimoTick = 0;
-
-    rollTimer = setInterval(function () {
-      var p = Math.min(1, (Date.now() - t0) / ms);
-      // Desacelera al final, como un contador mecánico.
-      var suave = 1 - Math.pow(1 - p, 3);
-      el.win.textContent = '+' + MC.fmt(Math.floor(hasta * suave)) + ' fichas';
-
-      if (Date.now() - ultimoTick > 55) { MC.sound.tick(); ultimoTick = Date.now(); }
-
-      if (p >= 1) {
-        clearInterval(rollTimer);
-        el.win.textContent = '+' + MC.fmt(hasta) + ' fichas';
-        if (alTerminar) alTerminar();
-      }
-    }, 40);
-  }
-
-  function escalonDe(multiplo) {
-    for (var i = 0; i < TIERS.length; i++) if (multiplo >= TIERS[i].min) return TIERS[i];
-    return null;
-  }
-
   /* ---------------- una ronda ---------------- */
   function spin() {
     if (spinning) return;
@@ -192,8 +164,7 @@ window.MCSlots5 = (function () {
     clearTimeout(winTimer);
     clearTimeout(nextTimer);
     limpiarGanadoras();
-    el.win.textContent = '';
-    el.win.className = 'g5-win';
+    MCPremio.limpiar({ win: el.win, tier: el.tier });
     el.msg.textContent = freeLeft > 0
       ? 'Giro gratis ' + (freeTotal - freeLeft + 1) + ' de ' + freeTotal
       : 'Girando...';
@@ -424,39 +395,20 @@ window.MCSlots5 = (function () {
 
   /* ---------------- pintado del resultado ---------------- */
   function pintarResultado(ev, ganado) {
-    el.tier.classList.remove('visible');
-    clearInterval(rollTimer);
-
     if (ganado > 0) {
-      var apuesta = totalBet();
       /* Un giro gratis no costó nada: se le pasa apuesta 0 y el veredicto
          lo trata como ganancia pura, sin necesidad de un caso especial.
-         En el juego base el costo es real, así que un pago menor a la
-         apuesta se informa en vez de festejarse. */
-      var v = MC.veredicto(freeLeft > 0 ? 0 : apuesta, ganado);
-      // El escalón se mide sobre la GANANCIA, no sobre lo devuelto: un
-      // pago de 105 sobre 100 no es un premio de 1x, es 0,05x.
-      var escalon = v.gano ? escalonDe(v.neto / apuesta) : null;
-
-      if (!v.gano) {
-        el.win.textContent = v.texto;
-        el.win.className = 'g5-win visible flojo';
-        MC.sound.click();
-      } else if (escalon) {
-        // Primero el rótulo, después la cifra subiendo.
-        el.tier.textContent = escalon.nombre;
-        el.tier.classList.add('visible');
-        el.win.className = 'g5-win visible grande';
-        MC.sound.jackpot();
-        contarPremio(v.neto, turbo ? escalon.ms * 0.35 : escalon.ms);
-      } else {
-        el.win.className = 'g5-win visible';
-        MC.sound.win();
-        contarPremio(v.neto, turbo ? 200 : ROLL_MIN_MS);
-      }
+         `referencia` es siempre la apuesta total, para que el escalón se
+         mida contra lo mismo dentro y fuera de la función. */
+      MCPremio.mostrar({
+        win: el.win, tier: el.tier,
+        apostado: freeLeft > 0 ? 0 : totalBet(),
+        devuelto: ganado,
+        referencia: totalBet(),
+        turbo: turbo
+      });
     } else {
-      el.win.textContent = '';
-      el.win.className = 'g5-win';
+      MCPremio.limpiar({ win: el.win, tier: el.tier });
     }
 
     if (ev.scatters >= 3) {
@@ -569,7 +521,6 @@ window.MCSlots5 = (function () {
   function load() {
     // Se entra limpio: sin conteo a medias, sin rótulo colgado, sin
     // automático heredado de la vez anterior y sin rodillo encendido.
-    clearInterval(rollTimer);
     clearTimeout(nextTimer);
     clearTimeout(winTimer);
     /* Se limpia TODO el estado de ronda, no sólo el automático. Faltaba
@@ -586,9 +537,7 @@ window.MCSlots5 = (function () {
     apagarAnticipacion();
     limpiarGanadoras();
     seedReels();
-    el.tier.classList.remove('visible');
-    el.win.textContent = '';
-    el.win.className = 'g5-win';
+    MCPremio.limpiar({ win: el.win, tier: el.tier });
     el.msg.textContent = 'Apostá y girá. 20 líneas, siempre activas.';
     pintarTabla();
     actualizarControles();

@@ -1,0 +1,100 @@
+/* ============================================================
+   MESA — la superficie de juego, compartida por las ocho
+
+   El problema no era el color: era que todo estaba PLANO. Un tablero
+   oscuro sobre un fondo oscuro es un rectángulo, no una mesa. Lo que
+   lo convierte en objeto son tres cosas que no cuestan nada:
+
+     canto      una línea clara arriba y una oscura abajo, como si la
+                luz de la sala le pegara desde el frente
+     viñeta     las esquinas un poco más oscuras que el centro
+     apoyo      una sombra debajo, para que no flote
+
+   Se aplica con una clase para que las ocho mesas se vean hermanas.
+   ============================================================ */
+
+.mesa{
+  position:relative;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),     /* canto iluminado */
+    inset 0 -1px 0 rgba(0,0,0,.55),          /* canto en sombra */
+    0 20px 46px rgba(0,0,0,.45);             /* apoyo */
+}
+
+/* La viñeta va en un pseudo-elemento para no pelearse con el fondo
+   que cada mesa ya tenga (el paño verde, el degradado del gabinete). */
+.mesa::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  border-radius:inherit;
+  background:radial-gradient(125% 95% at 50% 0%, transparent 42%, rgba(0,0,0,.34));
+}
+
+/* ------------------------------------------------------------
+   SÍMBOLOS CON CUERPO
+
+   Un emoji plano sobre un fondo plano se lee como un ícono de
+   sistema. Con una sombra propia pasa a ser una ficha apoyada.
+   ------------------------------------------------------------ */
+.simbolo{
+  filter:drop-shadow(0 3px 4px rgba(0,0,0,.6));
+  transition:filter .2s, transform .2s;
+}
+
+/* ------------------------------------------------------------
+   RANGO DEL SÍMBOLO
+
+   Que un símbolo caro y uno barato se vean igual obliga a leer la
+   tabla de pagos para saber si pasó algo. El rango se nota de reojo:
+   los altos tienen un halo cálido, los bajos no tienen nada.
+   ------------------------------------------------------------ */
+[data-rango="media"]{
+  background:radial-gradient(circle at 50% 46%, rgba(255,255,255,.055), transparent 66%);
+}
+[data-rango="alta"]{
+  background:radial-gradient(circle at 50% 46%, rgba(245,196,81,.15), transparent 68%);
+}
+[data-rango="alta"] .simbolo,[data-rango="alta"].simbolo{
+  filter:drop-shadow(0 3px 5px rgba(0,0,0,.6)) drop-shadow(0 0 9px rgba(245,196,81,.45));
+}
+[data-rango="wild"]{
+  background:
+    radial-gradient(circle at 50% 44%, rgba(245,196,81,.26), transparent 70%),
+    linear-gradient(180deg, rgba(216,30,52,.14), transparent);
+}
+[data-rango="wild"] .simbolo,[data-rango="wild"].simbolo{
+  filter:drop-shadow(0 3px 5px rgba(0,0,0,.6)) drop-shadow(0 0 13px rgba(245,196,81,.75));
+}
+[data-rango="scatter"]{
+  background:radial-gradient(circle at 50% 44%, rgba(23,201,100,.22), transparent 70%);
+}
+[data-rango="scatter"] .simbolo,[data-rango="scatter"].simbolo{
+  filter:drop-shadow(0 3px 5px rgba(0,0,0,.6)) drop-shadow(0 0 12px rgba(23,201,100,.7));
+}
+
+/* ------------------------------------------------------------
+   BOTÓN DE ACCIÓN
+
+   El botón que gira, reparte o apuesta es el único de la pantalla
+   que tiene que pedir que lo toquen. Le agrego brillo propio y un
+   pulso muy lento cuando está libre: suficiente para que el ojo lo
+   encuentre, poco para no marear.
+   ------------------------------------------------------------ */
+.btn-spin:not(:disabled){
+  position:relative;overflow:hidden;
+  box-shadow:0 10px 28px rgba(216,30,52,.45), inset 0 1px 0 rgba(255,255,255,.22);
+}
+/* Reflejo que cruza el botón cada tanto. */
+.btn-spin:not(:disabled)::after{
+  content:"";position:absolute;top:0;bottom:0;width:38%;left:-45%;
+  background:linear-gradient(100deg, transparent, rgba(255,255,255,.22), transparent);
+  animation:mesaBrillo 4.5s ease-in-out infinite;
+}
+@keyframes mesaBrillo{
+  0%,62%{left:-45%}
+  84%,100%{left:118%}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .btn-spin:not(:disabled)::after{animation:none;display:none}
+  .simbolo{transition:none}
+}

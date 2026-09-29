@@ -38,11 +38,7 @@
 @keyframes reelWin{50%{box-shadow:0 0 0 3px var(--gold) inset, 0 0 26px rgba(245,196,81,.8)}}
 
 .slot-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;flex-wrap:wrap}
-.slot-win{text-align:center;margin-top:16px;min-height:30px;font-size:21px;font-weight:800;color:var(--gold)}
-.slot-win.show{animation:winPop .6s ease}
-/* Pagó, pero no superó la apuesta: se informa, no se festeja.
-   Un par de campanas paga 1x y devuelve justo lo que entró. */
-.slot-win.flojo{font-size:15px;font-weight:600;color:var(--txt-dim);animation:none}
+/* El cartel del premio vive en src/styles/premio.css. */
 
 .paytable{max-width:600px;margin:24px auto 0}
 .paytable h3{font-size:14px;letter-spacing:.5px;margin-bottom:14px}

@@ -33,8 +33,7 @@
 
     buildPaytable();
     seedReels();
-    el.win.textContent = '';
-    el.win.classList.remove('show');
+    MCPremio.limpiar({ win: el.win, tier: el.tier });
     el.message.textContent = meta.studio
       ? meta.studio + ' · volatilidad ' + meta.volatility.toLowerCase()
       : 'Elegí tu apuesta y girá';
@@ -42,8 +41,16 @@
   }
 
   /* ---------------- render ---------------- */
+  // Mismo criterio que en Bubba Gold: el rango sale de lo que paga.
+  function rangoDe(sym) {
+    return sym.triple >= 150 ? 'alta' : sym.triple >= 45 ? 'media' : 'baja';
+  }
+
   function cellHTML(sym) {
-    return '<div class="reel-cell' + (isSeven(sym) ? ' sym-seven' : '') + '">' + sym.face + '</div>';
+    return '<div class="reel-cell' + (isSeven(sym) ? ' sym-seven' : '') +
+           '" data-rango="' + rangoDe(sym) + '">' +
+             '<span class="simbolo">' + sym.face + '</span>' +
+           '</div>';
   }
 
   function buildPaytable() {
@@ -128,8 +135,7 @@
     spinning = true;
     MC.addBalance(-bet);
     MC.sound.spin();
-    el.win.textContent = '';
-    el.win.classList.remove('show');
+    MCPremio.limpiar({ win: el.win, tier: el.tier });
     el.message.textContent = 'Girando...';
     document.querySelectorAll('.reel').forEach(function (r) { r.classList.remove('win'); });
     updateBetUI();
@@ -145,15 +151,13 @@
     spinning = false;
     var outcome = evaluate(result, bet);
 
-    // Un par de campanas paga 1x: devuelve la apuesta, no la supera.
-    // La billetera decide si eso es ganar; acá sólo se muestra.
+    // El cartel del premio lo arma MCPremio: mismo conteo, mismo
+    // escalón y mismo criterio de "ganar" que en las otras siete mesas.
     var v = MC.veredicto(bet, outcome.payout);
 
     if (outcome.payout > 0) {
       MC.addBalance(outcome.payout);
-      el.win.textContent = v.texto;
-      el.win.classList.add('show');
-      el.win.classList.toggle('flojo', !v.gano);
+      MCPremio.mostrar({ win: el.win, tier: el.tier, apostado: bet, devuelto: outcome.payout });
       // Los rodillos sólo se encienden si de verdad ganó.
       if (v.gano) {
         document.querySelectorAll('.reel').forEach(function (r) { r.classList.add('win'); });
@@ -198,6 +202,7 @@
     el.maxBet = document.getElementById('slotMaxBet');
     el.spin = document.getElementById('spinBtn');
     el.win = document.getElementById('slotWin');
+    el.tier = document.getElementById('slotTier');
     el.message = document.getElementById('slotMessage');
 
     el.betUp.onclick = function () {

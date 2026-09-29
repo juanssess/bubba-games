@@ -123,6 +123,15 @@ window.MC = window.MC || {};
     };
     if (window.MCLevels) MCLevels.addXP(staked);
     if (window.MCMissions) MCMissions.track(round);
+
+    /* El festejo de los premios grandes se dispara acá y no en cada
+       juego. Es el mismo motivo por el que la XP y las misiones se
+       enganchan en este punto: toda ronda cerrada pasa por acá, así
+       que los ocho juegos —y los que vengan— lo heredan sin escribir
+       una línea. */
+    if (window.MCPremio) {
+      MCPremio.celebrar(staked, returned, meta ? meta.name : null);
+    }
   }
 
   /* ---------------- pintado ---------------- */
