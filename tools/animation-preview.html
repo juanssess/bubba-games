@@ -1,0 +1,15 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bubba · Vista previa de bonus</title><link rel="stylesheet" href="../src/styles/games/cinema.css">
+<style>body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#3c3020,#0b0e14 70%);color:#f6e7c7;font:16px Arial,sans-serif;display:grid;place-items:center}main{max-width:760px;padding:32px}h1{font:46px Georgia,serif}p{color:#c2b9aa;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.item{background:#ffffff05;border:1px solid #ddb77644;border-radius:12px;padding:20px}.item h2{font:22px Georgia,serif}button{padding:12px 16px;cursor:pointer;background:#dfb970;border:0;border-radius:4px;color:#231b10;font-weight:bold;margin:4px 4px 4px 0}button.secondary{background:#252a33;color:#f2e6d0}small{display:block;color:#ad9b7d;margin:25px 0}a{color:#dfb970}</style></head><body><main>
+<small>BUBBA STUDIOS · VISTA PREVIA</small><h1>El bonus tiene su momento.</h1><p>Probá las entradas y los cierres de los cuatro juegos. Esta muestra usa cifras de ejemplo y no modifica tu saldo.</p><div class="grid" id="previews"></div><p id="status" role="status">Elegí un juego para ver la animación.</p><a href="/">Volver al casino</a></main><script src="../src/ui/cinema.js"></script><script>
+const games = [['gold','Bubba Gold'],['classic20','Maverick'],['sebusca','Se Busca'],['vendimia','La Vendimia']];
+games.forEach(([theme,title])=>{
+  const card=document.createElement('section');card.className='item';
+  const heading=document.createElement('h2');heading.textContent=title;card.appendChild(heading);
+  ['Entrada','Cierre'].forEach((label,index)=>{
+    const button=document.createElement('button');button.textContent=label+' · '+title;button.className=index?'secondary':'';
+    button.onclick=async()=>{await MCCinema.show({theme,kind:index?'summary':'intro',spins:10,total:2480,detail:'Vista previa de la presentación del bonus.'});document.querySelector('#status').textContent=title+': presentación completada.'};
+    card.appendChild(button);
+  });document.querySelector('#previews').appendChild(card);
+});
+</script></body></html>

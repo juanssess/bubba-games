@@ -54,6 +54,7 @@ window.MCSlots5 = (function () {
   var autoLeft = 0;
 
   var spinning = false;
+  var bonusTransition = false;
   var freeLeft = 0;
   var freeTotal = 0;
   var freeWin = 0;
@@ -130,6 +131,7 @@ window.MCSlots5 = (function () {
 
     strip.style.transition = 'transform ' + duration + 'ms cubic-bezier(.12,.66,.16,1)';
     strip.style.transform = 'translateY(' + (-STOP_AT * cellHeight()) + 'px)';
+    MCCinema.reel(strip, duration);
   }
 
   /* Enciende el rodillo mientras dura su anticipación: arranca cuando
@@ -149,7 +151,7 @@ window.MCSlots5 = (function () {
 
   /* ---------------- una ronda ---------------- */
   function spin() {
-    if (spinning) return;
+    if (spinning || bonusTransition) return;
 
     // Un giro gratis no cobra; el pago sale de la ronda que lo disparó.
     if (freeLeft <= 0) {
@@ -263,17 +265,13 @@ window.MCSlots5 = (function () {
     MC.sound.jackpot();
     actualizarControles();
 
-    MC.modal('¡GIROS GRATIS!',
-      (comprada
-        ? '<p>Compraste la función: <strong style="color:var(--gold)">' + spins +
-          ' giros gratis</strong>.</p>'
-        : '<p>Cayeron <strong>' + scatters + ' bolsas</strong>: te ganaste ' +
-          '<strong style="color:var(--gold)">' + spins + ' giros gratis</strong>.</p>') +
-      '<p>Durante la función, cada premio con el tigre paga <strong>x' +
-      M.FS_WILD_MULT + '</strong>.</p>',
-      [{ label: 'Que giren', kind: 'primary', onClick: function () {
-        nextTimer = setTimeout(spin, 350);
-      } }]);
+    bonusTransition = true;
+    MCCinema.show({theme:'gold', spins:spins,
+      detail:'El tigre multiplica sus premios ×' + M.FS_WILD_MULT + '.'
+    }).then(function () {
+      bonusTransition = false;
+      nextTimer = setTimeout(spin, 350);
+    });
   }
 
   function cerrarFuncion() {
@@ -285,12 +283,10 @@ window.MCSlots5 = (function () {
     actualizarControles();
 
     MC.sound.win();
-    MC.modal('Función terminada',
-      '<p>En ' + giros + ' giros gratis juntaste ' +
-      '<strong style="color:var(--gold)">' + MC.fmt(ganado) + ' fichas</strong>.</p>',
-      [{ label: 'Seguir', kind: 'primary' }]);
-
+    bonusTransition = true;
+    var presentation = MCCinema.show({theme:'gold',kind:'summary',total:ganado,spins:giros});
     cerrarRonda(null, roundReturn, giros);
+    presentation.then(function () { bonusTransition = false; actualizarControles(); });
   }
 
   // Cierre contable de la ronda: una sola vez, con el total.
@@ -330,7 +326,7 @@ window.MCSlots5 = (function () {
      Se detiene solo al disparar la función: es el momento en que el
      jugador quiere mirar, y seguir girando encima sería taparlo. */
   function arrancarAuto(n) {
-    if (spinning || inFreeMode()) return;
+    if (spinning || bonusTransition || inFreeMode()) return;
     if (!MC.canBet(totalBet())) { MC.toast('No te alcanzan las fichas.', 'lose'); return; }
     autoLeft = n;
     actualizarControles();
@@ -365,7 +361,7 @@ window.MCSlots5 = (function () {
   }
 
   function comprar() {
-    if (spinning || inFreeMode() || autoLeft > 0) return;
+    if (spinning || bonusTransition || inFreeMode() || autoLeft > 0) return;
     var veces = precioCompra();
     var costo = veces * totalBet();
 
@@ -475,7 +471,7 @@ window.MCSlots5 = (function () {
 
   /* ---------------- controles ---------------- */
   function actualizarControles() {
-    var libre = !spinning && freeLeft === 0;
+    var libre = !spinning && !bonusTransition && freeLeft === 0;
     var quieto = libre && autoLeft === 0;   // sin girar Y sin automático
 
     el.lineBet.textContent = MC.fmt(lineBet());
@@ -598,7 +594,7 @@ window.MCSlots5 = (function () {
     });
 
     // No se sale con los rodillos girando ni con la función abierta.
-    MC.guard('slots5', function () { return spinning || inFreeMode(); });
+    MC.guard('slots5', function () { return spinning || bonusTransition || inFreeMode(); });
     MC.registerEngine('slots5', { load: load });
   }
 

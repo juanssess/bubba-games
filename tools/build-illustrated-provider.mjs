@@ -28,8 +28,49 @@ await build({
   build:{outDir:output,emptyOutDir:false},
   plugins:[{
     name:'bubba-illustrated-presentation', enforce:'pre',
+    transformIndexHtml(html) {
+      return {html,tags:[
+        {tag:'link',attrs:{rel:'stylesheet',href:'../../src/styles/games/cinema.css?v=1'},injectTo:'head'},
+        {tag:'script',attrs:{src:'../../src/ui/cinema.js?v=1'},injectTo:'head-prepend'}
+      ]};
+    },
     transform(source,id) {
       const normalized = id.replaceAll('\\','/');
+      if (normalized.endsWith('/apps/client/src/render/reels.ts')) {
+        return replaceOnce(source,
+          'const stretch = spinning ? 1 + Math.min(0.32, reel.speed / 13000) : 1;',
+          `const braking = reel.phase === 'stopping' ? Math.max(0,1-reel.t/reel.duration) : 0;
+    const quiet = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const stretch = quiet ? 1 : spinning ? 1 + Math.min(0.22, reel.speed / 15000) : 1 + .14 * braking * braking;`);
+      }
+      if (normalized.endsWith('/apps/client/src/render/cluster-board.ts')) {
+        return replaceOnce(source, 'if (k >= 1) a.s.y = a.toY;',
+          `if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && k > .8) {
+          const landing = Math.sin((k-.8)/.2*Math.PI)*.055;
+          a.s.width = cellSize*(1+landing);
+          a.s.height = cellSize*(1-landing);
+        }
+        if (k >= 1) a.s.y = a.toY;`);
+      }
+      if (normalized.endsWith('/apps/client/src/render/fx.ts')) {
+        let code = replaceOnce(source,'#plaque: Text;',`#halo = new Graphics();
+  #plaque: Text;`);
+        code = replaceOnce(code,'this.view.addChild(this.#g);',`this.view.addChild(this.#g);
+    this.#halo.roundRect(12,h/2-90,w-24,150,16).fill({color:0x080a10,alpha:.94})
+      .stroke({color:PALETTE.win,alpha:.85,width:2});
+    this.#halo.roundRect(19,h/2-83,w-38,136,12).stroke({color:PALETTE.win,alpha:.22,width:1});
+    this.#halo.alpha=0;
+    this.view.addChild(this.#halo);`);
+        code = replaceOnce(code,'this.#plaque.alpha = alpha;',`this.#halo.alpha = alpha;
+      this.#plaque.alpha = alpha;`);
+        code = replaceOnce(code,'this.#plaque.text = main;',`this.#plaque.style.fontSize = Math.min(54,(this.#w-46)/(main.length*.68));
+    this.#plaque.text = main;`);
+        code = replaceOnce(code,'burst(n: number): void {',`burst(n: number): void {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;`);
+        code = replaceOnce(code,'shake(amp: number): void {',`shake(amp: number): void {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;`);
+        return code;
+      }
       if (normalized.includes('/apps/client/src/render/') && maps[basename(id)]) {
         const skin = maps[basename(id)];
         replacements.add(basename(id));
@@ -55,6 +96,12 @@ await build({
       if (normalized.endsWith('/apps/client/src/main.ts')) {
         replacements.add('main.ts');
         let code = replaceOnce(source,'import { Application,','import { Assets, Texture, Rectangle, Application,');
+        code = replaceOnce(code,'antialias: false','antialias: true');
+        code = replaceOnce(code,'freeCounter.anchor.set(0.5, 1);',`freeCounter.style.fill = 0xffedc4;
+  freeCounter.style.stroke = {color:0x100a08,width:4};
+  freeCounter.anchor.set(0.5, 1);`);
+        code = replaceOnce(code,'cascadaBadge.anchor.set(1, 1);',`cascadaBadge.style.stroke = {color:0x100a08,width:4};
+  cascadaBadge.anchor.set(1, 1);`);
         code = replaceOnce(code,'const textures = profile.textures(app);',`await Assets.load([
           '../../assets/illustrated/provider-atlas.png', '../../assets/illustrated/environments.png'
         ]);
@@ -71,6 +118,23 @@ await build({
         scenery.position.set((w-scenery.width)/2,(h-scenery.height)/2);
         bg.clear();`);
         code = replaceOnce(code,'profile.backdrop(bg, w, h);','// Illustrated environment replaces the procedural backdrop.');
+        code = replaceOnce(code,'await playStep(step, roundBet);',`if (step.kind === 'free' && (i === 0 || steps[i-1].kind !== 'free' || i === from+1)) {
+          await window.MCCinema.show({theme:profile.id,spins:step.freeTotal || 1,
+            detail:profile.id === 'sebusca' ? 'Los wilds pegajosos acompañan la función.' :
+              profile.id === 'vendimia' ? 'Cada cascada continúa la cosecha.' : 'La Escalinata decidió tu bonus.'});
+          skipRequested = false;
+        }
+        await playStep(step, roundBet);`);
+        code = replaceOnce(code,'hud.hideBanner();\n    setFreeMode(false);',`hud.hideBanner();
+    const freeSteps = steps.filter(s => s.kind === 'free');
+    if (freeSteps.length && from < steps.length-1) {
+      await window.MCCinema.show({theme:profile.id,kind:'summary',spins:freeSteps.length,
+        total:freeSteps.reduce((sum,s) => sum+s.win,0)});
+    }
+    setFreeMode(false);`);
+        // The background brightens during the feature; the board retains its contrast.
+        code = replaceOnce(code,'freeMode = free;',`freeMode = free;
+    scenery.alpha = free ? 1 : .83;`);
         return code;
       }
     }

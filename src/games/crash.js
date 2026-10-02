@@ -103,6 +103,19 @@
 
     // nave en la punta
     var tip = pts[pts.length - 1];
+    // Exhaust follows the existing flight clock; it never changes the cash-out window.
+    if (phase === 'running' && !MCCinema.reduced()) {
+      g.save();
+      for (var spark = 0; spark < 16; spark++) {
+        var age = ((elapsedMs / 650 + spark / 16) % 1);
+        g.globalAlpha = (1 - age) * .75;
+        g.fillStyle = spark % 2 ? '#ffd799' : '#68cfff';
+        g.beginPath();
+        g.arc(tip[0] - 18 - age * 75, tip[1] + age * 18 + Math.sin(spark * 2) * age * 12, 1 + (1 - age) * 2, 0, Math.PI * 2);
+        g.fill();
+      }
+      g.restore();
+    }
     g.font = '30px serif';
     g.textAlign = 'center';
     g.textBaseline = 'middle';

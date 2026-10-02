@@ -23,6 +23,8 @@
   var activeHand = 0;
   var phase = 'idle';   // idle | dealing | player | dealer | done
   var el = {};
+  // Cards keep their presentation state when a hand is re-rendered.
+  var presentedCards = new WeakMap();
 
   function currentBet() { return BETS[betIndex]; }
 
@@ -62,8 +64,12 @@
   /* ---------------- render ---------------- */
   function cardEl(card, hidden) {
     var d = document.createElement('div');
-    if (hidden) { d.className = 'card back'; return d; }
+    var seen = presentedCards.get(card);
+    var motion = seen === undefined ? ' motion-deal' : seen && !hidden ? ' motion-turn' : '';
+    presentedCards.set(card, hidden);
+    if (hidden) { d.className = 'card back' + motion; return d; }
     d.className = 'card' + (card.red ? ' red' : '');
+    d.className += motion;
     d.innerHTML =
       '<div class="c-corner-t"><div class="c-rank">' + card.rank + '</div>' +
       '<div class="c-suit-sm">' + card.suit + '</div></div>' +

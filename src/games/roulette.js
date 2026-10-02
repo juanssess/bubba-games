@@ -373,12 +373,14 @@
     var turns = 6 + MC.randInt(0, 3);
     wheelAngle = wheelAngle + turns * 360 + (((target - wheelAngle) % 360) + 360) % 360;
     el.wheel.style.transform = 'rotate(' + wheelAngle + 'deg)';
+    el.wheel.parentElement.classList.add('motion-spinning');
     el.result.textContent = '';
 
     setTimeout(function () { settle(number); }, 5400);
   }
 
   function settle(n) {
+    el.wheel.parentElement.classList.remove('motion-spinning');
     var staked = totalStaked();
     var returned = 0;
     var winningCells = {};

@@ -47,26 +47,27 @@ window.MCPremio = (function () {
      cartel cancela lo anterior solo. */
   function contar(el, hasta, ms, alTerminar) {
     detener(el);
-    var t0 = Date.now();
+    var t0 = performance.now();
     var ultimoTick = 0;
-
-    el.__rollTimer = setInterval(function () {
-      var p = Math.min(1, (Date.now() - t0) / ms);
+    if (window.MCCinema && MCCinema.reduced()) ms = 0;
+    function frame(now) {
+      var p = ms ? Math.min(1, (now - t0) / ms) : 1;
       var suave = 1 - Math.pow(1 - p, 3);   // frena al final, como un contador
       el.textContent = '+' + MC.fmt(Math.floor(hasta * suave)) + ' fichas';
 
-      if (Date.now() - ultimoTick > 55) { MC.sound.tick(); ultimoTick = Date.now(); }
+      if (ms && now - ultimoTick > 70) { MC.sound.tick(); ultimoTick = now; }
 
       if (p >= 1) {
         detener(el);
         el.textContent = '+' + MC.fmt(hasta) + ' fichas';
         if (alTerminar) alTerminar();
-      }
-    }, 40);
+      } else el.__rollTimer = requestAnimationFrame(frame);
+    }
+    el.__rollTimer = requestAnimationFrame(frame);
   }
 
   function detener(el) {
-    if (el && el.__rollTimer) { clearInterval(el.__rollTimer); el.__rollTimer = null; }
+    if (el && el.__rollTimer != null) { cancelAnimationFrame(el.__rollTimer); el.__rollTimer = null; }
   }
 
   /* ---------------- el cartel del premio ----------------
@@ -136,6 +137,7 @@ window.MCPremio = (function () {
   var festejoTimer = null;
 
   function celebrar(apostado, devuelto, nombreJuego) {
+    if (window.MCCinema && MCCinema.active) return;
     if (!apostado || devuelto <= 0) return;
     var neto = devuelto - apostado;
     if (neto <= 0) return;

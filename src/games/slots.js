@@ -127,6 +127,7 @@
 
     strip.style.transition = 'transform ' + duration + 'ms cubic-bezier(.12,.66,.16,1)';
     strip.style.transform = 'translateY(' + (-STOP_AT * cellHeight()) + 'px)';
+    MCCinema.reel(strip, duration);
   }
 
   function evaluate(result, bet) {

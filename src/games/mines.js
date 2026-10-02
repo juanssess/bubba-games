@@ -152,6 +152,7 @@
       var i = parseInt(t.dataset.i, 10);
       if (!t.classList.contains('done')) {
         t.classList.add('revealed', 'done');
+        t.style.setProperty('--reveal-delay', (Math.floor(i / 5) * 35 + i % 5 * 22) + 'ms');
         t.innerHTML = MCIllustrated.render(mineSet[i] ? '💣' : 'emerald');
       }
     });
