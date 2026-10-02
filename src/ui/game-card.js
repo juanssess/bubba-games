@@ -16,9 +16,10 @@ window.MCCard = (function () {
       ? '<span class="gcard-badge badge-' + g.badge + '">' + BADGE_LABEL[g.badge] + '</span>'
       : '';
 
-    return '<article class="gcard" data-game="' + g.id + '">' +
-             '<div class="gcard-art" data-arte="' + g.id + '" style="background:' + g.art + '">' +
-               '<span class="gcard-emoji">' + g.emoji + '</span>' +
+    var cover = MCIllustrated.cover(g);
+    return '<article class="gcard" role="button" tabindex="0" aria-label="Jugar a ' + g.name + '" data-game="' + g.id + '">' +
+             '<div class="gcard-art' + (cover ? ' tiene-arte illustrated-card' : '') + '" data-arte="' + g.id + '" style="background:' + g.art + '">' +
+               (cover || '<span class="gcard-emoji">' + MCStudioSymbols.render(g.emoji) + '</span>') +
                badge +
                // El RTP sale de MC.rtp y no de g.rtp: con el retorno
                // bajado desde el panel, el texto fijo del catálogo
@@ -47,6 +48,13 @@ window.MCCard = (function () {
     MC.showView(card.dataset.game);
     return true;
   }
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.gcard')) {
+      e.preventDefault();
+      e.target.click();
+    }
+  });
 
   return { html: html, handleClick: handleClick };
 })();

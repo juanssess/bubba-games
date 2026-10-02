@@ -26,7 +26,7 @@ window.MCPortal = (function () {
       var g = MCCatalog.games[r.game] || { emoji: '🎲', name: r.game };
       var up = r.net >= 0;
       return '<div class="win-row">' +
-               '<span class="wr-game">' + g.emoji + ' ' + g.name + '</span>' +
+               '<span class="wr-game">' + MCIllustrated.icon(g) + ' ' + g.name + '</span>' +
                '<span class="wr-dim wr-hide-sm">' + (r.detail || '—') + '</span>' +
                '<span class="wr-dim">apuesta ' + MC.fmt(r.staked) + '</span>' +
                '<span class="wr-net ' + (up ? 'up' : 'down') + '">' +

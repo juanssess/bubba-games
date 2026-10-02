@@ -1,0 +1,43 @@
+/* Production bitmap artwork, shared by lobby, reels and payout tables. */
+.illustrated-symbol { display:inline-block; flex:none; width:1.55em; height:1.55em; vertical-align:middle; background-image:url('../../../assets/illustrated/originals-atlas.png'); background-size:400% 400%; background-position:var(--art-x) var(--art-y); background-repeat:no-repeat; filter:drop-shadow(0 4px 3px #0008); }
+.illustrated-provider { background-image:url('../../../assets/illustrated/provider-atlas.png'); background-size:600% 500%; }
+.illustrated-table { background-image:url('../../../assets/illustrated/tables-atlas.png'); background-size:200% 200%; }
+.g5-cell .illustrated-symbol { width:calc(var(--g5-cell) * .87); height:calc(var(--g5-cell) * .87); }
+.reel-cell .illustrated-symbol { width:1.6em; height:1.6em; }
+.g5-pt-sym .illustrated-symbol { width:30px; height:30px; }
+.pt-sym .illustrated-symbol { width:35px; height:35px; }
+.sr-thumb .illustrated-symbol { width:38px; height:38px; }
+.wr-game .illustrated-symbol { width:24px; height:24px; }
+.tile .illustrated-symbol { width:85%; height:85%; }
+.g5-main { background:linear-gradient(#071b17bb,#07120ffc),url('../../../assets/illustrated/environments.png') left center/300% 100%; }
+.g5-reel { background:linear-gradient(#080d09e8,#233525d9 50%,#080d09e8); }
+.g5-board { border-color:#a88347; background:linear-gradient(135deg,#f4d9a0,#674323 25%,#b89156 70%,#4d311e); }
+.g5-cell { border-color:#9c835a19; }
+.slot-machine { background:linear-gradient(#30131ddd,#130c11ed),url('../../../assets/illustrated/environments.png') center/300% 100%; }
+.mines-board-wrap { background:radial-gradient(ellipse,#14372caa,#061311ef),url('../../../assets/illustrated/environments.png') left center/300% 100%; }
+.mines-board { background:#06100ee0; }
+.tile:not(.done)::before { content:""; width:30%; height:30%; transform:rotate(45deg); border:1px solid #8e997660; box-shadow:inset 0 0 0 3px #061d1970,0 2px 8px #0005; }
+.pl-chip { background-image:url('../../../assets/illustrated/originals-atlas.png'); background-size:400% 400%; background-position:66.6667% 100%; border:0; border-radius:0; box-shadow:none; width:185px; height:185px; }
+.pl-chip:not(.red):not(.black) #plFace { opacity:0; }
+.pl-chip { position:relative; }
+.pl-chip .pl-art { display:none; position:absolute; inset:0; width:100%; height:100%; }
+.pl-chip.red,.pl-chip.black { background:none; border:0; border-radius:0; box-shadow:none; }
+.pl-chip.red .pl-red-art,.pl-chip.black .pl-black-art { display:block; }
+.pl-chip #plFace { opacity:0; }
+.pl-stage { background:linear-gradient(#22111baa,#080d18ed),url('../../../assets/illustrated/environments.png') center/300% 100%; }
+.illustrated-cover { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; overflow:hidden; background:linear-gradient(#12211855,#07100bcc),url('../../../assets/illustrated/environments.png') left center/300% 100%; }
+.illustrated-cover::after { content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(transparent 50%,#05090ded); box-shadow:inset 0 0 0 1px #e9c98725; }
+.illustrated-cover > .illustrated-symbol { width:76%; height:auto; aspect-ratio:1; margin-top:9%; filter:drop-shadow(0 10px 8px #000b); transition:transform .35s; }
+.gcard:hover .illustrated-cover > .illustrated-symbol { transform:scale(1.07) rotate(-3deg); }
+.cover-title { position:absolute; bottom:10%; left:5%; right:5%; z-index:1; text-align:center; font-family:var(--font-display); font-size:clamp(23px,2.5vw,34px); letter-spacing:1px; line-height:1; color:#f5dfac; text-shadow:0 2px #321d10,0 4px 10px #000; }
+.cover-studio { position:absolute; top:20%; font-size:7px; letter-spacing:2px; color:#e3c798; }
+.cover-western { background-position:center; }
+.cover-wine { background-position:right; }
+.cover-classic { background-image:linear-gradient(#4a172a77,#10090fc9),url('../../../assets/illustrated/environments.png'); background-position:center; }
+.cover-table { background:radial-gradient(ellipse at 50% 30%,#34654c,#091f18 75%); }
+.cover-vault { background-image:linear-gradient(#124a4166,#050e12cf),url('../../../assets/illustrated/environments.png'); }
+.cover-jet { background:radial-gradient(ellipse at 60% 30%,#476982,#081b36 70%); }
+.cover-jet::before { content:""; position:absolute; width:150%; height:2px; background:#d6b77488; transform:rotate(-40deg); box-shadow:0 0 20px #edb778; }
+.cover-sports { background:repeating-linear-gradient(90deg,#103e32 0 30px,#164538 30px 60px); }
+@media(max-width:600px) { .cover-title { font-size:26px; } .pl-chip { width:145px; height:145px; } }
+@media(prefers-reduced-motion:reduce) { .illustrated-cover > .illustrated-symbol { transition:none; } }

@@ -65,7 +65,7 @@
   function cellHTML(sym) {
     return '<div class="reel-cell' + (isSeven(sym) ? ' sym-seven' : '') +
            '" data-rango="' + rangoDe(sym) + '">' +
-             '<span class="simbolo">' + sym.face + '</span>' +
+             '<span class="simbolo">' + MCStudioSymbols.render(sym.face) + '</span>' +
            '</div>';
   }
 
@@ -76,7 +76,7 @@
         ? '<span style="color:var(--txt-dim);font-size:11px">par ' + visible(par(s)) + 'x</span>'
         : '<span style="color:var(--txt-dim);font-size:11px">&nbsp;</span>';
       return '<div class="pt-item" title="' + s.name + '">' +
-               '<span class="pt-sym' + (isSeven(s) ? ' sym-seven' : '') + '">' + s.face + '</span>' +
+               '<span class="pt-sym' + (isSeven(s) ? ' sym-seven' : '') + '">' + MCStudioSymbols.render(s.face) + '</span>' +
                '<span style="text-align:right"><span class="pt-mult">' + visible(triple(s)) + 'x</span><br>' + pairTxt + '</span>' +
              '</div>';
     }).join('');

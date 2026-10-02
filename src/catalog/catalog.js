@@ -233,10 +233,9 @@ window.MCCatalog = (function () {
       bg: 'linear-gradient(120deg,#2a0d12,#d81e34 60%,#ff7a86)'
     },
     {
-      kicker: 'Próximamente',
-      title: 'Los juegos propios de Bubba',
-      text: 'El salón está en obra: se vienen las mesas hechas a medida para la casa. ' +
-            'Mientras tanto, la liga deportiva está abierta.',
+      kicker: 'Explorá el salón',
+      title: 'Encontrá tu juego favorito',
+      text: 'Tragamonedas, mesas y deportes. Descubrí el catálogo y elegí cómo jugar hoy.',
       cta: 'Ver el catálogo', action: 'catalog', emoji: '🎲',
       bg: 'linear-gradient(120deg,#1a1413,#3a2b27 55%,#c9922b)'
     },

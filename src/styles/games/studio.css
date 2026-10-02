@@ -1,0 +1,147 @@
+/* Presentation only. Reel dimensions remain owned by their game styles. */
+.stage {
+  --txt:#f5f3ed; --txt-dim:#a8b3c4; --gold:#edca85; --gold-2:#a98340;
+  --bg-2:#101923; --bg-3:#17222f; --bg-4:#243447;
+  --line:rgba(192,214,235,.12); --line-2:rgba(237,202,133,.35);
+  color:var(--txt);
+}
+.stage-head { padding:16px 20px; background:#111923; border:1px solid var(--line); border-radius:18px 18px 0 0; }
+.stage-head h2 { font-family:var(--font); font-size:17px; letter-spacing:0; }
+.stage-tag { color:var(--txt-dim); font-size:11px; }
+.stage-body {
+  padding:clamp(16px,2.5vw,32px); border-radius:0 0 22px 22px;
+  border:1px solid var(--line); border-top:0;
+  background:radial-gradient(ellipse at 50% 0,#24423555,transparent 65%),#0b121a;
+  box-shadow:0 28px 65px #0004;
+}
+.studio-title { text-align:center; position:relative; padding:8px 0 27px; }
+.studio-eyebrow { display:block; color:#bda77b; letter-spacing:3px; font-size:9px; font-weight:800; }
+.studio-title h3 { font-family:var(--font-display); font-size:clamp(34px,4.5vw,60px); line-height:1.1; letter-spacing:3px; margin:10px 0 8px; color:#f8f1e1; text-shadow:0 3px 0 #0008,0 8px 24px #0006; }
+.studio-title em { font-style:normal; color:#edca85; }
+.studio-title p { color:#9eadbd; font-size:11px; letter-spacing:1px; margin:0; }
+.studio-title::after { content:""; display:block; width:100px; height:1px; margin:19px auto 0; background:linear-gradient(90deg,transparent,#d8b775,transparent); }
+.studio-title-jet em { color:#7bcaff; }
+.studio-title-mines em { color:#66efd0; }
+.studio-title-classic em { color:#ff697e; }
+.stage :is(.crash-panel,.mines-panel,.pl-panel,.g5-side) { padding:22px; border-radius:16px; background:linear-gradient(145deg,#1c2937,#121c28); border:1px solid #ffffff12; box-shadow:0 12px 28px #0003,inset 0 1px #ffffff08; }
+.stage .field > span { color:#a8b3c4; font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; }
+.stage :is(input,select) { background:#0b1420; color:#f5f3ed; border:1px solid #344356; border-radius:9px; min-height:46px; font-variant-numeric:tabular-nums; }
+.stage .btn { min-height:44px; font-weight:800; }
+.stage .btn-ghost { background:#ffffff05; border-color:#ffffff1c; color:#c8d2df; }
+.stage .btn-ghost:hover:not(:disabled) { background:#ffffff10; border-color:#edca8570; }
+.stage :is(.btn-spin,.btn-gold) { background:linear-gradient(180deg,#ffe5a6,#d5a64f); border:1px solid #ffe9b6; color:#30210c; box-shadow:0 5px 0 #795622,0 9px 24px #0005,inset 0 1px #fff7; text-shadow:none; }
+.stage .btn-spin:not(:disabled)::after { display:none; }
+.stage .btn-spin:hover:not(:disabled) { filter:brightness(1.08); }
+.stage .btn:disabled { opacity:.42; box-shadow:none; cursor:not-allowed; }
+.stage :is(.quick-bets button,.bet-mode) { min-height:36px; background:#ffffff06; border-color:#ffffff15; color:#b8c7d9; }
+.stage .bet-mode.active { background:#edca8520; border-color:#edca8599; color:#fff0cf; }
+.stage .hint { line-height:1.8; color:#98a9bc; }
+.stage :is(.mines-info div,.crash-info div,.pl-info div) { background:#0a131f; border:1px solid #ffffff08; padding:13px 12px; }
+.stage :is(.mines-info strong,.crash-info strong,.pl-info strong) { color:#edca85; }
+.stage .bet-display strong { color:#f9ead0; }
+.stage :is(.g5-controls,.slot-controls,.bj-controls) { padding:18px; border:1px solid #ffffff12; border-radius:14px; background:linear-gradient(#1b2530,#111923); }
+.stage :is(.g5-msg,.mines-msg,.pl-msg) { line-height:1.6; }
+
+/* Gold cabinet: emerald reels, brass bevels and a separate control deck. */
+.studio-symbol { display:block; width:1.4em; height:1.4em; object-fit:contain; }
+.g5-cell .simbolo,.reel-cell .simbolo { display:grid; place-items:center; }
+.g5-cell .studio-symbol { width:calc(var(--g5-cell) * .78); height:calc(var(--g5-cell) * .78); }
+.g5-main { padding:22px; border:1px solid #ba99565c; border-radius:20px; background:radial-gradient(ellipse at 50% 0,#214d3b,#0b211c 65%); box-shadow:inset 0 1px #f9df9f33,0 20px 50px #0004; }
+.g5-board { gap:5px; padding:10px; border:3px solid #c5a05c; border-radius:12px; background:linear-gradient(130deg,#f3d891,#6f4c22 35%,#d7ba75 70%,#795320); box-shadow:0 0 0 4px #071913,0 0 0 5px #bf9e5555,0 15px 30px #0007; }
+.g5-reel { border-radius:5px; background:linear-gradient(#071810,#173b2b 45%,#081c16); }
+.g5-reel::before { background:linear-gradient(#03140fea,transparent); }
+.g5-reel::after { background:linear-gradient(0deg,#03140fea,transparent); }
+.g5-cell { border-color:#d2bb8220; }
+.g5-controls { margin-top:18px; gap:12px; }
+.g5-controls .btn-spin { min-width:122px; min-height:62px; border-radius:32px; font-size:17px; letter-spacing:2px; }
+.g5-side-title { color:#edca85; letter-spacing:2px; font-size:12px; }
+.g5-pt { border-color:#ffffff09; }
+.g5-extra .btn { font-size:11px; }
+.g5-chip-btn.activo { background:#edca851c; border-color:#edca85; color:#edca85; }
+.slot-machine { max-width:720px; padding:28px; background:radial-gradient(ellipse at 50% 0,#641e35,#230e1c 65%); border:1px solid #d8b77599; box-shadow:inset 0 0 0 5px #130c13,inset 0 0 0 6px #edca8530,0 24px 50px #0005; }
+.slot-marquee { color:#f1c787; border-color:#edca8522; padding:14px; }
+.reels { border:2px solid #b99454; background:#10090f; gap:6px; }
+.reel { background:linear-gradient(#241322,#46243c 48%,#241322); border-radius:5px; }
+.payline { background:linear-gradient(90deg,#f9d28a,transparent 20%,transparent 80%,#f9d28a); }
+.stage .paytable { max-width:720px; background:#121c28; border-color:#ffffff12; }
+
+/* Flight deck. The canvas keeps drawing the real round and its curve. */
+.crash-screen { background:radial-gradient(ellipse at 70% 30%,#1c467466,transparent 65%),repeating-linear-gradient(0deg,transparent 0 39px,#608dcc10 39px 40px),repeating-linear-gradient(90deg,transparent 0 59px,#608dcc10 59px 60px),#090f20; border:1px solid #466b9855; border-radius:18px; }
+.crash-screen::before { content:"FLIGHT DECK / BUBBA JET"; position:absolute; top:20px; left:22px; font-size:9px; letter-spacing:2px; color:#80a1ca; }
+.crash-mult { font-family:var(--font); font-weight:900; letter-spacing:-3px; text-shadow:0 0 40px #5fbeff55; }
+.crash-state { color:#c1cfe3; bottom:22px; font-size:12px; }
+#view-crash .btn-accent { background:linear-gradient(#8ddaff,#409ddf); color:#061b2e; border-color:#b4e7ff; box-shadow:0 4px 0 #225377; }
+.ch-item { padding:7px 13px; border-radius:7px; }
+
+/* Gem vault. Empty tiles have an engraved mark, revealed tiles keep their symbols. */
+.mines-board-wrap { padding:24px; border-radius:18px; border:1px solid #59ddb326; background:radial-gradient(ellipse at 50% 40%,#16493d77,transparent 70%),#0a171d; }
+.mines-board { gap:10px; padding:10px; border-radius:16px; background:#07131a; }
+.tile { position:relative; background:linear-gradient(150deg,#244a50,#173038); border:1px solid #4e858166; border-bottom:4px solid #0a2228; border-radius:12px; box-shadow:inset 0 1px #abffe11a,0 4px 6px #0003; }
+.tile:not(.done)::before { content:"◆"; color:#63998f66; font-size:25px; text-shadow:0 2px #0004; }
+.tile.idle { opacity:.8; }
+.tile.gem { background:radial-gradient(circle,#257b61,#103b31); border-color:#6df4bd; box-shadow:0 0 20px #5beaab22; }
+.tile.mine { border-color:#ff7d91; }
+#view-mines .btn-accent { background:linear-gradient(#75efd0,#38b492); color:#072b23; border:1px solid #9bffe3; box-shadow:0 4px 0 #1b6a55; }
+
+/* Table collection. Felt texture is vector CSS, crisp at any display scale. */
+.felt { min-height:440px; position:relative; overflow:hidden; border:7px solid #493529; outline:1px solid #bda06c77; background:radial-gradient(ellipse at 50% 35%,#24715c55,transparent 65%),repeating-linear-gradient(45deg,#ffffff02 0 1px,transparent 1px 4px),#0b3a30; box-shadow:inset 0 0 0 2px #c4a86b66,inset 0 0 70px #00130ecc,0 20px 35px #0005; }
+.felt::before { content:""; position:absolute; inset:18px; border:1px solid #d1b77b35; border-radius:22px 22px 45% 45%; pointer-events:none; }
+.bj-row,.bj-banner { position:relative; z-index:1; }
+.bj-banner { font-size:clamp(15px,2vw,23px); color:#e9d5a4; text-shadow:none; }
+.card { border:1px solid #fff9; box-shadow:0 3px 0 #c9c3b4,0 9px 16px #0005; }
+.card.back { background:repeating-linear-gradient(45deg,#162e46 0 3px,#28415a 3px 5px); border:5px solid #f2eada; }
+.card.back::after { inset:6px; border:1px solid #dfbc76; border-radius:4px; }
+.wheel-wrap { margin-top:14px; margin-bottom:24px; }
+.wheel { border-color:#bc9b62; box-shadow:0 0 0 4px #34251c,0 0 0 8px #aa885355,0 22px 40px #0008,inset 0 0 35px #0008; }
+.wheel-hub { background:radial-gradient(circle at 35% 25%,#6a5130,#20170f 70%); box-shadow:0 0 0 8px #d4b77a22,0 10px 24px #0008; }
+.roulette-table { background:radial-gradient(ellipse at 50% 0,#28765c,#0b392e); border-color:#bb9c63; }
+.roulette-actions { padding:14px; border-radius:12px; background:#ffffff04; }
+.pl-stage { min-height:380px; background:radial-gradient(ellipse at 30% 30%,#79314255,transparent 60%),radial-gradient(ellipse at 80% 80%,#40567844,transparent 60%),#101722; }
+.pl-chip { box-shadow:0 0 0 5px #141b26,0 0 0 6px #d8b77555,0 25px 40px #0008,inset 0 0 26px #0009; }
+.prov-shell { border-radius:12px; border-color:#c1a56b44; box-shadow:0 22px 55px #0007; }
+.prov-loader { background:radial-gradient(ellipse,#23312c,#090e15); letter-spacing:2px; }
+
+@media(min-width:1101px) { .mines-layout { grid-template-columns:262px minmax(0,1fr); } }
+@media(max-width:1100px) {
+  .g5-layout { grid-template-columns:1fr; }
+  .g5-side { margin-top:8px; }
+  .crash-panel { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .crash-panel .field { margin:0; }
+  .crash-panel :is(.hint,.crash-info) { grid-column:1/-1; }
+}
+@media(max-width:600px) {
+  .stage-head { padding:12px; gap:8px; flex-wrap:wrap; }
+  .stage-head h2 { font-size:14px; }
+  .stage-head-right { width:100%; }
+  .stage-body { padding:14px 10px; }
+  .studio-title { padding:8px 0 20px; }
+  .studio-title h3 { font-size:34px; letter-spacing:2px; }
+  .studio-eyebrow { font-size:8px; letter-spacing:2px; }
+  .studio-title p { font-size:10px; letter-spacing:.3px; }
+  .g5-main { padding:12px; }
+  .g5-board { padding:5px; gap:3px; }
+  .g5-controls { padding:12px 8px!important; flex-wrap:wrap; justify-content:center; }
+  .g5-controls .btn-spin { min-width:105px; min-height:48px; font-size:14px; }
+  .g5-total { flex-basis:100%; text-align:center; }
+  .g5-extra { gap:6px; }
+  .g5-extra .btn { padding:10px; }
+  .slot-machine { padding:14px; }
+  .slot-controls { padding:12px!important; justify-content:center; }
+  .reels { padding:7px; }
+  .mines-board-wrap { padding:12px; }
+  .mines-board-wrap,.pl-stage { grid-row:1; }
+  .mines-board { gap:6px; padding:6px; }
+  .tile { border-radius:8px; }
+  .crash-panel { display:block; }
+  .crash-panel .field { margin-bottom:12px; }
+  .crash-screen::before { top:12px; left:12px; font-size:7px; }
+  .crash-state { bottom:12px; font-size:10px; }
+  .felt { padding:18px 8px; border-width:4px; }
+  .roulette-table { padding:5px; gap:2px; grid-template-columns:22px repeat(12,minmax(0,1fr)) 25px; }
+  .bet-cell { font-size:9px; }
+  .roulette-actions { gap:8px; padding:10px; }
+  .roulette-actions .btn { padding:10px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .stage *, .stage *::before, .stage *::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important; }
+}

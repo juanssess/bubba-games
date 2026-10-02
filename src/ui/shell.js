@@ -9,6 +9,9 @@ window.MCShell = (function () {
   function init() {
     wireSidebar();
     wireTopbar();
+    document.querySelectorAll('button[data-nav="lobby"], button[data-view="lobby"]').forEach(function (button) {
+      button.onclick = function () { MC.sound.click(); MC.showView('lobby'); };
+    });
   }
 
   /* ---------------- barra lateral ---------------- */

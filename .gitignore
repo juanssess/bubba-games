@@ -5,3 +5,8 @@ Thumbs.db
 
 # Volcado de la API de la liga (se vuelve a bajar con --bajar)
 tools/.cache/
+
+# Copias locales: no publicar respaldos en GitHub Pages.
+backups/
+tmp/illustrated-provider/
+tmp/illustrated-cache/

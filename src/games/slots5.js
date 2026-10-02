@@ -91,7 +91,7 @@ window.MCSlots5 = (function () {
     var cls = 'g5-cell' + (id === M.WILD ? ' es-wild' : '') +
                           (id === M.SCATTER ? ' es-scatter' : '') + (extra || '');
     return '<div class="' + cls + '" data-sym="' + id + '" data-rango="' + RANGOS[id] + '">' +
-             '<span class="simbolo">' + M.FACE[id] + '</span>' +
+             '<span class="simbolo">' + MCStudioSymbols.render(M.FACE[id]) + '</span>' +
            '</div>';
   }
 
@@ -513,13 +513,13 @@ window.MCSlots5 = (function () {
         return Math.round(M.payLine(id, n) * 100) / 100;
       }));
       return '<div class="g5-pt">' +
-               '<span class="g5-pt-sym">' + M.FACE[id] + '</span>' +
+               '<span class="g5-pt-sym">' + MCStudioSymbols.render(M.FACE[id]) + '</span>' +
                '<span class="g5-pt-name">' + M.NAME[id] + '</span>' +
                '<span class="g5-pt-vals"><b>3</b>' + p[3] + ' <b>4</b>' + p[4] + ' <b>5</b>' + p[5] + '</span>' +
              '</div>';
     }).join('') +
     '<div class="g5-pt especial">' +
-      '<span class="g5-pt-sym">' + M.FACE[M.SCATTER] + '</span>' +
+      '<span class="g5-pt-sym">' + MCStudioSymbols.render(M.FACE[M.SCATTER]) + '</span>' +
       '<span class="g5-pt-name">' + M.NAME[M.SCATTER] + '</span>' +
       '<span class="g5-pt-vals">3+ en cualquier lado → giros gratis</span>' +
     '</div>';

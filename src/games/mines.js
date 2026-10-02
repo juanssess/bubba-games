@@ -63,14 +63,14 @@
     var i = parseInt(t.dataset.i, 10);
     if (mineSet[i]) {
       t.classList.add('mine', 'done');
-      t.textContent = '💣';
+      t.innerHTML = MCIllustrated.render('💣');
       lose();
       return;
     }
 
     revealed++;
     t.classList.add('gem', 'done');
-    t.textContent = '💎';
+    t.innerHTML = MCIllustrated.render('emerald');
     MC.sound.gem(revealed);
     updateInfo();
 
@@ -152,7 +152,7 @@
       var i = parseInt(t.dataset.i, 10);
       if (!t.classList.contains('done')) {
         t.classList.add('revealed', 'done');
-        t.textContent = mineSet[i] ? '💣' : '💎';
+        t.innerHTML = MCIllustrated.render(mineSet[i] ? '💣' : 'emerald');
       }
     });
     el.action.disabled = false;

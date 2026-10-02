@@ -106,7 +106,19 @@
     g.font = '30px serif';
     g.textAlign = 'center';
     g.textBaseline = 'middle';
-    g.fillText(phase === 'crashed' ? '💥' : '🚀', tip[0], tip[1] - 14);
+    if (phase === 'crashed') {
+      g.strokeStyle = '#ffb571';
+      g.lineWidth = 3;
+      for (var ray = 0; ray < 10; ray++) {
+        var angle = ray * Math.PI / 5;
+        g.beginPath();
+        g.moveTo(tip[0] + Math.cos(angle) * 8, tip[1] - 14 + Math.sin(angle) * 8);
+        g.lineTo(tip[0] + Math.cos(angle) * 25, tip[1] - 14 + Math.sin(angle) * 25);
+        g.stroke();
+      }
+    } else {
+      MCIllustrated.draw(g, '🚀', tip[0], tip[1] - 14, 62);
+    }
 
     // etiquetas del eje Y
     g.fillStyle = 'rgba(255,255,255,.45)';
