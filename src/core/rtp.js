@@ -228,10 +228,21 @@ window.MC = window.MC || {};
     return factorPublicado(id);
   }
 
-  /** El factor global que corre: el tuyo si lo pusiste, si no el publicado. */
+  /**
+   * El factor global que corre: el tuyo si lo pusiste, si no el que
+   * publica la casa.
+   *
+   * El respaldo sale de factorPublicado y NO de PUBLICADO.global, que
+   * es como estaba y era un error silencioso de los feos: las mesas
+   * cobraban bien —factor() sí miraba la nube— pero el panel mostraba
+   * el número del código. O sea, decía "paga el 92%" mientras cobraba
+   * el 85%. Y como el panel arma con esto lo que publica, volver a
+   * publicar le devolvía el 92% a todo el casino sin que nadie lo
+   * pidiera.
+   */
   function global_() {
     var c = config();
-    return limitar(c.global !== undefined ? c.global : PUBLICADO.global);
+    return c.global !== undefined ? limitar(c.global) : factorPublicado(null);
   }
 
   /**

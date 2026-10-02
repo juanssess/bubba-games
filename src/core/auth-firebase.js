@@ -335,7 +335,10 @@ function engancharRetorno(store) {
       global: config.global,
       juegos: config.juegos || {},
       at: Date.now(),
-      por: u ? (u.uid || '') : ''
+      /* Sin el 'google:' que el casino le pone a sus perfiles: así el
+         que quede anotado acá es el mismo texto que está en la lista
+         de firestore.rules, y comparar los dos no requiere traducir. */
+      por: u && u.uid ? u.uid.replace(/^[a-z]+:/, '') : ''
     });
   };
 

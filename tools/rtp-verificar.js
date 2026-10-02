@@ -394,6 +394,64 @@ function probarMigracion() {
   MC.rtp.reset();
 }
 
+/* ============================================================
+   8. LO QUE PUBLICA LA CASA EN VIVO
+
+   Hay DOS lectores del retorno y es fácil arreglar uno y olvidarse
+   del otro: `factor()`, que es el que cobra, y `global()`, que es el
+   que muestra el panel y con el que el panel arma lo que publica.
+
+   Pasó de verdad: factor() miraba la nube y global() no. Las mesas
+   cobraban el 85% mientras el panel decía 92%, y volver a publicar
+   le devolvía el 92% a todo el casino sin que nadie lo pidiera. Un
+   número mal leído en la pantalla equivocada se propaga a todos.
+
+   Por eso acá se comprueban los dos contra el mismo valor.
+   ============================================================ */
+function probarNube() {
+  titulo('8. LO QUE PUBLICA LA CASA EN VIVO');
+
+  MC.rtp.reset();
+  const sinNube = MC.rtp.global();
+  console.log('  sin nada en la nube, el global es ' + sinNube.toFixed(4) +
+              ' (el del código)\n');
+
+  // Llega lo que publicó la casa.
+  MC.rtp.setNube({ global: 0.85, juegos: { slots5: 0.7 } });
+
+  exige(Math.abs(MC.rtp.global() - 0.85) < 1e-9,
+    'global() sigue a la nube', '→ ' + MC.rtp.global().toFixed(4));
+  exige(Math.abs(MC.rtp.factor('mines') - 0.85) < 1e-9,
+    'factor() sigue a la nube', '→ ' + MC.rtp.factor('mines').toFixed(4));
+  exige(Math.abs(MC.rtp.factor('slots5') - 0.7) < 1e-9,
+    'y una mesa con número propio en la nube lo respeta');
+  exige(MC.rtp.factor('maverick') === 1,
+    'los iframes siguen afuera, publique lo que publique la casa');
+  exige(!MC.rtp.hayLocal(),
+    'nada de esto cuenta como local: viene de la casa, no del navegador');
+
+  // Lo de este navegador le gana a lo publicado.
+  MC.rtp.setGlobal(0.95);
+  exige(Math.abs(MC.rtp.global() - 0.95) < 1e-9,
+    'lo tuyo le gana a lo publicado');
+  exige(MC.rtp.pisado('mines'), 'y la mesa queda marcada como pisada');
+
+  MC.rtp.reset();
+  exige(Math.abs(MC.rtp.global() - 0.85) < 1e-9,
+    'al borrar lo tuyo, vuelve lo que publica la casa');
+
+  /* Y lo que el panel publicaría ahora tiene que ser lo que se ve,
+     no lo del código: es el paso donde el error anterior se
+     convertía en un cambio real para todos. */
+  const codigo = MC.rtp.codigo();
+  exige(codigo.indexOf('global: 0.85') >= 0,
+    'el bloque a publicar lleva lo que corre, no lo del código',
+    '→ ' + codigo.split('\n')[1].trim());
+
+  MC.rtp.setNube(null);
+  MC.rtp.reset();
+}
+
 /* ---------------- corrida ---------------- */
 console.log('\n' + '#'.repeat(62));
 console.log('#  VERIFICACIÓN DEL PANEL DE RETORNO');
@@ -406,6 +464,7 @@ probarGoldSimulado(0.9, RONDAS);
 probarRuleta();
 probarPublicar();
 probarMigracion();
+probarNube();
 
 titulo('RESULTADO');
 if (fallas === 0) {
