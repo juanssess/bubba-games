@@ -203,6 +203,33 @@ window.MC = window.MC || {};
     return nuevo;
   }
 
+  /**
+   * Cambia el oficio del perfil que está activo, en los dos sentidos.
+   *
+   * Hacía falta por un agujero concreto: `crearAgente` siempre fabrica
+   * un perfil LOCAL nuevo, y una cuenta de Google nace jugador sin
+   * forma de dejar de serlo. El que entraba con Google quedaba sin
+   * poder abrir el panel de la casa, que es justo donde se publica el
+   * retorno — y publicar necesita el uid de Firebase, que sólo existe
+   * entrando con Google. Pescadilla que se muerde la cola.
+   *
+   * No crea un perfil aparte, como sí hace `crearAgente`: la gracia es
+   * que la MISMA cuenta de Google pueda ponerse el otro sombrero, para
+   * que el uid que Firestore conoce sea el que abre el panel.
+   *
+   * Y se puede volver. El rol decide qué se ve y qué se puede hacer
+   * dentro del casino; lo que de verdad autoriza a mover el retorno
+   * son las reglas de Firestore, que viven afuera de este navegador.
+   */
+  function cambiarRol(rol) {
+    var u = current();
+    if (!u) return false;
+    u.rol = rol === 'agente' ? 'agente' : 'jugador';
+    write();
+    emitir();
+    return true;
+  }
+
   function renombrar(nombre, avatar) {
     var u = current();
     if (!u) return;
@@ -464,6 +491,7 @@ window.MC = window.MC || {};
     emitir: emitir,
     registrar: registrar,
     crearAgente: crearAgente,
+    cambiarRol: cambiarRol,
     renombrar: renombrar,
     usar: usar,
     salir: salir,

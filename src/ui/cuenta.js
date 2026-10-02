@@ -197,6 +197,16 @@ window.MCCuenta = (function () {
       'No hay dinero real involucrado.</p>';
 
     var acciones = [{ label: 'Cerrar', kind: 'primary' }];
+
+    /* Ponerse el otro sombrero con la MISMA cuenta.
+       Va antes que "Crear agente" porque resuelve el caso que ese no
+       puede: una cuenta de Google nace jugador y crearAgente fabrica
+       un perfil local nuevo, así que el que entraba con Google se
+       quedaba sin forma de abrir el panel de la casa. */
+    acciones.unshift(MCRoles.esAgente(u)
+      ? { label: 'Volver a jugador', onClick: volverAJugador }
+      : { label: 'Usar como agente', onClick: usarComoAgente });
+
     // Si todavia no hay ningun agente se ofrece crear el primero; con uno
     // ya hecho, el camino es cambiar de perfil y no acumular agentes.
     if (!MC.auth.all().some(MCRoles.esAgente)) {
@@ -232,6 +242,62 @@ window.MCCuenta = (function () {
             x.name + '</button>';
         }).join('') +
       '</div>';
+  }
+
+  /**
+   * Convierte ESTA cuenta en agente, sin crear otra.
+   *
+   * Es lo que permite que una cuenta de Google abra el panel de la
+   * casa. `crearAgente` no sirve para eso: fabrica un perfil local
+   * nuevo, y el perfil local no tiene uid de Firebase, que es
+   * justamente lo que hace falta para publicar el retorno.
+   *
+   * Se avisa lo que se pierde antes de hacerlo, igual que al crear un
+   * agente: una cuenta de agente no apuesta, y descubrirlo recién al
+   * apretar "girar" sería una sorpresa fea.
+   */
+  function usarComoAgente() {
+    var u = MC.auth.current();
+    var fichas = MC.fmt(MC.getBalance());
+
+    MC.modal('Usar esta cuenta como agente',
+      '<p><strong>' + u.name + '</strong> pasa a ser una cuenta de agente: ' +
+      'administra jugadores y abre el panel de <strong>Retorno de la casa</strong>.</p>' +
+      '<p><strong>Mientras sea agente no apuesta</strong>, y no tiene bono, misiones, ' +
+      'Club VIP, bote ni tabla de posiciones.</p>' +
+      '<p>Tus <strong>' + fichas + ' fichas</strong> y tu historial no se tocan: ' +
+      'quedan esperando. Volvés a jugador desde acá mismo cuando quieras.</p>' +
+      (u.provider === 'google'
+        ? '<p style="font-size:12.5px;color:var(--txt-dim)">Al ser cuenta de Google, el ' +
+          'panel va a mostrarte el uid de Firebase, que es el que habilita a publicar ' +
+          'el retorno para todos.</p>'
+        : '<p style="font-size:12.5px;color:var(--gold)">Ojo: esta cuenta no es de ' +
+          'Google, así que no tiene uid de Firebase. Vas a poder abrir el panel y ' +
+          'probar, pero para publicar para todos hace falta entrar con Google.</p>') +
+      '<p class="auth-legal">El rol se guarda en este navegador. Separa dos usos; no es ' +
+      'una barrera de seguridad. Lo que de verdad autoriza a mover el retorno son las ' +
+      'reglas de Firestore, que viven afuera de acá.</p>',
+      [
+        { label: 'Cancelar' },
+        { label: 'Usar como agente', kind: 'primary', onClick: function () {
+            MC.auth.cambiarRol('agente');
+            MC.toast('Ahora estás como agente', 'info');
+          } }
+      ]);
+  }
+
+  function volverAJugador() {
+    MC.modal('Volver a jugador',
+      '<p>Esta cuenta vuelve a poder apostar, con el bono, las misiones y todo lo demás.</p>' +
+      '<p>Deja de ver el panel de agente y el de <strong>Retorno de la casa</strong>. ' +
+      'Lo que hayas publicado sigue publicado: eso vive en Firestore, no en el rol.</p>',
+      [
+        { label: 'Cancelar' },
+        { label: 'Volver a jugador', kind: 'primary', onClick: function () {
+            MC.auth.cambiarRol('jugador');
+            MC.toast('Listo, podés volver a jugar', 'info');
+          } }
+      ]);
   }
 
   /**
