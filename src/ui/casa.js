@@ -43,7 +43,14 @@ window.MCCasa = (function () {
     plantilla: 'baja el 1,95 del acierto, y el cartel de la mesa lo dice',
     sports:    'cotiza más bajo, como lo haría un corredor de apuestas',
     roulette:  'baja el 36 del que se deriva todo pago, así las trece apuestas siguen teniendo el mismo margen',
-    blackjack: 'escala la ganancia y deja el empate intacto'
+    blackjack: 'escala la ganancia y deja el empate intacto',
+
+    /* Los tres del iframe. El texto dice dónde se aplica, que es lo
+       que los distingue del resto: no en su tabla sino al acreditar,
+       porque su matemática está compilada en otro proyecto. */
+    maverick:  'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
+    sebusca:   'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
+    vendimia:  'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica'
   };
 
   /* Blackjack es el único donde el factor no da el RTP exacto, y el
@@ -55,16 +62,10 @@ window.MCCasa = (function () {
   var PRESETS = [100, 97, 95, 92, 90, 85];
 
   /* ---------------- helpers ---------------- */
+  // Ahora entran los nueve: los tres del iframe también se ajustan,
+  // sólo que en otro lado. La fila de cada uno lo aclara.
   function jugablesAlcanzables() {
-    return MCCatalog.all.filter(function (g) {
-      return g.rtpValue > 0 && !MC.rtp.fueraDeAlcance(g.id);
-    });
-  }
-
-  function fueraDeAlcance() {
-    return MCCatalog.all.filter(function (g) {
-      return MC.rtp.fueraDeAlcance(g.id);
-    });
+    return MCCatalog.all.filter(function (g) { return g.rtpValue > 0; });
   }
 
   function pct1(x) { return (x * 100).toFixed(1).replace('.', ','); }
@@ -75,14 +76,13 @@ window.MCCasa = (function () {
     if (!cont) return;
 
     var juegos = jugablesAlcanzables();
-    var afuera = fueraDeAlcance();
     var gl = MC.rtp.global();
 
     cont.innerHTML =
       intro() +
       bloqueGlobal(gl) +
       '<div class="casa-lista">' + juegos.map(fila).join('') + '</div>' +
-      bloqueAfuera(afuera) +
+      bloqueIframe() +
       bloquePie();
 
     enganchar();
@@ -199,18 +199,32 @@ window.MCCasa = (function () {
     '</div>';
   }
 
-  function bloqueAfuera(afuera) {
-    if (!afuera.length) return '';
-    return '<div class="casa-afuera">' +
-      '<h4>Fuera de alcance</h4>' +
-      '<p>Estas tragamonedas corren en un iframe con su propia matemática, servida ' +
-      'desde <code>games/slots/</code>. Este panel no las toca: su RTP se cambia en ' +
-      'ese proyecto. Se listan igual para que no parezca que el panel las cubre.</p>' +
-      '<div class="ca-chips">' +
-        afuera.map(function (g) {
-          return '<span><b>' + g.emoji + ' ' + g.name + '</b> ' + pct1(g.rtpValue) + '%</span>';
-        }).join('') +
-      '</div>' +
+  /* Las tres del iframe sí tienen perilla, pero con una diferencia que
+     hay que decir y no esconder en un tooltip: el recorte se hace al
+     acreditar, así que su pantalla sigue mostrando la tabla de fábrica
+     hasta que el juego aplique el factor él mismo. */
+  function bloqueIframe() {
+    var tres = MCCatalog.all.filter(function (g) { return MC.rtp.porBilletera(g.id); });
+    if (!tres.length) return '';
+
+    var tocada = tres.some(function (g) { return MC.rtp.ajustado(g.id); });
+
+    return '<div class="casa-afuera' + (tocada ? ' ojo' : '') + '">' +
+      '<h4>Las tres que corren aparte</h4>' +
+      '<p><b>' + tres.map(function (g) { return g.emoji + ' ' + g.name; }).join('</b>, <b>') +
+      '</b> se sirven en un iframe desde <code>games/slots/</code>, con su matemática ' +
+      'compilada en otro proyecto. El panel las ajusta igual, pero <strong>el recorte se ' +
+      'hace al acreditar</strong>, no en su tabla de pagos.</p>' +
+      (tocada
+        ? '<p style="color:var(--gold)">Ahora mismo su pantalla muestra multiplicadores ' +
+          'de fábrica y la caja paga menos. El juego lo avisa arriba, con el número, para ' +
+          'que nadie vea un premio y cobre otro.</p>'
+        : '<p>Con el retorno en 100% no hay diferencia: muestran y pagan lo mismo.</p>') +
+      '<p style="font-size:12px">El casino ya les pasa el factor (<code>?rtp=</code> y en ' +
+      'el saludo). El día que el juego lo aplique en su tabla y conteste ' +
+      '<code>hello</code> con <code>rtp:&nbsp;true</code>, el recorte de la caja se apaga ' +
+      'solo y la diferencia desaparece. El contrato está en ' +
+      '<code>docs/retorno-de-la-casa.md</code>.</p>' +
     '</div>';
   }
 
@@ -389,7 +403,7 @@ window.MCCasa = (function () {
   function loQueCorre() {
     var cfg = { global: MC.rtp.global(), juegos: {} };
     MCCatalog.all.forEach(function (g) {
-      if (!g.rtpValue || MC.rtp.fueraDeAlcance(g.id)) return;
+      if (!g.rtpValue) return;
       var f = MC.rtp.factor(g.id);
       if (Math.abs(f - cfg.global) > 0.0005) cfg.juegos[g.id] = f;
     });

@@ -163,9 +163,16 @@ function probarFactor() {
   exige(Math.abs(MC.rtp.factor('slots5') - MC.rtp.MIN) < 1e-12,
     'no se puede bajar por debajo de ' + MC.rtp.MIN);
 
+  /* Los tres del iframe SIGUEN el factor como cualquier otra mesa.
+     Antes se cortaban en 1 porque el panel no los tocaba; ahora sí los
+     ajusta, sólo que al acreditar y no en su tabla. Lo que los
+     distingue es dónde se aplica, no cuánto. */
   MC.rtp.setGlobal(0.7);
-  exige(MC.rtp.factor('maverick') === 1,
-    'los juegos en iframe quedan en 1: el panel no los alcanza');
+  exige(Math.abs(MC.rtp.factor('maverick') - 0.7) < 1e-9,
+    'los juegos en iframe también siguen el factor',
+    '→ ' + MC.rtp.factor('maverick').toFixed(4));
+  exige(MC.rtp.porBilletera('maverick') && !MC.rtp.porBilletera('mines'),
+    'y quedan marcados como "se ajusta en la billetera"');
 
   MC.rtp.reset();
   exige(!MC.rtp.hayLocal(), 'reset deja el navegador sin nada propio');
@@ -425,8 +432,8 @@ function probarNube() {
     'factor() sigue a la nube', '→ ' + MC.rtp.factor('mines').toFixed(4));
   exige(Math.abs(MC.rtp.factor('slots5') - 0.7) < 1e-9,
     'y una mesa con número propio en la nube lo respeta');
-  exige(MC.rtp.factor('maverick') === 1,
-    'los iframes siguen afuera, publique lo que publique la casa');
+  exige(Math.abs(MC.rtp.factor('maverick') - 0.85) < 1e-9,
+    'los del iframe también siguen lo que publica la casa');
   exige(!MC.rtp.hayLocal(),
     'nada de esto cuenta como local: viene de la casa, no del navegador');
 

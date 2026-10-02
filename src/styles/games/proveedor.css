@@ -52,3 +52,24 @@
     border-radius:12px;
   }
 }
+
+/* ============================================================
+   EL AVISO DEL RECORTE
+   Cuando la casa baja el retorno y el juego —que corre aparte— todavia
+   no lo aplica en su tabla, su pantalla muestra los multiplicadores de
+   fabrica y la caja acredita menos. Este cartel lo dice. Va ARRIBA del
+   juego y no abajo: tiene que leerse antes de girar, no despues.
+   ============================================================ */
+.prov-aviso{
+  margin: 0 0 10px;
+  padding: 11px 15px;
+  border-radius: var(--r-md);
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  border-left: 3px solid var(--gold);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--txt-dim);
+}
+.prov-aviso strong{ color: var(--gold); }
+.prov-aviso[hidden]{ display: none; }

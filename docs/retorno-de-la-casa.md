@@ -30,10 +30,10 @@ cosas distintas, porque salen del mismo número.
 | Liga Argentina | la cuota, en `poisson.js` |
 | Blackjack | la ganancia (el empate **no** se toca) |
 
-**Maverick, Se Busca y La Vendimia quedan afuera.** Corren en un iframe
-con su propia matemática, servida desde `games/slots/`. El panel los
-lista como fuera de alcance en vez de ofrecer una perilla muerta: su RTP
-se cambia en ese otro proyecto.
+**Maverick, Se Busca y La Vendimia se ajustan en otro lado.** Corren
+en un iframe con su matemática compilada en otro proyecto, así que el
+factor no entra en su tabla de pagos: el casino recorta **al
+acreditar**, en `proveedor.js`. Ver más abajo.
 
 ---
 
@@ -195,3 +195,55 @@ evitar.
 > Si se toca la tabla de pagos de un juego, hay que volver a correr
 > `node tools/slots5-rtp.js` y actualizar el `rtpValue` del catálogo. El
 > panel calcula sobre ese número: si está viejo, el panel miente.
+
+
+---
+
+## Las tres que corren aparte
+
+Maverick, Se Busca y La Vendimia se sirven en un iframe desde
+`games/slots/`. Su matemática está compilada en otro proyecto, así que
+el casino no puede meter el factor en su tabla de pagos como hace con
+las ocho mesas propias.
+
+Hace las dos cosas que sí puede:
+
+1. **Le pasa el factor al juego** — por la URL (`?rtp=0.85`) y en la
+   respuesta a *cada* mensaje del protocolo, para que un cambio en vivo
+   llegue sin recargar.
+2. **Mientras el juego no lo aplique**, recorta al acreditar y lo avisa
+   en un cartel arriba del juego, con el número concreto.
+
+### El costo, dicho de frente
+
+Con el recorte en la caja, **la pantalla del juego miente**: muestra sus
+multiplicadores de fábrica y la billetera acredita menos. Es la única
+mesa del casino donde eso pasa, y es exactamente lo que `MC.rtp` evita
+en todas las demás. Por eso el cartel no es opcional ni se puede
+apagar: sin él, el casino mostraría un premio y pagaría otro.
+
+El cartel va **antes** del iframe en el DOM. Puesto después quedaba
+fuera de pantalla —el juego mide más que la ventana— y un aviso que se
+lee después de girar no es un aviso.
+
+### El contrato, para cerrarlo del todo
+
+Esto se arregla del lado del juego, y el casino ya está listo para
+cuando pase. El juego tiene que:
+
+1. Leer `rtp` del query string al arrancar, y el campo `rtp` que viene
+   en cada respuesta del canal `bubba-rgs` (para los cambios en vivo).
+2. Aplicarlo a su tabla de pagos, de modo que **lo que muestra sea lo
+   que paga**.
+3. Contestar el `hello` con `rtp: true`.
+
+Ese `rtp: true` es el interruptor: el casino deja de recortar en la
+caja y el cartel desaparece solo. Si el juego no lo manda, se asume que
+no lo aplica — que es la suposición segura: recortar de más se nota y
+se avisa, recortar de menos le regala plata a la casa sin que nadie se
+entere.
+
+> Mientras tanto, el `settle` que manda el juego se escala en
+> `proveedor.js` y lo que entra al historial y a las estadísticas es lo
+> **realmente acreditado**, no lo que dijo el juego. Si fuera al revés,
+> las estadísticas publicarían un retorno que la caja nunca pagó.

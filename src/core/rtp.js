@@ -72,10 +72,29 @@ window.MC = window.MC || {};
   var MIN = 0.50;
   var MAX = 1.00;
 
-  /* Los juegos que este módulo no puede alcanzar: corren en un iframe
-     con su propia matemática. Se listan para que el panel los muestre
-     como lo que son en vez de ofrecer una perilla muerta. */
-  var FUERA_DE_ALCANCE = ['maverick', 'sebusca', 'vendimia'];
+  /* ============================================================
+     LOS JUEGOS QUE SE AJUSTAN EN LA BILLETERA
+
+     Estos tres corren en un iframe, con su matemática compilada en
+     otro proyecto. El casino no puede entrar a su tabla de pagos, así
+     que acá el factor NO se aplica donde el juego expresa su ventaja
+     —que es la regla de todo el resto de este módulo— sino al final,
+     cuando el juego dice cuánto ganó y la billetera acredita.
+
+     Y eso tiene un costo que no se puede tapar: la pantalla del juego
+     muestra sus multiplicadores de fábrica. Si la casa recorta al
+     85%, el juego sigue diciendo "x40" y la caja acredita x34.
+
+     Por eso el casino hace dos cosas: le PASA el factor al juego —por
+     la URL y en el saludo— para que un juego que lo soporte lo
+     aplique en su propia tabla y no haya ninguna diferencia, y
+     mientras eso no pase, lo avisa en pantalla arriba del juego. Ver
+     el contrato en docs/retorno-de-la-casa.md.
+
+     No están "fuera de alcance": están ajustados en otro lado, y el
+     panel lo dice con todas las letras.
+     ============================================================ */
+  var POR_BILLETERA = ['maverick', 'sebusca', 'vendimia'];
 
   /* ============================================================
      LO QUE SE PUBLICA — el retorno que viaja en el código
@@ -218,7 +237,6 @@ window.MC = window.MC || {};
   function factor(gameId) {
     var c = config();
     var id = gameId || MC.getCurrentGame();
-    if (id && fueraDeAlcance(id)) return 1;
 
     /* El orden es de lo más específico a lo más general, y lo de este
        navegador va antes que lo publicado: el panel existe para poder
@@ -253,7 +271,6 @@ window.MC = window.MC || {};
    * arranca un casino recién clonado, y la nube es la decisión viva.
    */
   function factorPublicado(gameId) {
-    if (gameId && fueraDeAlcance(gameId)) return 1;
     if (nube) {
       if (gameId && nube.juegos && nube.juegos[gameId] !== undefined) {
         return limitar(nube.juegos[gameId]);
@@ -285,8 +302,9 @@ window.MC = window.MC || {};
     return Object.keys(j).length > 0;
   }
 
-  function fueraDeAlcance(gameId) {
-    return FUERA_DE_ALCANCE.indexOf(gameId) >= 0;
+  /** ¿El factor de este juego se aplica al acreditar y no en su tabla? */
+  function porBilletera(gameId) {
+    return POR_BILLETERA.indexOf(gameId) >= 0;
   }
 
   /** El RTP con el que el juego fue diseñado (el del catálogo). */
@@ -360,7 +378,6 @@ window.MC = window.MC || {};
     var juegos = [];
     if (window.MCCatalog) {
       window.MCCatalog.all.forEach(function (g) {
-        if (fueraDeAlcance(g.id)) return;
         var f = factor(g.id);
         if (Math.abs(f - global_()) > 0.0005) {
           juegos.push("      " + g.id + ": " + redondear(f) +
@@ -460,7 +477,7 @@ window.MC = window.MC || {};
     efectivo: efectivo,
     ajustado: ajustado,
     hayAjustes: hayAjustes,
-    fueraDeAlcance: fueraDeAlcance,
+    porBilletera: porBilletera,
     // Las dos capas, por separado: lo que publica la casa y lo tuyo.
     factorPublicado: factorPublicado,
     setNube: setNube,

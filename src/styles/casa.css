@@ -219,3 +219,7 @@
   -webkit-user-select: text;
 }
 .casa-copiar{ margin-bottom: 6px; }
+
+/* Las tres del iframe, cuando estan tocadas: el bloque se marca porque
+   su pantalla y la caja dejan de coincidir, y eso hay que mirarlo. */
+.casa-afuera.ojo{ border-color: var(--gold); border-style: solid; }
