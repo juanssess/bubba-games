@@ -4,7 +4,7 @@
    Pegar en: consola de Firebase -> Firestore Database -> Reglas
    -> Publicar.
 
-   Dos colecciones, con permisos MUY distintos a propósito:
+   Tres colecciones, con permisos MUY distintos a propósito:
 
      players/{uid}      privado. Guarda el progreso completo del
                         jugador. Sólo el dueño lo lee y lo escribe.
@@ -14,10 +14,14 @@
                         saldo, apostado y mejor golpe. Cualquiera
                         lo puede leer; sólo el dueño lo escribe.
 
-   Por qué separadas: si el ranking leyera de players/, para
-   mostrarlo habría que abrir la lectura de TODO el progreso de
-   todos. Un documento aparte con sólo lo que se publica es la
-   diferencia entre compartir un dato y filtrar una cuenta.
+     casa/retorno       público de lectura, lo escribe una lista
+                        corta. Cuánto paga cada mesa.
+
+   Por qué players y leaderboard están separadas: si el ranking
+   leyera de players/, para mostrarlo habría que abrir la lectura de
+   TODO el progreso de todos. Un documento aparte con sólo lo que se
+   publica es la diferencia entre compartir un dato y filtrar una
+   cuenta.
    ============================================================ */
 rules_version = '2';
 
@@ -45,18 +49,23 @@ service cloud.firestore {
        Escribirlo es otra cosa: es mover el margen del casino. Sólo
        los uid de la lista de abajo.
 
-       -------- PARA HABILITARTE A VOS --------
-       La lista arranca VACÍA a propósito: así, hasta que no pongas
-       tu uid, NADIE puede cambiar el retorno. Mejor que arrancar
-       abierta y tener que acordarse de cerrarla.
+       -------- QUIÉN ESTÁ HABILITADO --------
+       La lista empezó VACÍA a propósito: hasta que no hubiera un uid
+       adentro, nadie podía cambiar el retorno. Mejor eso que
+       arrancar abierta y tener que acordarse de cerrarla.
 
-       Tu uid lo muestra el panel (Retorno de la casa, abajo de
-       todo). Pegalo acá:
+       Para sumar a alguien: su uid lo muestra el panel (Retorno de
+       la casa, abajo de todo), y se agrega a la lista de abajo.
+       Después, Consola de Firebase -> Firestore Database -> Reglas
+       -> Publicar. Editar este archivo NO alcanza: Firestore lee las
+       reglas de la consola, no de GitHub.
 
-           ['Ab1cD2...']
-
-       y después Consola de Firebase -> Firestore Database ->
-       Reglas -> Publicar.
+       OJO CON EL PREFIJO. El casino guarda sus perfiles como
+       'google:ZlnbdcBi...' (auth.js:340 le pone el proveedor
+       adelante). Firestore compara contra request.auth.uid, que es
+       el uid PELADO de Firebase: 28 caracteres, sin 'google:'. Con
+       el prefijo la regla no casa nunca y el error que se ve es un
+       permission-denied que no explica nada.
 
        Ojo con lo que NO valida esta regla: el contenido. Alguien de
        la lista puede escribir cualquier número. No hace falta más:
@@ -67,7 +76,9 @@ service cloud.firestore {
     match /casa/retorno {
       allow read: if true;
       allow write: if request.auth != null
-                   && request.auth.uid in []
+                   && request.auth.uid in [
+                        'ZlnbdcBiASbUoEy5vheJBHTIDFg1'   // nacho
+                      ]
                    && request.resource.data.global is number
                    && request.resource.data.global >= 0.5
                    && request.resource.data.global <= 1

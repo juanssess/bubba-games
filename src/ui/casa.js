@@ -275,10 +275,11 @@ window.MCCasa = (function () {
       'que no pongas tu uid, nadie puede mover el retorno del casino.</p>' +
       (deFirebase
         ? '<p>Tu uid de Firebase es:</p>' +
-          '<pre class="casa-codigo">' + escapar(u.uid) + '</pre>' +
+          '<pre class="casa-codigo">' + escapar(uid()) + '</pre>' +
           '<p style="font-size:12px;color:var(--txt-dim)">Pegalo en ' +
           '<code>request.auth.uid in [...]</code> y publicá las reglas desde la ' +
-          'consola de Firebase.</p>'
+          'consola de Firebase. Sin el <code>google:</code> de adelante: eso se lo ' +
+          'agrega el casino para sus perfiles y Firestore no lo conoce.</p>'
         : '<p style="color:var(--gold)"><strong>Entrá con Google para tener un uid.</strong></p>' +
           '<p style="font-size:12px;color:var(--txt-dim)">' +
           (u && u.uid
@@ -471,14 +472,29 @@ window.MCCasa = (function () {
     if (btn) btn.onclick = function () { copiar(texto); };
   }
 
-  /* Sólo el de Firebase. Devolver el del perfil local sería dar el
-     id equivocado justo en el momento en que alguien lo va a pegar
-     en las reglas. Ver el comentario de bloqueUid. */
+  /* ============================================================
+     EL UID QUE FIRESTORE COMPARA
+
+     El casino guarda el perfil con el proveedor adelante:
+
+         auth.js:340   uidRemoto = info.provider + ':' + info.id
+                       → 'google:ZlnbdcBi...'
+
+     Firestore no sabe nada de eso. `request.auth.uid` es el uid
+     pelado de Firebase Auth, 28 caracteres sin prefijo. Entregar el
+     del perfil tal cual hace que la regla no case nunca, y el error
+     que se ve es un permission-denied que no explica nada.
+
+     Es el segundo id equivocado que este panel estuvo por entregar
+     —antes fue el del perfil de invitado—, así que acá se corta de
+     una vez: lo que se muestra es exactamente lo que va en la regla.
+     ============================================================ */
   function uid() {
     var u = MC.auth && MC.auth.current ? MC.auth.current() : null;
-    return (u && u.uid && u.provider === 'google')
-      ? u.uid
-      : '(entrá con Google: el id de invitado no sirve acá)';
+    if (!u || !u.uid || u.provider !== 'google') {
+      return '(entrá con Google: el id de invitado no sirve acá)';
+    }
+    return u.uid.replace(/^[a-z]+:/, '');
   }
 
   function escapar(t) {
