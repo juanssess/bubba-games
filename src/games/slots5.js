@@ -173,8 +173,18 @@ window.MCSlots5 = (function () {
     actualizarControles();
     MC.sound.spin();
 
-    // EL RESULTADO SE DECIDE ACÁ. Lo de abajo es sólo mostrarlo.
-    var result = M.spin(MC.rand);
+    /* EL RESULTADO SE DECIDE ACÁ. Lo de abajo es sólo mostrarlo.
+
+       Sale del azar verificable y no de MC.rand: esta tirada es una
+       función de (semilla de la casa, tu semilla, número de ronda), y
+       las tres se pueden pegar después en tools/verificar-ronda.js
+       para obtener exactamente esta grilla. Ver core/justo.js, que
+       también explica hasta dónde llega esa garantía.
+
+       Los giros gratis consumen nonce igual que los pagos: si no, la
+       cadena tendría huecos y no se podría recalcular una tanda
+       entera. */
+    var result = M.spin(MC.justo.rondaNueva('slots5').rnd);
     var mult = freeLeft > 0 ? M.FS_WILD_MULT : 1;
     var evaluated = M.evaluate(result.grid, mult);
 

@@ -301,3 +301,25 @@
   .tor-acciones{flex-direction:row;flex-wrap:wrap}
   .tor-acciones .btn{flex:1 1 auto}
 }
+
+/* ============================================================
+   JUEGO JUSTO — las semillas con las que se recalcula una ronda.
+   Monoespaciado y seleccionable: estos textos existen para
+   copiarlos y pegarlos en la herramienta de verificacion.
+   ============================================================ */
+.aj-codigo{
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 9px 12px;
+  margin: 6px 0 10px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre;
+  word-break: break-all;
+  user-select: text;
+  -webkit-user-select: text;
+  color: var(--txt-dim);
+}
+.aj-acciones{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }

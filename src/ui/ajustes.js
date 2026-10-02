@@ -156,6 +156,8 @@ window.MCAjustes = (function () {
           a.recordatorioMin)
       ) +
 
+      bloqueJusto() +
+
       bloque('Experiencia', '',
         /* El tema NO vive en MC.state como el resto de los ajustes: se aplica
            antes de que exista el estado del perfil (ver tema.js). Por eso
@@ -210,6 +212,71 @@ window.MCAjustes = (function () {
     return 'Sólo en este navegador';
   }
 
+  /* ============================================================
+     JUEGO JUSTO — las tres cosas con las que se recalcula una ronda
+
+     Vive en Ajustes y no en una pantalla propia a propósito: una
+     verificación que hay que ir a buscar no la hace nadie, y acá ya
+     está el resto de lo que el jugador controla sobre su partida.
+
+     La matemática y los límites de la garantía están en
+     core/justo.js. Esto sólo muestra y deja cambiar la semilla.
+     ============================================================ */
+  function bloqueJusto() {
+    var j = MC.justo.estado();
+    var tandas = j.tandas || [];
+
+    return bloque('Juego justo',
+      'Cada tirada de Bubba Gold sale de tres cosas, y con esas tres cualquiera puede ' +
+      'recalcularla y obtener la misma grilla.',
+
+      '<div class="aj-info-row"><span>Compromiso de la casa (SHA-256)</span></div>' +
+      '<pre class="aj-codigo">' + (j.compromiso || 'calculando…') + '</pre>' +
+      '<p class="aj-sub">La semilla de la casa está sorteada y tapada. Esto es su huella, ' +
+      'y se muestra <strong>antes</strong> de que apuestes: cuando cierres la tanda vas a ' +
+      'poder comprobar que la semilla revelada da exactamente esta huella.</p>' +
+
+      '<div class="aj-fila">' +
+        '<span class="aj-txt"><strong>Tu semilla</strong>' +
+        '<em>La ponés vos. Cambiarla cierra la tanda y abre otra.</em></span>' +
+        '<input type="text" class="filter-input aj-sel" id="ajSemilla" maxlength="40" ' +
+        'value="' + escapar(j.cliente) + '">' +
+      '</div>' +
+
+      filaInfo('Rondas jugadas en esta tanda', j.nonce) +
+
+      '<div class="aj-acciones">' +
+        '<button class="btn btn-ghost" id="ajRevelar">Revelar y empezar otra</button>' +
+      '</div>' +
+
+      (tandas.length
+        ? '<p class="aj-sub" style="margin-top:14px"><strong>Tandas reveladas.</strong> ' +
+          'Con la semilla, tu semilla y el número de ronda:<br>' +
+          '<code>node tools/verificar-ronda.js &lt;semilla&gt; &lt;tuSemilla&gt; &lt;ronda&gt;</code></p>' +
+          tandas.map(function (t) {
+            return '<pre class="aj-codigo">' +
+              'semilla   ' + escapar(t.servidor) + '\n' +
+              'tuya      ' + escapar(t.cliente) + '\n' +
+              'rondas    0 a ' + (t.rondas - 1) +
+              '</pre>';
+          }).join('')
+        : '<p class="aj-sub" style="margin-top:14px">Todavía no cerraste ninguna tanda. ' +
+          'La semilla de la casa se revela recién al cerrarla: si se mostrara antes, ' +
+          'sabrías el resultado de los giros que faltan.</p>') +
+
+      '<p class="aj-sub" style="margin-top:12px">Esto prueba que la tirada no se tocó entre ' +
+      'que se decidió y que la viste, y deja cualquier ronda reproducible. ' +
+      '<strong>No prueba que la casa no pueda hacer trampa</strong>: el casino corre entero ' +
+      'en tu máquina, así que la semilla "secreta" está en tu navegador. Lo que cubre eso ' +
+      'es que el código es público. Está explicado en <code>src/core/justo.js</code>.</p>'
+    );
+  }
+
+  function escapar(t) {
+    return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
   function bloque(titulo, sub, contenido) {
     return '<section class="aj-bloque">' +
       '<h3>' + titulo + '</h3>' +
@@ -244,6 +311,31 @@ window.MCAjustes = (function () {
   }
 
   function enganchar() {
+    var semilla = document.getElementById('ajSemilla');
+    if (semilla) semilla.onchange = function () {
+      // Cambiar la semilla cierra la tanda: las rondas viejas se
+      // quedarían sin forma de recalcularse si se cambiara en caliente.
+      MC.justo.ponerSemillaCliente(semilla.value).then(function () {
+        MC.sound.click();
+        MC.toast('Semilla cambiada. Tanda anterior revelada.', 'info');
+        render();
+      });
+    };
+
+    var revelar = document.getElementById('ajRevelar');
+    if (revelar) revelar.onclick = function () {
+      var j = MC.justo.estado();
+      if (!j.nonce) {
+        MC.toast('Todavía no jugaste ninguna ronda en esta tanda.', 'info');
+        return;
+      }
+      MC.justo.revelar().then(function () {
+        MC.sound.click();
+        MC.toast('Tanda revelada: ya podés verificarla', 'win');
+        render();
+      });
+    };
+
     var tema = document.getElementById('ajTema');
     if (tema) tema.onchange = function () {
       MCTema.poner(tema.value);
