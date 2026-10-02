@@ -291,10 +291,47 @@ window.MCAgente = (function () {
 
   /* ---------------- dibujo ---------------- */
   var pestana = 'stats';
+  var busqueda = '';
+  var estadoPedido = 'todos';
+  var tipoMovimiento = 'todos';
+
+  function coincide(nombre, uid) {
+    function normalizar(t) {
+      return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    }
+    var texto = normalizar(busqueda).trim();
+    return !texto || normalizar(nombre + ' ' + (uid || '')).indexOf(texto) !== -1;
+  }
+
+  function enPeriodo(at) {
+    var ms = limitesMs();
+    return !ms.desde || (at >= ms.desde && at <= ms.hasta);
+  }
+
+  function filtros(opciones, valor, label) {
+    return '<div class="ag-filtros">' +
+      '<label class="ag-busqueda"><span>Jugador</span>' +
+        '<input type="search" id="agBusqueda" class="filter-input" placeholder="Nombre o identificador" ' +
+          'value="' + escapar(busqueda) + '" autocomplete="off"></label>' +
+      (opciones ? '<label class="ag-selector"><span>' + label + '</span>' +
+        '<select id="agFiltro" class="filter-input">' + opciones.map(function (o) {
+          return '<option value="' + o[0] + '"' + (valor === o[0] ? ' selected' : '') + '>' + o[1] + '</option>';
+        }).join('') + '</select></label>' : '') + '</div>';
+  }
+
+  function resumenLista(cantidad, etiqueta, monto) {
+    if (cantidad === 1) etiqueta = { jugadores: 'jugador', cargas: 'carga', movimientos: 'movimiento', pedidos: 'pedido' }[etiqueta] || etiqueta;
+    return '<div class="ag-resultados" role="status">' + cantidad + ' ' + etiqueta +
+      (monto === undefined ? '' : ' &middot; ' + MC.fmt(monto) + ' fichas') + '</div>';
+  }
 
   function render() {
     var cont = document.getElementById('agenteBody');
     if (!cont) return;
+    var campo = document.activeElement;
+    var buscar = campo && campo.id === 'agBusqueda';
+    var inicio = buscar ? campo.selectionStart : null;
+    var fin = buscar ? campo.selectionEnd : null;
     if (MCPeticiones.usaNube() && ['stats', 'jugadores'].indexOf(pestana) !== -1) pestana = 'pedidos';
     var m = metricas();
 
@@ -308,6 +345,13 @@ window.MCAgente = (function () {
       nota();
 
     enganchar();
+    if (buscar) {
+      var nuevo = document.getElementById('agBusqueda');
+      if (nuevo) {
+        nuevo.focus({ preventScroll: true });
+        if (inicio !== null) nuevo.setSelectionRange(inicio, fin);
+      }
+    }
   }
 
   function barra() {
@@ -482,18 +526,18 @@ window.MCAgente = (function () {
 
   /* ---------------- pestana: jugadores ---------------- */
   function vistaJugadores(m) {
-    var filas = m.filas.slice().sort(function (a, b) {
+    var filas = m.filas.filter(function (f) { return coincide(f.u.name, f.u.uid); }).sort(function (a, b) {
       return b.per.apostado - a.per.apostado;
     });
 
-    return '<div class="ag-tabla">' +
+    return filtros() + resumenLista(filas.length, 'jugadores') + '<div class="ag-tabla">' +
       '<div class="ag-row ag-head">' +
         '<span>Jugador</span><span>Saldo</span><span>Apostado</span>' +
         '<span>Netwin</span><span>Movimientos</span>' +
       '</div>' +
       (filas.length
         ? filas.map(filaJugador).join('')
-        : '<div class="ag-vacio">No hay jugadores todavia.</div>') +
+        : '<div class="ag-vacio">' + (m.filas.length ? 'No hay jugadores que coincidan con la busqueda.' : 'No hay jugadores todavia.') + '</div>') +
     '</div>';
   }
 
@@ -524,20 +568,30 @@ window.MCAgente = (function () {
 
   /* ---------------- pestana: movimientos ---------------- */
   function vistaMovimientos() {
+    var controles = filtros(MCPeticiones.usaNube() ? null : [
+      ['todos', 'Todos'], ['cargas', 'Cargas'], ['descuentos', 'Descuentos']
+    ], tipoMovimiento, 'Movimiento');
     if (MCPeticiones.usaNube()) {
-      var online = MCPeticiones.todas(40).filter(function (p) { return p.estado === 'aceptada'; });
-      return '<div class="ag-pedidos">' + (online.length ? online.map(pedido).join('')
-        : '<div class="ag-vacio">Todavia no acreditaste fichas online.</div>') + '</div>';
+      var online = MCPeticiones.todas(Number.MAX_SAFE_INTEGER).filter(function (p) {
+        return p.estado === 'aceptada' && coincide(p.nombre, p.uid) && enPeriodo(p.resueltaAt || p.at);
+      }).sort(function (a, b) { return (b.resueltaAt || b.at) - (a.resueltaAt || a.at); });
+      return controles + resumenLista(online.length, 'cargas', online.reduce(function (n, p) { return n + p.monto; }, 0)) +
+        '<div class="ag-pedidos">' + (online.length ? online.map(pedido).join('')
+        : '<div class="ag-vacio">No hay cargas para estos filtros.</div>') + '</div>' + limiteHistorial();
     }
     var ms = limitesMs();
-    var lista = MCCaja.enRango(ms.desde, ms.hasta);
+    var lista = MCCaja.enRango(ms.desde, ms.hasta).filter(function (mv) {
+      return coincide(mv.nombre, mv.uid) && (tipoMovimiento === 'todos' ||
+        (tipoMovimiento === 'cargas' ? mv.delta > 0 : mv.delta < 0));
+    });
+    controles += resumenLista(lista.length, 'movimientos', lista.reduce(function (n, mv) { return n + mv.delta; }, 0));
 
     if (!lista.length) {
-      return '<div class="ag-tabla"><div class="ag-vacio">' +
-        'No cargaste ni descontaste fichas en este periodo.</div></div>';
+      return controles + '<div class="ag-tabla"><div class="ag-vacio">' +
+        'No hay movimientos para estos filtros.</div></div>';
     }
 
-    return '<div class="ag-tabla">' +
+    return controles + '<div class="ag-tabla">' +
       '<div class="ag-row ag-head ag-row-mov">' +
         '<span>Cuando</span><span>Jugador</span><span>Movimiento</span><span>Saldo despues</span>' +
       '</div>' +
@@ -557,16 +611,24 @@ window.MCAgente = (function () {
 
   /* ---------------- pestana: pedidos ---------------- */
   function vistaPedidos() {
-    var lista = MCPeticiones.todas(40);
-    if (!lista.length) {
-      return '<div class="ag-tabla"><div class="ag-vacio">' +
-        'Ningun jugador pidio fichas todavia. Pueden hacerlo desde el Cajero.' +
-        '</div></div>';
-    }
+    var lista = MCPeticiones.todas(Number.MAX_SAFE_INTEGER).filter(function (p) {
+      return coincide(p.nombre, p.uid) && (estadoPedido === 'todos' || p.estado === estadoPedido) &&
+        (p.estado === 'pendiente' || enPeriodo(p.resueltaAt || p.at));
+    }).sort(function (a, b) {
+      if ((a.estado === 'pendiente') !== (b.estado === 'pendiente')) return a.estado === 'pendiente' ? -1 : 1;
+      return a.estado === 'pendiente' ? a.at - b.at : (b.resueltaAt || b.at) - (a.resueltaAt || a.at);
+    });
+    return filtros([
+      ['todos', 'Todos'], ['pendiente', 'Pendientes'], ['aceptada', 'Aceptados'],
+      ['rechazada', 'Rechazados'], ['cancelada', 'Cancelados']
+    ], estadoPedido, 'Estado') + resumenLista(lista.length, 'pedidos', lista.reduce(function (n, p) { return n + p.monto; }, 0)) +
+      (estadoPedido === 'todos' || estadoPedido === 'pendiente' ? '<div class="ag-resultados">Pendientes de cualquier fecha</div>' : '') +
+      '<div class="ag-pedidos">' + (lista.length ? lista.map(pedido).join('') :
+        '<div class="ag-vacio">No hay pedidos para estos filtros.</div>') + '</div>' + limiteHistorial();
+  }
 
-    return '<div class="ag-pedidos">' +
-      lista.map(pedido).join('') +
-    '</div>';
+  function limiteHistorial() {
+    return MCPeticiones.usaNube() ? '<div class="ag-resultados">Historial online: ultimos 40 pedidos y todos los pendientes.</div>' : '';
   }
 
   function pedido(p) {
@@ -646,6 +708,14 @@ window.MCAgente = (function () {
   }
 
   function enganchar() {
+    var campo = document.getElementById('agBusqueda');
+    if (campo) campo.oninput = function () { busqueda = campo.value; render(); };
+    var filtro = document.getElementById('agFiltro');
+    if (filtro) filtro.onchange = function () {
+      if (pestana === 'pedidos') estadoPedido = filtro.value;
+      else tipoMovimiento = filtro.value;
+      render();
+    };
     var reconectar = document.getElementById('agReconectar');
     if (reconectar) reconectar.onclick = function () { MCPeticiones.nube().iniciar(); };
     document.querySelectorAll('.ag-tab').forEach(function (b) {
