@@ -241,8 +241,31 @@ window.MCCasa = (function () {
      Se muestra siempre y no sólo cuando falla una escritura: si
      apareciera recién en el error, habría que equivocarse una vez
      para enterarse de cómo se arregla. */
+  /* ============================================================
+     QUIÉN PUEDE PUBLICAR
+
+     Acá hay una trampa que ya hizo perder un rato: en el casino
+     conviven DOS tipos de id, y se parecen lo suficiente como para
+     confundirlos.
+
+       perfil local    'u' + fecha en base36 + 5 al azar, 14 letras
+                       todas minúsculas. Lo inventa auth.js para que
+                       un invitado tenga dónde guardar su progreso.
+                       No lo conoce nadie fuera de este navegador.
+
+       Firebase Auth   28 caracteres con mayúsculas y minúsculas.
+                       Existe SÓLO después de entrar con Google, y es
+                       el único que Firestore compara contra
+                       request.auth.uid.
+
+     Mostrar el local acá era peor que no mostrar nada: se ve
+     oficial, se pega en las reglas, y publicar sigue fallando con
+     permission-denied sin ninguna pista de por qué. Por eso el uid
+     se muestra sólo cuando de verdad es el de Firebase.
+     ============================================================ */
   function bloqueUid() {
     var u = MC.auth && MC.auth.current ? MC.auth.current() : null;
+    var deFirebase = u && u.uid && u.provider === 'google';
     var puede = MC.rtp.nubeDisponible && MC.rtp.nubeDisponible();
 
     return '<div class="casa-afuera">' +
@@ -250,13 +273,21 @@ window.MCCasa = (function () {
       '<p>Publicar escribe el documento <code>casa/retorno</code> en Firestore, y eso ' +
       'lo permite sólo la lista de <code>firestore.rules</code>. Arranca vacía: hasta ' +
       'que no pongas tu uid, nadie puede mover el retorno del casino.</p>' +
-      (u && u.uid
-        ? '<p>Tu uid es:</p><pre class="casa-codigo">' + escapar(u.uid) + '</pre>' +
+      (deFirebase
+        ? '<p>Tu uid de Firebase es:</p>' +
+          '<pre class="casa-codigo">' + escapar(u.uid) + '</pre>' +
           '<p style="font-size:12px;color:var(--txt-dim)">Pegalo en ' +
           '<code>request.auth.uid in [...]</code> y publicá las reglas desde la ' +
           'consola de Firebase.</p>'
-        : '<p style="color:var(--gold)">Entrá con Google para tener un uid: sin cuenta ' +
-          'no hay a quién habilitar.</p>') +
+        : '<p style="color:var(--gold)"><strong>Entrá con Google para tener un uid.</strong></p>' +
+          '<p style="font-size:12px;color:var(--txt-dim)">' +
+          (u && u.uid
+            ? 'El id que tenés ahora (<code>' + escapar(u.uid) + '</code>) es el de tu ' +
+              'perfil de invitado: lo inventó este navegador y Firestore no lo conoce. ' +
+              'Pegarlo en las reglas no habilita nada. '
+            : '') +
+          'El uid que sirve son 28 caracteres con mayúsculas, y aparece recién cuando ' +
+          'la cuenta es de Google.</p>') +
       (puede ? '' :
         '<p style="color:var(--gold)">Ahora mismo no hay conexión con Firestore, así ' +
         'que publicar te va a devolver el bloque de código para pegar a mano.</p>') +
@@ -440,9 +471,14 @@ window.MCCasa = (function () {
     if (btn) btn.onclick = function () { copiar(texto); };
   }
 
+  /* Sólo el de Firebase. Devolver el del perfil local sería dar el
+     id equivocado justo en el momento en que alguien lo va a pegar
+     en las reglas. Ver el comentario de bloqueUid. */
   function uid() {
     var u = MC.auth && MC.auth.current ? MC.auth.current() : null;
-    return (u && u.uid) ? u.uid : '(entrá con Google para tener uid)';
+    return (u && u.uid && u.provider === 'google')
+      ? u.uid
+      : '(entrá con Google: el id de invitado no sirve acá)';
   }
 
   function escapar(t) {
