@@ -56,6 +56,7 @@ window.MCCajero = (function () {
 
       // ---- pedirle fichas al agente ----
       bloquePedido() +
+      historialPedidos() +
 
       /* EL SALDO NO ES UNA TARJETA.
          Era un bloque entero para un numero que ya esta arriba a la derecha
@@ -189,6 +190,8 @@ window.MCCajero = (function () {
   }
 
   function enganchar() {
+    var reconectar = document.getElementById('cjReconectar');
+    if (reconectar) reconectar.onclick = function () { MCPeticiones.nube().iniciar(); };
     MCBienvenida.enganchar(pintar);
     var claim = document.getElementById('cjClaim');
     if (claim) claim.onclick = function () {
@@ -198,9 +201,13 @@ window.MCCajero = (function () {
     var pedir = document.getElementById('cjPedir');
     if (pedir) pedir.onclick = abrirPedido;
     var canc = document.getElementById('cjCancelar');
-    if (canc) canc.onclick = function () {
+    if (canc) canc.onclick = async function () {
       var p = MCPeticiones.miPendiente();
-      if (p && MCPeticiones.cancelar(p.id)) { MC.toast('Pedido cancelado', 'info'); pintar(); }
+      canc.disabled = true;
+      try {
+        if (p && await MCPeticiones.cancelar(p.id)) { MC.toast('Pedido cancelado', 'info'); pintar(); }
+      } catch (e) { MC.toast(e.message, 'lose'); }
+      finally { canc.disabled = false; }
     };
 
     var mis = document.getElementById('cjMissions');
@@ -220,11 +227,22 @@ window.MCCajero = (function () {
      pedir es una promesa vacia.
      ============================================================ */
   function hayAgente() {
-    return MC.auth.all().some(MCRoles.esAgente);
+    return MCPeticiones.usaNube() || MC.auth.all().some(MCRoles.esAgente);
   }
 
   function bloquePedido() {
     if (!hayAgente() || MCRoles.activoEsAgente()) return '';
+
+    if (MCPeticiones.usaNube()) {
+      var remoto = MCPeticiones.nube();
+      if (!remoto || remoto.estado() !== 'ok') {
+        var fallo = remoto && remoto.estado() === 'error';
+        return '<div class="cj-pedido"><div><strong>' +
+          (fallo ? 'Pedidos sin conexion' : 'Conectando pedidos') + '</strong><span>' +
+          (fallo ? 'No se pudo conectar con el agente. Intenta nuevamente.' : 'Esperando la conexion con tu cuenta.') +
+          '</span></div>' + (fallo ? '<button class="btn btn-ghost" id="cjReconectar">Reintentar</button>' : '') + '</div>';
+      }
+    }
 
     var pend = MCPeticiones.miPendiente();
     if (pend) {
@@ -274,8 +292,9 @@ window.MCCajero = (function () {
       '<label class="auth-label">Nota para el agente (opcional)</label>' +
       '<input type="text" id="cjNota" class="filter-input" maxlength="80" ' +
         'placeholder="Para el finde">' +
-      '<p class="auth-legal">El agente es una cuenta de este mismo dispositivo. ' +
-      'Sin servidor no hay forma de pedirle nada a alguien que este en otro telefono.</p>',
+      '<p class="auth-legal">' + (MCPeticiones.usaNube()
+        ? 'El pedido llega al agente aunque use otro dispositivo. Las fichas son virtuales.'
+        : 'El pedido lo recibe una cuenta de agente de este mismo navegador.') + '</p>',
       [
         { label: 'Cancelar' },
         { label: 'Pedir', kind: 'primary', onClick: function () {
@@ -297,8 +316,22 @@ window.MCCajero = (function () {
     });
   }
 
-  function enviar(monto, nota) {
-    var r = MCPeticiones.pedir(monto, nota);
+  function historialPedidos() {
+    var lista = MCPeticiones.mios(10);
+    if (!lista.length) return '';
+    var estados = { pendiente: 'Esperando', aceptada: 'Aceptada', rechazada: 'Rechazada', cancelada: 'Cancelada' };
+    return '<div class="cj-table" aria-label="Tus ultimos pedidos">' +
+      '<div class="cj-row cj-head"><span>Ultimos pedidos</span><span>Fichas</span><span>Fecha</span><span>Estado</span></div>' +
+      lista.map(function (p) {
+        return '<div class="cj-row"><span class="cj-name">Pedido de fichas</span><span class="cj-mono">' +
+          MC.fmt(p.monto) + '</span><span class="cj-when">' + new Date(p.at).toLocaleString('es-AR') +
+          '</span><span class="cj-state' + (p.estado === 'aceptada' ? ' on' : '') + '">' +
+          (estados[p.estado] || 'Esperando') + '</span></div>';
+      }).join('') + '</div>';
+  }
+
+  async function enviar(monto, nota) {
+    var r = await MCPeticiones.pedir(monto, nota);
     if (r.error) { MC.toast(r.error, 'lose'); return; }
     MC.sound.click();
     MC.toast('Pedido enviado al agente', 'win');

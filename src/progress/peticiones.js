@@ -17,10 +17,9 @@
    agente no la vería, y al revés. Así que van en su propia clave,
    compartida por todos los perfiles de este navegador.
 
-   Es el mismo alcance que todo lo demás: este dispositivo. Un
-   jugador en otro teléfono no le puede pedir nada a este agente, y
-   no hay forma de que pueda sin un servidor en el medio. Se dice
-   en pantalla en vez de dar a entender otra cosa.
+   Los perfiles locales usan esa clave. Las cuentas de Google usan
+   peticiones-nube.js: pedidos e historial compartidos en Firestore.
+   Un error de conexion nunca convierte un pedido online en uno local.
 
    ---------------------------------------------------------------
    POR QUÉ LAS RESUELTAS NO SE BORRAN
@@ -38,8 +37,17 @@ window.MCPeticiones = (function () {
   var MAX = 120;
   var MIN = 100;
   var MAXIMO = 500000;
+  var proveedorNube = null;
+
+  function usaNube() {
+    var u = MC.auth.current();
+    return !!(u && u.uid.indexOf('google:') === 0);
+  }
+  function nube() { return usaNube() ? proveedorNube : null; }
+  function noConectado() { return Promise.resolve({ error: 'Los pedidos todavia no estan conectados. Intenta de nuevo en unos segundos.' }); }
 
   function leer() {
+    if (usaNube()) return proveedorNube && proveedorNube.disponible() ? proveedorNube.todas(Number.MAX_SAFE_INTEGER) : [];
     try {
       var raw = localStorage.getItem(CLAVE);
       var l = raw ? JSON.parse(raw) : [];
@@ -48,7 +56,14 @@ window.MCPeticiones = (function () {
   }
 
   function escribir(l) {
-    try { localStorage.setItem(CLAVE, JSON.stringify(l.slice(0, MAX))); } catch (e) {}
+    var pendientes = l.filter(function (p) { return p.estado === 'pendiente'; });
+    var resueltas = l.filter(function (p) { return p.estado !== 'pendiente'; });
+    var conservar = pendientes.concat(resueltas.slice(0, Math.max(0, MAX - pendientes.length)));
+    conservar.sort(function (a, b) { return b.at - a.at; });
+    try {
+      localStorage.setItem(CLAVE, JSON.stringify(conservar));
+      return true;
+    } catch (e) { return false; }
   }
 
   function id() {
@@ -63,7 +78,7 @@ window.MCPeticiones = (function () {
     if (!u) return null;
     var l = leer();
     for (var i = 0; i < l.length; i++) {
-      if (l[i].uid === u.uid && l[i].estado === 'pendiente') return l[i];
+      if ((l[i].uid === u.uid || 'google:' + l[i].uid === u.uid) && l[i].estado === 'pendiente') return l[i];
     }
     return null;
   }
@@ -72,7 +87,7 @@ window.MCPeticiones = (function () {
   function mios(tope) {
     var u = MC.auth.current();
     if (!u) return [];
-    return leer().filter(function (p) { return p.uid === u.uid; }).slice(0, tope || 10);
+    return leer().filter(function (p) { return p.uid === u.uid || 'google:' + p.uid === u.uid; }).slice(0, tope || 10);
   }
 
   /**
@@ -83,11 +98,16 @@ window.MCPeticiones = (function () {
    * querer decir algo.
    */
   function pedir(monto, nota) {
+    if (usaNube()) {
+      if (!proveedorNube) return noConectado();
+      return proveedorNube.pedir(monto, nota).catch(function (e) { return { error: e.message }; });
+    }
     var u = MC.auth.current();
     if (!u) return { error: 'No hay una cuenta activa.' };
     if (MCRoles.esAgente(u)) return { error: 'Un agente no se pide fichas a sí mismo.' };
 
     monto = Math.floor(Number(monto) || 0);
+    if (!Number.isSafeInteger(monto)) return { error: 'Ingresa un monto valido.' };
     if (monto < MIN) return { error: 'El mínimo es ' + MC.fmt(MIN) + ' fichas.' };
     if (monto > MAXIMO) return { error: 'El máximo por pedido es ' + MC.fmt(MAXIMO) + '.' };
     if (miPendiente()) return { error: 'Ya tenés un pedido esperando respuesta.' };
@@ -99,21 +119,25 @@ window.MCPeticiones = (function () {
       monto: monto, nota: String(nota || '').slice(0, 80),
       estado: 'pendiente'
     });
-    escribir(l);
+    if (!escribir(l)) return { error: 'No se pudo guardar el pedido. Intenta de nuevo.' };
     return { ok: true };
   }
 
   /** El jugador se arrepiente antes de que le contesten. */
   function cancelar(pid) {
+    if (usaNube()) {
+      if (!proveedorNube) return Promise.reject(new Error('Los pedidos todavia no estan conectados.'));
+      return proveedorNube.resolver(pid, 'cancelada');
+    }
     var u = MC.auth.current();
+    if (!u) return false;
     var l = leer(), toco = false;
     l.forEach(function (p) {
       if (p.id === pid && p.uid === u.uid && p.estado === 'pendiente') {
         p.estado = 'cancelada'; p.resueltaAt = Date.now(); toco = true;
       }
     });
-    if (toco) escribir(l);
-    return toco;
+    return toco && escribir(l);
   }
 
   /* ---------------- del lado del agente ---------------- */
@@ -126,6 +150,11 @@ window.MCPeticiones = (function () {
 
   /** Marca una petición. El movimiento de fichas lo hace el panel. */
   function resolver(pid, estado, motivo) {
+    if (usaNube()) {
+      if (!proveedorNube) return Promise.reject(new Error('Los pedidos todavia no estan conectados.'));
+      return proveedorNube.resolver(pid, estado);
+    }
+    if (!MCRoles.activoEsAgente() || ['aceptada', 'rechazada'].indexOf(estado) === -1) return null;
     var l = leer(), encontrada = null;
     l.forEach(function (p) {
       if (p.id === pid && p.estado === 'pendiente') {
@@ -135,13 +164,13 @@ window.MCPeticiones = (function () {
         encontrada = p;
       }
     });
-    if (encontrada) escribir(l);
-    return encontrada;
+    return encontrada && escribir(l) ? encontrada : null;
   }
 
   return {
     pedir: pedir, cancelar: cancelar, miPendiente: miPendiente, mios: mios,
     pendientes: pendientes, todas: todas, resolver: resolver,
-    MIN: MIN, MAXIMO: MAXIMO
+    MIN: MIN, MAXIMO: MAXIMO,
+    usaNube: usaNube, nube: nube, attachNube: function (p) { proveedorNube = p; }
   };
 })();

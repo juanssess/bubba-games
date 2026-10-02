@@ -27,6 +27,85 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function agente() {
+      return request.auth != null && request.auth.uid in ['ZlnbdcBiASbUoEy5vheJBHTIDFg1'];
+    }
+    function pedidoValido(p) {
+      return p.keys().hasOnly(['id', 'at', 'uid', 'nombre', 'monto', 'nota', 'estado', 'agente'])
+        && p.id is string && p.id.size() > 0 && p.id.size() <= 40
+        && p.uid == request.auth.uid && p.uid != p.agente
+        && p.agente == 'ZlnbdcBiASbUoEy5vheJBHTIDFg1'
+        && p.nombre is string && p.nombre.size() <= 80
+        && p.nota is string && p.nota.size() <= 80
+        && p.at is int && p.monto is int && p.monto >= 100 && p.monto <= 500000
+        && p.estado == 'pendiente';
+    }
+    function totalAnterior(uid) {
+      return exists(/databases/$(database)/documents/fichasRecibidas/$(uid))
+        ? get(/databases/$(database)/documents/fichasRecibidas/$(uid)).data.total : 0;
+    }
+    function transferencia(p) {
+      let antes = get(/databases/$(database)/documents/cajasAgentes/$(p.agente)).data;
+      let despues = getAfter(/databases/$(database)/documents/cajasAgentes/$(p.agente)).data;
+      let fichas = getAfter(/databases/$(database)/documents/fichasRecibidas/$(p.uid)).data;
+      return antes.saldo >= p.monto
+        && despues.ultimoPedido == p.id && fichas.ultimoPedido == p.id
+        && despues.saldo == antes.saldo - p.monto
+        && despues.entregado == antes.entregado + p.monto
+        && fichas.total == totalAnterior(p.uid) + p.monto;
+    }
+    function resuelve(antes, despues) {
+      return antes.estado == 'pendiente'
+        && despues.diff(antes).affectedKeys().hasOnly(['estado', 'resueltaAt'])
+        && despues.resueltaAt is int
+        && ((request.auth.uid == antes.uid && despues.estado == 'cancelada')
+          || (agente() && request.auth.uid == antes.agente
+            && despues.estado in ['rechazada', 'aceptada']));
+    }
+
+    // Un documento por jugador asegura un unico pedido pendiente entre dispositivos.
+    match /pedidosNube/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || agente());
+      allow create: if request.auth != null && pedidoValido(request.resource.data)
+        && uid == request.auth.uid
+        && getAfter(/databases/$(database)/documents/historialPedidos/$(request.resource.data.id)).data == request.resource.data;
+      allow update: if request.auth != null
+        && getAfter(/databases/$(database)/documents/historialPedidos/$(request.resource.data.id)).data == request.resource.data
+        && (resuelve(resource.data, request.resource.data)
+          || (uid == request.auth.uid && resource.data.estado != 'pendiente'
+            && request.resource.data.id != resource.data.id && pedidoValido(request.resource.data)));
+    }
+    match /historialPedidos/{id} {
+      allow read: if request.auth != null
+        && (resource.data.uid == request.auth.uid || (agente() && resource.data.agente == request.auth.uid));
+      allow create: if request.auth != null && pedidoValido(request.resource.data)
+        && id == request.resource.data.id
+        && getAfter(/databases/$(database)/documents/pedidosNube/$(request.auth.uid)).data == request.resource.data;
+      allow update: if request.auth != null && resuelve(resource.data, request.resource.data)
+        && (request.resource.data.estado != 'aceptada' || transferencia(resource.data))
+        && getAfter(/databases/$(database)/documents/pedidosNube/$(resource.data.uid)).data == request.resource.data;
+    }
+    match /cajasAgentes/{uid} {
+      allow read: if agente() && request.auth.uid == uid;
+      allow create: if agente() && request.auth.uid == uid
+        && request.resource.data == { 'saldo': 500000, 'entregado': 0, 'ultimoPedido': '' };
+      allow update: if agente() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['saldo', 'entregado', 'ultimoPedido'])
+        && request.resource.data.saldo is int && request.resource.data.saldo >= 0
+        && request.resource.data.entregado is int
+        && get(/databases/$(database)/documents/historialPedidos/$(request.resource.data.ultimoPedido)).data.estado == 'pendiente'
+        && getAfter(/databases/$(database)/documents/historialPedidos/$(request.resource.data.ultimoPedido)).data.estado == 'aceptada'
+        && getAfter(/databases/$(database)/documents/historialPedidos/$(request.resource.data.ultimoPedido)).data.agente == uid;
+    }
+    match /fichasRecibidas/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || agente());
+      allow create, update: if agente()
+        && request.resource.data.keys().hasOnly(['total', 'ultimoPedido'])
+        && request.resource.data.total is int && request.resource.data.total >= 0
+        && get(/databases/$(database)/documents/historialPedidos/$(request.resource.data.ultimoPedido)).data.estado == 'pendiente'
+        && getAfter(/databases/$(database)/documents/historialPedidos/$(request.resource.data.ultimoPedido)).data.estado == 'aceptada'
+        && getAfter(/databases/$(database)/documents/historialPedidos/$(request.resource.data.ultimoPedido)).data.uid == uid;
+    }
 
     // El progreso de cada jugador: privado.
     match /players/{uid} {

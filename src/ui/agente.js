@@ -71,15 +71,37 @@ window.MCAgente = (function () {
   /**
    * Carga o descuenta fichas. `delta` positivo carga, negativo descuenta.
    *
-   * Si el jugador es el activo se toca MC.state y se guarda por la vía
-   * normal, para que la pantalla y la sincronía se enteren. Si es otro, se
-   * escribe directo su almacenamiento.
+   * Guarda el jugador y la caja del agente antes de anunciar el resultado.
    */
-  function mover(uid, delta) {
+  function mover(uid, delta, pedidoId) {
+    if (MCPeticiones.usaNube()) {
+      MC.toast('Las cargas online se hacen desde los pedidos del jugador.', 'info');
+      return false;
+    }
+    if (!MCRoles.activoEsAgente()) return false;
+    if (!Number.isSafeInteger(delta) || !delta) return false;
+    if (pedidoId && MCCaja.movimientos().some(function (m) { return m.pedidoId === pedidoId; })) {
+      return true;
+    }
     var users = MC.auth.all();
     var u = null;
     users.forEach(function (x) { if (x.uid === uid) u = x; });
-    if (!u) return;
+    if (!u || MCRoles.esAgente(u)) {
+      MC.toast('El jugador ya no esta disponible.', 'lose');
+      return false;
+    }
+
+    var anterior = MC.auth.leerEstado(uid);
+    var st = JSON.parse(JSON.stringify(anterior || { balance: MC.STARTING_CHIPS }));
+    var saldo = st.balance;
+    if (!Number.isSafeInteger(saldo) || saldo < 0 || !Number.isSafeInteger(saldo + delta)) {
+      MC.toast('No se pudo validar el saldo del jugador.', 'lose');
+      return false;
+    }
+    if (saldo + delta < 0) {
+      MC.toast('El jugador solo tiene ' + MC.fmt(saldo) + ' fichas.', 'lose');
+      return false;
+    }
 
     /* La caja manda. Cargar SALE de la caja del agente y descontar
        vuelve a ella. Antes esto creaba fichas de la nada: alcanzaba para
@@ -91,27 +113,40 @@ window.MCAgente = (function () {
         '<p>Podes descontarle fichas a un jugador —vuelven a tu caja— o cobrar la ' +
         'comision que tengas disponible.</p>',
         [{ label: 'Entendido', kind: 'primary' }]);
-      return;
-    }
-    if (!MCCajaAgente.mover(delta)) return;
-
-    if (uid === MC.auth.current().uid) {
-      var nuevo = Math.max(0, MC.getBalance() + delta);
-      MC.addBalance(nuevo - MC.getBalance());
-    } else {
-      var st = MC.auth.leerEstado(uid);
-      if (!st) {
-        // Perfil que nunca jugó: se le arma un estado mínimo para poder
-        // acreditarle algo. El resto lo completa state.js al abrirlo.
-        st = { balance: MC.STARTING_CHIPS };
-      }
-      st.balance = Math.max(0, (st.balance || 0) + delta);
-      MC.auth.escribirEstado(uid, st);
+      return false;
     }
 
-    // Al libro del agente, antes del aviso: si algo falla, que falle
-    // sin haberle dicho al agente que ya esta hecho.
-    MCCaja.registrar(uid, u.name, delta, saldoDe(u));
+    MCCajaAgente.datos();
+    var agente = JSON.parse(JSON.stringify(MC.state));
+    var caja = agente.cajaAgente;
+    if (!Number.isSafeInteger(caja.saldo) || caja.saldo < 0 ||
+        !Number.isSafeInteger(caja.saldo - delta) || !Number.isSafeInteger(caja.entregado + delta)) {
+      MC.toast('No se pudo validar la caja del agente.', 'lose');
+      return false;
+    }
+    caja.saldo -= delta;
+    caja.entregado += delta;
+    st.balance = saldo + delta;
+    if (!Array.isArray(agente.caja)) agente.caja = [];
+    var asiento = { at: Date.now(), uid: uid, nombre: u.name, delta: delta, saldo: st.balance };
+    if (pedidoId) asiento.pedidoId = pedidoId;
+    agente.caja.unshift(asiento);
+    agente.caja = agente.caja.slice(0, MCCaja.MAX);
+
+    if (!MC.auth.escribirEstado(uid, st)) {
+      MC.toast('No se pudieron guardar las fichas. Intenta de nuevo.', 'lose');
+      return false;
+    }
+    // Si falla el segundo guardado, se repone el saldo anterior.
+    if (!MC.auth.escribirEstado(MC.auth.current().uid, agente)) {
+      var repuesto = MC.auth.escribirEstado(uid, anterior || { balance: saldo });
+      MC.toast(repuesto ? 'No se pudo guardar la caja. El movimiento se cancelo.'
+        : 'Fallo el guardado. Revisa los saldos antes de volver a cargar.', 'lose');
+      return false;
+    }
+    MC.state.cajaAgente = caja;
+    MC.state.caja = agente.caja;
+    MC.save();
 
     MC.sound[delta >= 0 ? 'win' : 'click']();
     MC.toast(
@@ -120,6 +155,7 @@ window.MCAgente = (function () {
       delta >= 0 ? 'win' : 'info'
     );
     render();
+    return true;
   }
 
   function pedirMonto(uid, signo) {
@@ -259,10 +295,12 @@ window.MCAgente = (function () {
   function render() {
     var cont = document.getElementById('agenteBody');
     if (!cont) return;
+    if (MCPeticiones.usaNube() && ['stats', 'jugadores'].indexOf(pestana) !== -1) pestana = 'pedidos';
     var m = metricas();
 
     cont.innerHTML =
       barra() +
+      (MCPeticiones.usaNube() ? cajaBloque() : '') +
       (pestana === 'stats' ? vistaStats(m)
         : pestana === 'jugadores' ? vistaJugadores(m)
         : pestana === 'pedidos' ? vistaPedidos()
@@ -275,8 +313,7 @@ window.MCAgente = (function () {
   function barra() {
     return '<div class="ag-barra">' +
       '<div class="ag-tabs">' +
-        tab('stats', 'Mis estadisticas') +
-        tab('jugadores', 'Mis jugadores') +
+        (MCPeticiones.usaNube() ? '' : tab('stats', 'Mis estadisticas') + tab('jugadores', 'Mis jugadores')) +
         tab('movimientos', 'Movimientos') +
         tab('pedidos', 'Pedidos' + (MCPeticiones.pendientes().length
               ? '<i class="ag-pin">' + MCPeticiones.pendientes().length + '</i>' : '')) +
@@ -322,6 +359,17 @@ window.MCAgente = (function () {
      La comision se calcula siempre desde el total y se le resta lo ya
      cobrado, asi que la cuenta se puede rehacer desde cero y da igual. */
   function cajaBloque() {
+    if (MCPeticiones.usaNube()) {
+      var remoto = MCPeticiones.nube();
+      if (!remoto || !remoto.esAgente()) return '<div class="ag-note">Esta cuenta no esta autorizada para administrar pedidos online.</div>';
+      if (remoto.estado() !== 'ok') return '<div class="ag-note">' +
+        (remoto.estado() === 'error' ? 'No se pudieron conectar los pedidos. <button class="btn btn-ghost" id="agReconectar">Reintentar</button>'
+          : 'Conectando pedidos...') + '</div>';
+      return '<div class="ag-caja"><div class="ag-caja-num"><span>Tu caja online</span><strong>' +
+        MC.fmt(MCCajaAgente.saldo()) + '</strong><em>fichas disponibles</em></div>' +
+        '<div class="ag-caja-num"><span>Entregado a jugadores</span><strong>' +
+        MC.fmt(MCCajaAgente.entregado()) + '</strong><em>fichas acreditadas</em></div></div>';
+    }
     var disp = MCCajaAgente.comisionDisponible();
     var net = MCCajaAgente.netwinTotal();
     return '<div class="ag-caja">' +
@@ -476,6 +524,11 @@ window.MCAgente = (function () {
 
   /* ---------------- pestana: movimientos ---------------- */
   function vistaMovimientos() {
+    if (MCPeticiones.usaNube()) {
+      var online = MCPeticiones.todas(40).filter(function (p) { return p.estado === 'aceptada'; });
+      return '<div class="ag-pedidos">' + (online.length ? online.map(pedido).join('')
+        : '<div class="ag-vacio">Todavia no acreditaste fichas online.</div>') + '</div>';
+    }
     var ms = limitesMs();
     var lista = MCCaja.enRango(ms.desde, ms.hasta);
 
@@ -542,26 +595,28 @@ window.MCAgente = (function () {
     '</div>';
   }
 
-  /* Aceptar hace las tres cosas en orden: descuenta de la caja, acredita
-     al jugador y marca el pedido. Si la caja no alcanza no se marca nada,
-     asi el pedido queda esperando en vez de desaparecer sin fichas. */
-  function aceptar(pid, monto) {
-    if (!MCCajaAgente.alcanza(monto)) {
-      MC.modal('No te alcanza la caja',
-        '<p>Este pedido es de <strong>' + MC.fmt(monto) + '</strong> fichas y en tu caja ' +
-        'hay <strong>' + MC.fmt(MCCajaAgente.saldo()) + '</strong>.</p>' +
-        '<p>El pedido queda esperando: no se pierde.</p>',
-        [{ label: 'Entendido', kind: 'primary' }]);
-      return;
+  /* El pedido se marca despues de guardar ambos saldos y el asiento.
+     El id del pedido evita repetir la carga si falla el ultimo guardado. */
+  async function aceptar(pid) {
+    if (!MCRoles.activoEsAgente()) return;
+    if (MCPeticiones.usaNube()) {
+      try {
+        await MCPeticiones.resolver(pid, 'aceptada');
+        MC.toast('Pedido aceptado y fichas acreditadas', 'win');
+      } catch (e) { MC.toast(e.message, 'lose'); }
+      render(); return;
     }
-    var p = MCPeticiones.resolver(pid, 'aceptada');
-    if (!p) return;
-    mover(p.uid, p.monto);
+    var p = MCPeticiones.pendientes().filter(function (x) { return x.id === pid; })[0];
+    if (!p || !mover(p.uid, p.monto, p.id)) return;
+    if (!MCPeticiones.resolver(pid, 'aceptada')) {
+      MC.toast('Las fichas se cargaron. Reintenta aceptar para actualizar el pedido.', 'info');
+    }
     render();
   }
 
-  function rechazar(pid) {
-    if (!MCPeticiones.resolver(pid, 'rechazada')) return;
+  async function rechazar(pid) {
+    try { if (!await MCPeticiones.resolver(pid, 'rechazada')) return; }
+    catch (e) { MC.toast(e.message, 'lose'); return; }
     MC.sound.click();
     render();
   }
@@ -581,6 +636,7 @@ window.MCAgente = (function () {
   }
 
   function nota() {
+    if (MCPeticiones.usaNube()) return '<div class="ag-note">Pedidos compartidos entre dispositivos. Las fichas son virtuales y se guardan en la cuenta del jugador.</div>';
     return '<div class="ag-note">' +
       '<strong>Los jugadores son los perfiles de este dispositivo.</strong> ' +
       'Cargar o descontar fichas mueve un numero guardado en este navegador: ' +
@@ -590,6 +646,8 @@ window.MCAgente = (function () {
   }
 
   function enganchar() {
+    var reconectar = document.getElementById('agReconectar');
+    if (reconectar) reconectar.onclick = function () { MCPeticiones.nube().iniciar(); };
     document.querySelectorAll('.ag-tab').forEach(function (b) {
       b.onclick = function () { pestana = b.dataset.tab; MC.sound.click(); render(); };
     });
@@ -597,7 +655,7 @@ window.MCAgente = (function () {
       b.onclick = function () { periodo = b.dataset.per; MC.sound.click(); render(); };
     });
     document.querySelectorAll('.ag-si').forEach(function (b) {
-      b.onclick = function () { aceptar(b.dataset.p, Number(b.dataset.m)); };
+      b.onclick = function () { aceptar(b.dataset.p); };
     });
     document.querySelectorAll('.ag-no').forEach(function (b) {
       b.onclick = function () { rechazar(b.dataset.p); };

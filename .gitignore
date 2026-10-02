@@ -10,3 +10,13 @@ tools/.cache/
 backups/
 tmp/illustrated-provider/
 tmp/illustrated-cache/
+tmp/firebase-cli/
+tmp/firebase-cache/
+tmp/firebase-java*/
+tmp/firebase-java.zip
+tmp/firebase-emulators/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+tmp/requests-*.png
+tmp/rules-coverage.json

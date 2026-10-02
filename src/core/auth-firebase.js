@@ -114,14 +114,51 @@ let avisoDeFalla = false;
 let estadoNube = 'local';
 /** Ultimo codigo de error de Firestore, para poder diagnosticar de un vistazo. */
 let errorNube = '';
+let storeNube = null;
+let pedidosNube = null;
+let dejarFichas = null;
+
+function mismaCuenta(perfil, uid) {
+  return uidPerfil === perfil && uidNube === uid && MC.auth.current().uid === perfil;
+}
+
+function aplicarFichas(total, perfil, uid) {
+  if (!mismaCuenta(perfil, uid)) return;
+  const copia = JSON.parse(JSON.stringify(MC.state));
+  const delta = MCPeticionesNube.integrar(copia, total);
+  if (!delta) return;
+  // Persiste saldo y acumulado juntos antes de mostrar la acreditacion.
+  if (!MC.auth.escribirEstado(perfil, copia)) throw new Error('No se pudieron guardar las fichas recibidas.');
+  MC.state.balance = copia.balance;
+  MC.state.fichasNube = copia.fichasNube;
+  MC.state.at = copia.at;
+  MC.renderBalance(true);
+  MC.save();
+  MC.toast('Recibiste ' + MC.fmt(delta) + ' fichas del agente', 'win');
+}
+
+function escucharFichas() {
+  if (dejarFichas) dejarFichas();
+  const perfil = uidPerfil, uid = uidNube;
+  dejarFichas = storeNube.onSnapshot(storeNube.doc(db, 'fichasRecibidas', uid), snap => {
+    if (snap.metadata && snap.metadata.fromCache) return;
+    try { aplicarFichas(snap.exists() ? snap.data().total : 0, perfil, uid); }
+    catch (e) { MC.toast(e.message, 'lose'); }
+  }, e => {
+    if (mismaCuenta(perfil, uid)) MC.toast('No se pudieron conectar las acreditaciones del agente', 'lose');
+    console.warn('[bubba] acreditaciones:', e.code || e.message);
+  });
+}
 
 /* ---------------- sincronía con la nube ---------------- */
 
 async function bajarEstado(setDoc, getDoc, doc) {
-  const ref = doc(db, 'players', uidNube);
+  const perfil = uidPerfil, uid = uidNube;
+  const ref = doc(db, 'players', uid);
   let snap;
   try {
     snap = await getDoc(ref);
+    if (!mismaCuenta(perfil, uid)) return;
   } catch (e) {
     // Sin conexión o reglas mal puestas: se sigue jugando local.
     errorNube = e.code || e.message;
@@ -211,8 +248,10 @@ async function bajarEstado(setDoc, getDoc, doc) {
 
 async function subirEstado(setDoc, doc, ahora) {
   if (!db || !uidNube) return;
+  const perfil = uidPerfil, uid = uidNube;
   const guardar = async () => {
-    const raw = localStorage.getItem(MC.auth.claveEstado(uidPerfil));
+    if (!mismaCuenta(perfil, uid)) return;
+    const raw = localStorage.getItem(MC.auth.claveEstado(perfil));
     if (!raw) return;
     try {
       // updatedAt es la hora DEL ESTADO, no la de la subida: si fueran
@@ -235,10 +274,18 @@ async function subirEstado(setDoc, doc, ahora) {
         }
       } catch (e) {}
 
-      await setDoc(doc(db, 'players', uidNube), {
-        state: subir,
-        updatedAt: horaEstado
-      }, { merge: true });
+      // Una carga que llegue durante la subida hace reintentar la transaccion.
+      const total = await storeNube.runTransaction(db, async tx => {
+        const s = await tx.get(doc(db, 'fichasRecibidas', uid));
+        if (!mismaCuenta(perfil, uid)) throw new Error('La cuenta cambio durante el guardado.');
+        const total = s.exists() ? s.data().total : 0;
+        const st = JSON.parse(subir);
+        MCPeticionesNube.integrar(st, total);
+        tx.set(doc(db, 'players', uid), { state: JSON.stringify(st), updatedAt: horaEstado }, { merge: true });
+        return total;
+      });
+      if (!mismaCuenta(perfil, uid)) return;
+      aplicarFichas(total, perfil, uid);
 
       // La fila del ranking viaja con el mismo guardado: es un documento
       // aparte porque es PUBLICO, y en players/ no puede entrar nada que
@@ -246,7 +293,7 @@ async function subirEstado(setDoc, doc, ahora) {
       const fila = window.MCRanking && MCRanking.datosPropios();
       if (fila) {
         try {
-          await setDoc(doc(db, 'leaderboard', uidNube), fila, { merge: true });
+          await setDoc(doc(db, 'leaderboard', uid), fila, { merge: true });
         } catch (e) {
           // Que falle el ranking no puede romper el guardado del progreso.
           console.warn('[bubba] no se pudo publicar en el ranking:', e.code || e.message);
@@ -356,6 +403,18 @@ async function init() {
   const app = initializeApp(CONFIG);
   const fbAuth = auth.getAuth(app);
   db = store.getFirestore(app, DB_ID);
+  storeNube = store;
+  pedidosNube = MCPeticionesNube.crear(store, db, () => uidNube);
+  MCPeticiones.attachNube(pedidosNube);
+  MC.auth.onChange(() => {
+    clearTimeout(subiendo);
+    if (!uidPerfil || MC.auth.current().uid !== uidPerfil) {
+      pedidosNube.parar();
+      if (dejarFichas) { dejarFichas(); dejarFichas = null; }
+      return;
+    }
+    pedidosNube.iniciar();
+  });
 
   // El retorno de la casa, antes que el login: lo lee cualquiera,
   // también quien entra sin cuenta.
@@ -417,7 +476,10 @@ async function init() {
   });
 
   auth.onAuthStateChanged(fbAuth, async (user) => {
-    if (!user) { uidPerfil = uidNube = null; return; }
+    clearTimeout(subiendo);
+    pedidosNube.parar();
+    if (dejarFichas) { dejarFichas(); dejarFichas = null; }
+    if (!user) { uidPerfil = uidNube = null; estadoNube = 'local'; return; }
 
     // adoptarRemoto devuelve true si tuvo que recargar para cambiar de
     // perfil; en ese caso no hay nada más que hacer en esta vida.
@@ -453,6 +515,9 @@ async function init() {
     if (estadoNube === 'local') estadoNube = 'pendiente';
     engancharGuardado(store.setDoc, store.doc);
     await bajarEstado(store.setDoc, store.getDoc, store.doc);
+    if (!mismaCuenta(uidEsperado, user.uid)) return;
+    escucharFichas();
+    pedidosNube.iniciar();
   });
 }
 

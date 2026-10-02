@@ -44,6 +44,10 @@ window.MCCajaAgente = (function () {
   var COMISION = 0.03;     // 3% del netwin de sus jugadores
 
   function datos() {
+    var remoto = window.MCPeticiones && MCPeticiones.nube && MCPeticiones.nube();
+    if (remoto && remoto.esAgente()) {
+      return remoto.caja() || { saldo: 0, entregado: 0, comisionCobrada: 0 };
+    }
     if (!MC.state.cajaAgente) {
       MC.state.cajaAgente = {
         saldo: FLOTANTE,
@@ -75,6 +79,7 @@ window.MCCajaAgente = (function () {
   }
 
   function comisionDisponible() {
+    if (window.MCPeticiones && MCPeticiones.usaNube()) return 0;
     var d = datos();
     return Math.max(0, Math.floor(netwinTotal() * COMISION - d.comisionCobrada));
   }
@@ -87,6 +92,7 @@ window.MCCajaAgente = (function () {
    * Devuelve false si no alcanzaba, y en ese caso no toca nada.
    */
   function mover(delta) {
+    if (window.MCPeticiones && MCPeticiones.usaNube()) return false;
     var d = datos();
     if (delta > 0 && d.saldo < delta) return false;
     d.saldo -= delta;

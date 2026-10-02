@@ -17,6 +17,7 @@ window.MC = window.MC || {};
 
   var defaults = {
     balance: STARTING_CHIPS,
+    fichasNube: 0,          // acumulado remoto ya incluido en este saldo
     lastBonusAt: 0,
     soundOn: true,
     stats: { plays: 0, best: 0, net: 0, wagered: 0 },
@@ -100,6 +101,7 @@ window.MC = window.MC || {};
   function resetProgress() {
     var keepSound = MC.state.soundOn;
     var fresh = clone(defaults);
+    fresh.fichasNube = MC.state.fichasNube || 0;
     fresh.soundOn = keepSound;
 
     // Se vacía y rellena el mismo objeto para no romper las referencias
