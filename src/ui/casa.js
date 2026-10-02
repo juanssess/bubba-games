@@ -233,6 +233,33 @@ window.MCCasa = (function () {
       '<button class="btn btn-ghost" id="casaReset">Borrar lo de este navegador</button>' +
       '<p class="cp-nota">Estos promedios son por mesa, no ponderados por lo que se ' +
       'apuesta en cada una: sirven para ver el conjunto, no para proyectar la caja.</p>' +
+    '</div>' +
+    bloqueUid();
+  }
+
+  /* El uid, para habilitarse a publicar.
+     Se muestra siempre y no sólo cuando falla una escritura: si
+     apareciera recién en el error, habría que equivocarse una vez
+     para enterarse de cómo se arregla. */
+  function bloqueUid() {
+    var u = MC.auth && MC.auth.current ? MC.auth.current() : null;
+    var puede = MC.rtp.nubeDisponible && MC.rtp.nubeDisponible();
+
+    return '<div class="casa-afuera">' +
+      '<h4>Quién puede publicar</h4>' +
+      '<p>Publicar escribe el documento <code>casa/retorno</code> en Firestore, y eso ' +
+      'lo permite sólo la lista de <code>firestore.rules</code>. Arranca vacía: hasta ' +
+      'que no pongas tu uid, nadie puede mover el retorno del casino.</p>' +
+      (u && u.uid
+        ? '<p>Tu uid es:</p><pre class="casa-codigo">' + escapar(u.uid) + '</pre>' +
+          '<p style="font-size:12px;color:var(--txt-dim)">Pegalo en ' +
+          '<code>request.auth.uid in [...]</code> y publicá las reglas desde la ' +
+          'consola de Firebase.</p>'
+        : '<p style="color:var(--gold)">Entrá con Google para tener un uid: sin cuenta ' +
+          'no hay a quién habilitar.</p>') +
+      (puede ? '' :
+        '<p style="color:var(--gold)">Ahora mismo no hay conexión con Firestore, así ' +
+        'que publicar te va a devolver el bloque de código para pegar a mano.</p>') +
     '</div>';
   }
 
@@ -325,29 +352,97 @@ window.MCCasa = (function () {
      las letras qué falta después — porque hasta que no haya push, el
      cambio sigue siendo sólo tuyo.
      ============================================================ */
+  /* Lo que se va a publicar: lo que está corriendo ahora en esta
+     pantalla, que es lo que acabás de probar. */
+  function loQueCorre() {
+    var cfg = { global: MC.rtp.global(), juegos: {} };
+    MCCatalog.all.forEach(function (g) {
+      if (!g.rtpValue || MC.rtp.fueraDeAlcance(g.id)) return;
+      var f = MC.rtp.factor(g.id);
+      if (Math.abs(f - cfg.global) > 0.0005) cfg.juegos[g.id] = f;
+    });
+    return cfg;
+  }
+
   function publicar() {
-    var codigo = MC.rtp.codigo();
     MC.sound.click();
+    if (MC.rtp.nubeDisponible && MC.rtp.nubeDisponible()) porLaNube();
+    else porElCodigo();
+  }
+
+  /* ---------------- el camino bueno: un click ---------------- */
+  function porLaNube() {
+    var cfg = loQueCorre();
+    var cuantas = Object.keys(cfg.juegos).length;
+
+    MC.modal('Publicar esto para todos',
+      '<p>El retorno queda en <strong>' + Math.round(cfg.global * 100) + '%</strong> ' +
+      'de lo de fábrica' +
+      (cuantas ? ', con ' + cuantas + ' mesa' + (cuantas > 1 ? 's' : '') +
+                 ' con número propio' : '') + '.</p>' +
+      '<p>Se aplica <strong>en el momento</strong>, para todos los que estén jugando ' +
+      'ahora y para los que entren después. No hace falta commit ni push.</p>' +
+      '<p style="font-size:12.5px;color:var(--txt-dim)">Después conviene borrar lo de ' +
+      'este navegador: si no, seguís viendo lo tuyo encima y no lo que ve el resto.</p>',
+      [
+        { label: 'Cancelar' },
+        { label: 'Publicar', kind: 'primary', onClick: function () {
+          MC.rtp.publicarEnNube(cfg).then(function () {
+            MC.toast('Publicado: el casino entero paga esto', 'win');
+            aplicado();
+          }, function (e) {
+            /* El motivo más probable es que el uid todavía no esté en
+               firestore.rules, así que se dice eso y no "error". */
+            MC.modal('No me dejó publicar',
+              '<p>Firestore rechazó la escritura: <code>' +
+              escapar(e.code || e.message) + '</code></p>' +
+              '<p>Casi siempre es que tu cuenta todavía no está habilitada. ' +
+              'Tu uid es:</p>' +
+              '<pre class="casa-codigo" id="casaCodigo">' + escapar(uid()) + '</pre>' +
+              '<button class="btn btn-ghost casa-copiar" id="casaCopiar">Copiar</button>' +
+              '<p style="font-size:12.5px;color:var(--txt-dim)">Pegalo en la lista de ' +
+              '<code>firestore.rules</code> (<code>request.auth.uid in [...]</code>) y ' +
+              'publicá las reglas en la consola de Firebase.</p>',
+              [{ label: 'Listo' }]);
+            engancharCopiar(uid());
+          });
+        } }
+      ]);
+  }
+
+  /* ---------------- el de respaldo: a mano ---------------- */
+  /* Si Firestore no está —sin internet, o un clon del repo sin el
+     proyecto conectado— el panel no se queda mudo: devuelve el
+     bloque para pegar, que es como funcionaba antes de la nube. */
+  function porElCodigo() {
+    var codigo = MC.rtp.codigo();
 
     /* El botón de copiar va DENTRO del cuerpo y no en las acciones:
        MC.modal cierra el diálogo antes de llamar al onClick de una
        acción, y copiar necesita que el <pre> siga en pantalla para
        poder seleccionarlo si el portapapeles falla. */
     MC.modal('Publicar esto para todos',
-      '<p>Pegá esto en <code>src/core/rtp.js</code>, reemplazando el bloque ' +
-      '<code>var PUBLICADO = { ... }</code>:</p>' +
+      '<p>Ahora mismo no hay conexión con la nube de la casa, así que esto se ' +
+      'publica por código. Pegalo en <code>src/core/rtp.js</code>, reemplazando el ' +
+      'bloque <code>var PUBLICADO = { ... }</code>:</p>' +
       '<pre class="casa-codigo" id="casaCodigo">' + escapar(codigo) + '</pre>' +
       '<button class="btn btn-ghost casa-copiar" id="casaCopiar">Copiar</button>' +
       '<p style="font-size:12.5px;color:var(--txt-dim)">Después <strong>commit y ' +
       'push</strong>. Recién cuando GitHub Pages reconstruya, el retorno nuevo es el ' +
-      'de la casa. Hasta entonces sigue siendo sólo el de esta compu.</p>' +
-      '<p style="font-size:12.5px;color:var(--txt-dim)">Cuando eso esté publicado, ' +
-      'conviene borrar lo de este navegador: si no, seguís viendo lo tuyo encima y no ' +
-      'lo que ve el resto.</p>',
+      'de la casa. Hasta entonces sigue siendo sólo el de esta compu.</p>',
       [{ label: 'Listo' }]);
 
+    engancharCopiar(codigo);
+  }
+
+  function engancharCopiar(texto) {
     var btn = document.getElementById('casaCopiar');
-    if (btn) btn.onclick = function () { copiar(codigo); };
+    if (btn) btn.onclick = function () { copiar(texto); };
+  }
+
+  function uid() {
+    var u = MC.auth && MC.auth.current ? MC.auth.current() : null;
+    return (u && u.uid) ? u.uid : '(entrá con Google para tener uid)';
   }
 
   function escapar(t) {
@@ -411,6 +506,14 @@ window.MCCasa = (function () {
 
     // Si alguien entra por el router (recarga parado en la vista), se pinta.
     MC.onEnter('casa', render);
+
+    /* Cuando la casa mueve el retorno, Firestore avisa y todo lo que
+       muestra un RTP se repinta solo. Sin esto, alguien con el salón
+       abierto seguiría viendo los números viejos hasta recargar. */
+    MC.rtp.onCambio(function () {
+      refrescarVitrina();
+      if (MC.getCurrentView() === 'casa') render();
+    });
   }
 
   return { init: init, open: open, render: render, refrescarVitrina: refrescarVitrina };

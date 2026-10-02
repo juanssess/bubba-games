@@ -295,6 +295,53 @@ function engancharGuardado(setDoc, doc) {
   };
 }
 
+/* ============================================================
+   EL RETORNO DE LA CASA, EN VIVO
+
+   Un solo documento —`casa/retorno`— con cuánto paga cada mesa. Lo
+   lee CUALQUIERA, también quien entra sin cuenta, porque es parte
+   de las reglas del juego y no un dato de nadie. Lo escribe sólo
+   quien esté en la lista de firestore.rules.
+
+   Se escucha con onSnapshot y no se lee una vez: así, cuando la casa
+   mueve el retorno desde el panel, las pantallas que ya están
+   abiertas se enteran solas. Esa es toda la diferencia entre esto y
+   tener que pegar código, commitear y pushear.
+
+   Si Firestore no contesta —sin internet, reglas mal, proyecto
+   caído— no pasa nada: MC.rtp ya arrancó con la copia guardada en
+   este navegador, y abajo de esa copia está el valor del código.
+   El casino nunca se queda sin saber cuánto paga.
+   ============================================================ */
+const DOC_RETORNO = ['casa', 'retorno'];
+
+function engancharRetorno(store) {
+  const ref = store.doc(db, DOC_RETORNO[0], DOC_RETORNO[1]);
+
+  store.onSnapshot(ref, (snap) => {
+    const d = snap.exists() ? snap.data() : null;
+    MC.rtp.setNube(d ? { global: d.global, juegos: d.juegos || {}, at: d.at, por: d.por } : null);
+  }, (e) => {
+    // Que no se pueda leer no puede romper nada: queda la copia local.
+    console.warn('[bubba] no pude leer el retorno de la casa:', e.code || e.message);
+  });
+
+  /* La escritura la usa el panel. Vive acá y no en ui/casa.js porque
+     es el único archivo que tiene el SDK cargado, y porque así el
+     panel sigue sin saber que Firestore existe. */
+  MC.rtp.publicarEnNube = async function (config) {
+    const u = MC.auth.current();
+    await store.setDoc(ref, {
+      global: config.global,
+      juegos: config.juegos || {},
+      at: Date.now(),
+      por: u ? (u.uid || '') : ''
+    });
+  };
+
+  MC.rtp.nubeDisponible = function () { return true; };
+}
+
 /* ---------------- arranque ---------------- */
 async function init() {
   const [{ initializeApp }, auth, store] = await Promise.all([
@@ -306,6 +353,10 @@ async function init() {
   const app = initializeApp(CONFIG);
   const fbAuth = auth.getAuth(app);
   db = store.getFirestore(app, DB_ID);
+
+  // El retorno de la casa, antes que el login: lo lee cualquiera,
+  // también quien entra sin cuenta.
+  engancharRetorno(store);
 
   // Mantiene la sesión abierta entre visitas.
   await auth.setPersistence(fbAuth, auth.browserLocalPersistence);

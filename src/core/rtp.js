@@ -107,9 +107,68 @@ window.MC = window.MC || {};
      propio. Dejarlo en 1 y vacío es lo de fábrica.
      ============================================================ */
   var PUBLICADO = {
-    global: 1,
+    global: 0.92,
     juegos: {}
   };
+
+  /* ============================================================
+     LO QUE PUBLICA LA CASA EN VIVO
+
+     PUBLICADO, arriba, es el piso: viaja en el código y no se puede
+     cambiar sin un push. Esto otro es lo mismo pero en Firestore, y
+     es lo que de verdad usa la casa para mover el retorno:
+
+       la casa lo escribe desde el panel  →  Firestore
+       cada visitante lo escucha          →  se aplica solo
+
+     Sin pegar código, sin commit y sin push. El documento es
+     `casa/retorno`: lo lee cualquiera y lo escribe sólo quien esté
+     en la lista de firestore.rules.
+
+     Se guarda una copia en este navegador por dos motivos:
+
+       1. El casino arranca sincrónico y Firestore contesta después.
+          Sin copia habría unos cuantos giros pagando el valor del
+          código antes de que llegue el de la casa.
+       2. Sin internet se sigue jugando con el último retorno
+          conocido, que es más fiel que volver al de fábrica.
+
+     La copia NO va en MC.state: el estado es por perfil y esto es de
+     la casa, igual para todos los que abran esta compu.
+     ============================================================ */
+  var CLAVE_NUBE = 'bubba.casa.retorno';
+  var nube = leerCache();
+  var alCambiar = [];
+
+  function leerCache() {
+    try {
+      var raw = localStorage.getItem(CLAVE_NUBE);
+      if (!raw) return null;
+      var c = JSON.parse(raw);
+      return (c && typeof c === 'object') ? c : null;
+    } catch (e) { return null; }
+  }
+
+  /**
+   * Entra el retorno que publicó la casa. La llama la capa de
+   * Firestore cada vez que el documento cambia, así que un cambio
+   * hecho en el panel llega a las demás pantallas sin que nadie
+   * tenga que recargar nada.
+   */
+  function setNube(c) {
+    nube = (c && typeof c === 'object') ? c : null;
+    if (nube && !nube.juegos) nube.juegos = {};
+    try {
+      if (nube) localStorage.setItem(CLAVE_NUBE, JSON.stringify(nube));
+      else localStorage.removeItem(CLAVE_NUBE);
+    } catch (e) { /* sin espacio o en modo privado: se juega igual */ }
+    alCambiar.forEach(function (fn) { try { fn(); } catch (e) {} });
+  }
+
+  /** Para que la vitrina y el panel se repinten cuando llega un cambio. */
+  function onCambio(fn) { alCambiar.push(fn); }
+
+  function enNube() { return nube; }
 
   /* Lo que decidiste vos en ESTE navegador. Arranca vacío a propósito:
      una clave ausente quiere decir "seguí lo publicado", y por eso el
@@ -166,8 +225,7 @@ window.MC = window.MC || {};
        probar algo distinto sin publicarlo. */
     if (id && c.juegos[id] !== undefined) return limitar(c.juegos[id]);
     if (c.global !== undefined) return limitar(c.global);
-    if (id && PUBLICADO.juegos[id] !== undefined) return limitar(PUBLICADO.juegos[id]);
-    return limitar(PUBLICADO.global);
+    return factorPublicado(id);
   }
 
   /** El factor global que corre: el tuyo si lo pusiste, si no el publicado. */
@@ -176,9 +234,21 @@ window.MC = window.MC || {};
     return limitar(c.global !== undefined ? c.global : PUBLICADO.global);
   }
 
-  /** El factor que la casa publica para un juego, sin mirar este navegador. */
+  /**
+   * El factor que la casa publica para un juego, sin mirar lo que
+   * haya decidido este navegador.
+   *
+   * Lo de la nube le gana al código: el código es el piso con el que
+   * arranca un casino recién clonado, y la nube es la decisión viva.
+   */
   function factorPublicado(gameId) {
-    if (fueraDeAlcance(gameId)) return 1;
+    if (gameId && fueraDeAlcance(gameId)) return 1;
+    if (nube) {
+      if (gameId && nube.juegos && nube.juegos[gameId] !== undefined) {
+        return limitar(nube.juegos[gameId]);
+      }
+      if (nube.global !== undefined) return limitar(nube.global);
+    }
     if (gameId && PUBLICADO.juegos[gameId] !== undefined) {
       return limitar(PUBLICADO.juegos[gameId]);
     }
@@ -198,8 +268,10 @@ window.MC = window.MC || {};
 
   /** ¿La casa publicó algún recorte? */
   function hayPublicado() {
-    if (Math.abs(limitar(PUBLICADO.global) - 1) > 0.0005) return true;
-    return Object.keys(PUBLICADO.juegos).length > 0;
+    var g = (nube && nube.global !== undefined) ? nube.global : PUBLICADO.global;
+    if (Math.abs(limitar(g) - 1) > 0.0005) return true;
+    var j = (nube && nube.juegos) ? nube.juegos : PUBLICADO.juegos;
+    return Object.keys(j).length > 0;
   }
 
   function fueraDeAlcance(gameId) {
@@ -380,6 +452,9 @@ window.MC = window.MC || {};
     fueraDeAlcance: fueraDeAlcance,
     // Las dos capas, por separado: lo que publica la casa y lo tuyo.
     factorPublicado: factorPublicado,
+    setNube: setNube,
+    enNube: enNube,
+    onCambio: onCambio,
     pisado: pisado,
     hayLocal: hayLocal,
     hayPublicado: hayPublicado,

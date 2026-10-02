@@ -130,8 +130,18 @@ function probarRedondeo() {
 function probarFactor() {
   titulo('2. ARITMÉTICA DEL FACTOR');
 
+  /* Estas pruebas NO dan por sentado que la casa no publica nada. La
+     primera versión comparaba contra 1, y el día que se publicó un
+     recorte se cayeron tres comprobaciones sin que hubiera ningún
+     error: el invariante no es "sin ajustes da 1", es "sin ajustes da
+     lo que publica la casa". Una prueba que hay que arreglar cada vez
+     que se cambia una constante no sirve para avisar de nada. */
+  const pub = MC.rtp.factorPublicado('slots5');
+  console.log('  (la casa publica ' + pub.toFixed(4) + ' para esta mesa)\n');
+
   MC.rtp.reset();
-  exige(MC.rtp.factor('slots5') === 1, 'sin ajustes, el factor es 1');
+  exige(MC.rtp.factor('slots5') === pub,
+    'sin nada propio, corre lo publicado (' + pub.toFixed(4) + ')');
 
   MC.rtp.setGlobal(0.9);
   exige(Math.abs(MC.rtp.factor('slots5') - 0.9) < 1e-12,
@@ -158,7 +168,8 @@ function probarFactor() {
     'los juegos en iframe quedan en 1: el panel no los alcanza');
 
   MC.rtp.reset();
-  exige(!MC.rtp.hayAjustes(), 'reset deja todo como fue diseñado');
+  exige(!MC.rtp.hayLocal(), 'reset deja el navegador sin nada propio');
+  exige(MC.rtp.factor('slots5') === pub, 'y de vuelta en lo publicado');
 }
 
 /* ============================================================
@@ -262,8 +273,11 @@ function probarRuleta() {
   ];
 
   [1, 0.9].forEach((k) => {
+    /* El factor se fija SIEMPRE a mano, también el 1: si se dejara en
+       reset, la prueba mediría lo que la casa esté publicando en vez
+       del caso que quiere probar. */
     MC.rtp.reset();
-    if (k !== 1) MC.rtp.set('roulette', k);
+    MC.rtp.set('roulette', k);
 
     const esperado = k * 36 / 37;
     console.log('\n  k=' + k.toFixed(2) + ' → RTP esperado ' + pct(esperado) +
