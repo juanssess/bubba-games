@@ -5,8 +5,18 @@ import { createRequire } from 'node:module';
 const require = createRequire(new URL('../tmp/firebase-cli/package.json', import.meta.url));
 const { initializeTestEnvironment, assertFails, assertSucceeds } = require('@firebase/rules-unit-testing');
 const sdk = require('firebase/firestore');
+/* Doble de MC.auth.uidFirebase y esRemoto (src/core/auth.js), que es
+   el unico lugar donde vive la convencion '<proveedor>:<id>' de los
+   perfiles. Si cambia alla, estas pruebas se caen ruidosamente. */
+const uidHelpers = {
+  uidFirebase: u => { const i = u && u.uid ? String(u.uid).indexOf(':') : -1;
+    return i < 0 ? '' : String(u.uid).slice(i + 1); },
+  esRemoto: u => (u && u.uid ? String(u.uid).indexOf(':') : -1) >= 0
+};
 const source = readFileSync(new URL('../src/progress/peticiones-nube.js', import.meta.url), 'utf8');
-const owner = 'ZlnbdcBiASbUoEy5vheJBHTIDFg1';
+/* El uid del agente sale del modulo que se publica, no de una copia:
+   es el mismo dato que valida firestore.rules en agentes(). */
+const owner = source.match(/AGENTE\s*=\s*'([^']+)'/)[1];
 let rules = readFileSync(new URL('../firestore.rules', import.meta.url), 'utf8');
 if (process.env.BUBBA_RULES_DEBUG) {
   rules = rules.replace(/(get(?:After)?\([^;\n]+?\)\.data)/g, 'debug($1)');
@@ -17,7 +27,7 @@ const clients = [];
 function browser(uid, agent = false) {
   const db = env.authenticatedContext(uid).firestore();
   const context = { window: {}, document: { querySelector: () => null },
-    MC: { auth: { current: () => ({ uid: 'google:' + uid, name: uid }) } },
+    MC: { auth: Object.assign({ current: () => ({ uid: 'google:' + uid, name: uid }) }, uidHelpers) },
     MCRoles: { activoEsAgente: () => agent } };
   // Keep SDK data in the same realm: Firebase rejects cross-realm plain objects.
   new Function('window', 'MC', 'MCRoles', 'document', source)(context.window, context.MC, context.MCRoles, context.document);

@@ -1,6 +1,24 @@
 /* Pedidos compartidos. El SDK se inyecta desde auth-firebase.js. */
 window.MCPeticionesNube = (function () {
   'use strict';
+
+  /* ============================================================
+     QUIÉN ES LA CASA — la fuente de verdad del lado JS
+
+     El uid PELADO de Firebase, sin el 'google:' que el casino le
+     pone a sus perfiles (ver MC.auth.uidFirebase).
+
+     El mismo dato vive también en firestore.rules, en agentes(). No
+     se puede compartir una constante entre las reglas y el
+     navegador, así que son dos lugares y no uno — pero eran siete,
+     repartidos en cinco archivos, y cuando este dato cambia no falla
+     ruidosamente: deja de autorizar y se ve un permission-denied que
+     no explica nada.
+
+     Las pruebas NO lo repiten: lo sacan de acá leyendo este archivo.
+     Si se renombra la constante, se caen ruidosamente, que es lo que
+     uno quiere de una prueba.
+     ============================================================ */
   var AGENTE = 'ZlnbdcBiASbUoEy5vheJBHTIDFg1';
 
   function crear(store, db, sesion) {
@@ -9,7 +27,8 @@ window.MCPeticionesNube = (function () {
 
     function disponible() {
       var u = MC.auth.current();
-      return !!(sesion() && u && u.uid === 'google:' + sesion());
+      // El perfil guarda 'google:abc' y la sesión de Firebase es 'abc'.
+      return !!(sesion() && MC.auth.uidFirebase(u) === sesion());
     }
     function esAgente() { return disponible() && sesion() === AGENTE && MCRoles.activoEsAgente(); }
     function avisar() {

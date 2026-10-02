@@ -27,14 +27,31 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    /* ====================================================
+       QUIÉN ES LA CASA — el único lugar con los uid
+
+       Estaban escritos a mano en tres puntos de este archivo y en
+       otros cuatro del repo. Siete copias de un dato que, cuando
+       cambia, no falla ruidosamente: simplemente deja de autorizar
+       y lo que se ve es un permission-denied sin explicación.
+
+       Van los uid PELADOS de Firebase Auth, sin el 'google:' que el
+       casino le pone a sus perfiles. En el código JS el mismo dato
+       vive en src/core/roles.js: no se puede compartir una
+       constante entre las reglas y el navegador, así que son dos
+       lugares, y cada uno apunta al otro.
+       ==================================================== */
+    function agentes() {
+      return ['ZlnbdcBiASbUoEy5vheJBHTIDFg1'];   // nacho
+    }
     function agente() {
-      return request.auth != null && request.auth.uid in ['ZlnbdcBiASbUoEy5vheJBHTIDFg1'];
+      return request.auth != null && request.auth.uid in agentes();
     }
     function pedidoValido(p) {
       return p.keys().hasOnly(['id', 'at', 'uid', 'nombre', 'monto', 'nota', 'estado', 'agente'])
         && p.id is string && p.id.size() > 0 && p.id.size() <= 40
         && p.uid == request.auth.uid && p.uid != p.agente
-        && p.agente == 'ZlnbdcBiASbUoEy5vheJBHTIDFg1'
+        && p.agente in agentes()
         && p.nombre is string && p.nombre.size() <= 80
         && p.nota is string && p.nota.size() <= 80
         && p.at is int && p.monto is int && p.monto >= 100 && p.monto <= 500000
@@ -134,7 +151,8 @@ service cloud.firestore {
        arrancar abierta y tener que acordarse de cerrarla.
 
        Para sumar a alguien: su uid lo muestra el panel (Retorno de
-       la casa, abajo de todo), y se agrega a la lista de abajo.
+       la casa, abajo de todo), y se agrega a agentes(), arriba de
+       todo, que es el único lugar de este archivo con uid escritos.
        Después, Consola de Firebase -> Firestore Database -> Reglas
        -> Publicar. Editar este archivo NO alcanza: Firestore lee las
        reglas de la consola, no de GitHub.
@@ -154,10 +172,7 @@ service cloud.firestore {
        ======================================================== */
     match /casa/retorno {
       allow read: if true;
-      allow write: if request.auth != null
-                   && request.auth.uid in [
-                        'ZlnbdcBiASbUoEy5vheJBHTIDFg1'   // nacho
-                      ]
+      allow write: if agente()
                    && request.resource.data.global is number
                    && request.resource.data.global >= 0.5
                    && request.resource.data.global <= 1

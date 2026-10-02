@@ -508,7 +508,7 @@ window.MCCasa = (function () {
     if (!u || !u.uid || u.provider !== 'google') {
       return '(entrá con Google: el id de invitado no sirve acá)';
     }
-    return u.uid.replace(/^[a-z]+:/, '');
+    return MC.auth.uidFirebase(u);
   }
 
   function escapar(t) {

@@ -12,6 +12,12 @@ function setup() {
     STARTING_CHIPS: 1000, fmt: String, toast() {}, modal() {},
     sound: { win() {}, click() {} }, save() {},
     auth: {
+      /* Doble de MC.auth.uidFirebase (src/core/auth.js), que es el
+         unico lugar donde vive la convencion '<proveedor>:<id>'.
+         Si cambia alla, estas pruebas se caen ruidosamente. */
+      uidFirebase: u => { var i = u && u.uid ? String(u.uid).indexOf(':') : -1;
+        return i < 0 ? '' : String(u.uid).slice(i + 1); },
+      esRemoto: u => { var i = u && u.uid ? String(u.uid).indexOf(':') : -1; return i >= 0; },
       current: () => current, all: () => [player, agent],
       leerEstado: uid => states.has(uid) ? JSON.parse(states.get(uid)) : null,
       escribirEstado(uid, state) {

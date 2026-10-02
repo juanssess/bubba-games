@@ -52,13 +52,23 @@ const store = {
     throw new Error('Too much contention');
   }
 };
+/* Doble de MC.auth.uidFirebase y esRemoto (src/core/auth.js), que es
+   el unico lugar donde vive la convencion '<proveedor>:<id>' de los
+   perfiles. Si cambia alla, estas pruebas se caen ruidosamente. */
+const uidHelpers = {
+  uidFirebase: u => { const i = u && u.uid ? String(u.uid).indexOf(':') : -1;
+    return i < 0 ? '' : String(u.uid).slice(i + 1); },
+  esRemoto: u => (u && u.uid ? String(u.uid).indexOf(':') : -1) >= 0
+};
 const source = readFileSync(new URL('../src/progress/peticiones-nube.js', import.meta.url), 'utf8');
-const owner = 'ZlnbdcBiASbUoEy5vheJBHTIDFg1';
+/* El uid del agente sale del modulo que se publica, no de una copia:
+   es el mismo dato que valida firestore.rules en agentes(). */
+const owner = source.match(/AGENTE\s*=\s*'([^']+)'/)[1];
 function browser(uid, agent = false) {
   let active = true;
   const u = { uid: 'google:' + uid, name: uid, rol: agent ? 'agente' : 'jugador' };
   const context = vm.createContext({ window: {}, document: { querySelector: () => null },
-    MC: { auth: { current: () => active ? u : { uid: 'local', name: 'Local' } } },
+    MC: { auth: Object.assign({ current: () => active ? u : { uid: 'local', name: 'Local' } }, uidHelpers) },
     MCRoles: { activoEsAgente: () => agent } });
   vm.runInContext(source, context);
   const api = context.window.MCPeticionesNube;

@@ -214,7 +214,9 @@ window.MCRanking = (function () {
     }
 
     var miIndice = -1;
-    filas.forEach(function (f, i) { if (f.id === u.uid.replace('google:', '')) miIndice = i; });
+    // Las filas se guardan con el uid de Firebase pelado. Ver MC.auth.uidFirebase.
+    var mio = MC.auth.uidFirebase(u);
+    filas.forEach(function (f, i) { if (mio && f.id === mio) miIndice = i; });
 
     cont.innerHTML =
       '<div class="rk-tabla">' +

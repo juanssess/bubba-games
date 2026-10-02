@@ -7,8 +7,11 @@ Las fichas son virtuales, sin valor monetario.
 
 ## Cuenta del agente
 
-La cuenta autorizada es el UID de Firebase `ZlnbdcBiASbUoEy5vheJBHTIDFg1`,
-el mismo que ya administra el retorno de la casa. Debe entrar con Google y
+La cuenta autorizada se define en dos lugares, y son los unicos: `agentes()`
+en `firestore.rules` (lo que de verdad autoriza) y `AGENTE` en
+`src/progress/peticiones-nube.js` (lo que el navegador usa para la interfaz).
+Va el UID **pelado** de Firebase, sin el `google:` que el casino le pone a sus
+perfiles. Es el mismo que administra el retorno de la casa. Debe entrar con Google y
 seleccionar el rol de agente desde su cuenta. Crear una cuenta local de agente
 o cambiar el rol de otro perfil no concede permisos sobre los pedidos online.
 

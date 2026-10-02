@@ -233,7 +233,7 @@ window.MCTorneo_UI = (function () {
         '<button class="btn btn-gold" id="torJugar">Jugar una ronda</button>',
       );
     } else {
-      var miId = u && u.uid ? u.uid.replace('google:', '') : '';
+      var miId = MC.auth.uidFirebase(u);
       tabla =
         '<div class="tor-tabla">' +
           '<div class="tor-row tor-th">' +

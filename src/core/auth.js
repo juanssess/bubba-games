@@ -336,6 +336,33 @@ window.MC = window.MC || {};
    * los locales. Por eso el resto del casino —el estado por perfil, la
    * topbar, el panel de cuenta— no necesita saber que existe Google.
    */
+  /* ============================================================
+     EL UID DEL PERFIL Y EL DE FIREBASE NO SON EL MISMO TEXTO
+
+     Un perfil remoto se guarda como '<proveedor>:<id>', porque el
+     casino maneja varios proveedores y los perfiles locales conviven
+     con ellos en la misma lista. Firebase, en cambio, conoce el id
+     PELADO: `request.auth.uid` en las reglas, y el id del documento
+     en `leaderboard/` y `fichasRecibidas/`.
+
+     Confundirlos no falla ruidosamente: devuelve un texto que parece
+     un uid, no coincide con nada, y lo que se ve es un
+     permission-denied o una tabla vacía sin explicación. Pasó dos
+     veces en un mismo día.
+
+     Antes la conversión estaba escrita a mano en siete lugares y de
+     cuatro maneras distintas ('google:' + x, indexOf, replace con
+     texto, replace con expresión regular). Ahora es acá y nada más.
+     ============================================================ */
+  function uidFirebase(u) {
+    var id = (u && u.uid) ? String(u.uid) : '';
+    var corte = id.indexOf(':');
+    return corte < 0 ? '' : id.slice(corte + 1);
+  }
+
+  /** ¿Este perfil viene de un proveedor remoto (o sea, tiene uid de Firebase)? */
+  function esRemoto(u) { return !!uidFirebase(u); }
+
   function adoptarRemoto(info) {
     var uidRemoto = info.provider + ':' + info.id;
     var ya = null;
@@ -503,6 +530,8 @@ window.MC = window.MC || {};
     rankingApi: rankingApi,
     attachRemote: attachRemote,
     adoptarRemoto: adoptarRemoto,
+    uidFirebase: uidFirebase,
+    esRemoto: esRemoto,
     claveEstado: claveEstado,
     leerEstado: leerEstado,
     escribirEstado: escribirEstado,

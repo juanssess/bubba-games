@@ -41,7 +41,7 @@ window.MCPeticiones = (function () {
 
   function usaNube() {
     var u = MC.auth.current();
-    return !!(u && u.uid.indexOf('google:') === 0);
+    return MC.auth.esRemoto(u);
   }
   function nube() { return usaNube() ? proveedorNube : null; }
   function noConectado() { return Promise.resolve({ error: 'Los pedidos todavia no estan conectados. Intenta de nuevo en unos segundos.' }); }
@@ -72,13 +72,23 @@ window.MCPeticiones = (function () {
 
   /* ---------------- del lado del jugador ---------------- */
 
+  /* ¿Este pedido es del perfil activo?
+     Hay que mirar las dos formas del uid porque los pedidos guardados
+     en este navegador llevan el del PERFIL ('google:abc') y los que
+     vienen de la nube llevan el de Firebase pelado ('abc'). Ver
+     MC.auth.uidFirebase, que es el único lugar que conoce esa
+     diferencia. */
+  function esMio(p, u) {
+    return p.uid === u.uid || p.uid === MC.auth.uidFirebase(u);
+  }
+
   /** El pedido pendiente del perfil activo, si tiene uno. */
   function miPendiente() {
     var u = MC.auth.current();
     if (!u) return null;
     var l = leer();
     for (var i = 0; i < l.length; i++) {
-      if ((l[i].uid === u.uid || 'google:' + l[i].uid === u.uid) && l[i].estado === 'pendiente') return l[i];
+      if (esMio(l[i], u) && l[i].estado === 'pendiente') return l[i];
     }
     return null;
   }
@@ -87,7 +97,7 @@ window.MCPeticiones = (function () {
   function mios(tope) {
     var u = MC.auth.current();
     if (!u) return [];
-    return leer().filter(function (p) { return p.uid === u.uid || 'google:' + p.uid === u.uid; }).slice(0, tope || 10);
+    return leer().filter(function (p) { return esMio(p, u); }).slice(0, tope || 10);
   }
 
   /**
