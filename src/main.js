@@ -41,6 +41,12 @@
     MCRoles.init();
     MCAjustes.init();
     MCCasa.init();
+
+    /* Cuando otro jugador aporta o se lleva el bote compartido, el
+       número del salón se corrige solo. Sin esto, el pozo de todos se
+       vería congelado hasta recargar, que es justo lo contrario de lo
+       que lo hace sentir compartido. */
+    MCBote.onCambio(function () { MCPortal.renderJackpot(); });
     MCAsistente.init();
 
     // 2. Motores de juego (cada uno se registra solo en el router)

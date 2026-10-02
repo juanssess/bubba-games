@@ -391,6 +391,77 @@ function engancharRetorno(store) {
   MC.rtp.nubeDisponible = function () { return true; };
 }
 
+/* ============================================================
+   EL BOTE COMPARTIDO — casa/bote
+
+   Un solo documento con el pozo de todos. Lo lee cualquiera, lo
+   escribe cualquier jugador con cuenta, y las reglas acotan cómo.
+
+   DOS ESCRITURAS MUY DISTINTAS
+
+   El aporte usa `increment`, que suma del lado del servidor. No se
+   lee-modifica-escribe: si dos jugadores aportan a la vez, los dos
+   aportes entran. Hacerlo con una lectura previa perdería uno de los
+   dos cada tanto, y el pozo quedaría corto sin que nadie lo note.
+
+   El premio va en una TRANSACCIÓN, porque ahí sí importa contra qué
+   pozo se cierra. Dos jugadores pueden sacar el bote contra la misma
+   foto, y el pozo es uno. La transacción lee el pozo, lo reparte y
+   lo reinicia; el segundo reintenta, ve el pozo ya en la base y se
+   vuelve con las manos vacías. Eso es correcto: ganó el primero.
+
+   `cobrar` devuelve el premio, o 0 si llegó tarde. El motor del bote
+   no acredita nada hasta tener esa respuesta — ver intentarCobrar en
+   progress/bote.js, que explica por qué.
+   ============================================================ */
+const DOC_BOTE = ['casa', 'bote'];
+
+function engancharBote(store) {
+  const ref = store.doc(db, DOC_BOTE[0], DOC_BOTE[1]);
+
+  store.onSnapshot(ref, (snap) => {
+    MCBote.recibir(snap.exists() ? snap.data() : null);
+  }, (e) => {
+    // Sin pozo común se juega con el propio: el casino no se detiene.
+    console.warn('[bubba] no pude leer el bote compartido:', e.code || e.message);
+    MCBote.recibir(null);
+  });
+
+  MCBote.conectar({
+    aportar: (monto) => store.setDoc(ref, {
+      pozo: store.increment(monto),
+      at: Date.now()
+    }, { merge: true }),
+
+    cobrar: (ganadosAlSortear, aportePendiente) => store.runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      if (!snap.exists()) return 0;
+
+      /* El testigo de la carrera es el CONTADOR, no el monto: si ya
+         subió, otro cobró este pozo entre el sorteo y esta escritura.
+         Comparar montos no sirve —el aporte pendiente de la propia
+         ronda levanta el total por encima de la base— y deja pasar al
+         segundo ganador. Ver intentarCobrar en progress/bote.js. */
+      const ganados = snap.data().ganados || 0;
+      if (ganados !== ganadosAlSortear) return 0;
+
+      /* El aporte de la ronda ganadora entra ANTES de repartir: es el
+         mismo orden que el pozo propio, y sin él el ganador se
+         quedaría sin su propia contribución. */
+      const pozo = Math.floor((snap.data().pozo || 0) + aportePendiente);
+
+      tx.set(ref, {
+        pozo: MCBote.BASE,
+        ganados: ganados + 1,
+        ultimo: pozo,
+        ultimoPor: MC.auth.uidFirebase(MC.auth.current()),
+        at: Date.now()
+      });
+      return pozo;
+    })
+  });
+}
+
 /* ---------------- arranque ---------------- */
 async function init() {
   const [{ initializeApp }, auth, store] = await Promise.all([
@@ -418,6 +489,7 @@ async function init() {
   // El retorno de la casa, antes que el login: lo lee cualquiera,
   // también quien entra sin cuenta.
   engancharRetorno(store);
+  engancharBote(store);
 
   // Mantiene la sesión abierta entre visitas.
   await auth.setPersistence(fbAuth, auth.browserLocalPersistence);

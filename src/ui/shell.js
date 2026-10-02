@@ -83,8 +83,23 @@ window.MCShell = (function () {
         '<p>Apostando 1.000 fichas ahora mismo: <strong>1 en ' +
         MC.fmt(MCBote.unoEnCuantas(1000)) + '</strong>. Cuanto más crece el pozo, ' +
         'más raro se hace — como en un progresivo de verdad.</p>' +
-        '<p style="font-size:12.5px;color:var(--txt-dim)">Es tu pozo: lo alimenta lo que ' +
-        'apostás vos y se guarda con tu progreso. No es compartido entre jugadores.</p>',
+        /* El renglón de abajo cambia según contra qué pozo se está
+           jugando. Dejarlo fijo era la opción fácil y la que miente:
+           el texto decía "no es compartido" y ahora puede serlo. */
+        (MCBote.esCompartido()
+          ? '<p style="font-size:12.5px;color:var(--txt-dim)">Este pozo es <strong>de ' +
+            'todos</strong>: lo alimentan las apuestas de todos los que juegan con cuenta, ' +
+            'y se lo lleva entero el primero al que le toque. Compartirlo no te cambia el ' +
+            'retorno —seguís recuperando el 1% de lo que apostás vos—, pero sí lo hace más ' +
+            'raro y más grande.' +
+            (MCBote.comun() && MCBote.comun().ganados
+              ? ' Van <strong>' + MC.fmt(MCBote.comun().ganados) + '</strong> cobrados, el ' +
+                'último de ' + MC.fmt(MCBote.comun().ultimo || 0) + ' fichas.'
+              : ' Todavía no lo ganó nadie.') +
+            '</p>'
+          : '<p style="font-size:12.5px;color:var(--txt-dim)">Este es <strong>tu</strong> ' +
+            'pozo: lo alimenta lo que apostás vos y se guarda con tu progreso. Entrando con ' +
+            'Google pasás a jugar contra el pozo compartido, que lo alimentan todos.</p>'),
         [{ label: 'Entendido', kind: 'primary' }]);
       closeMobile();
     };

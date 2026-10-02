@@ -179,6 +179,62 @@ service cloud.firestore {
                    && request.resource.data.juegos is map;
     }
 
+    /* ========================================================
+       EL BOTE COMPARTIDO — casa/bote
+
+       Un pozo para todos. Lo lee cualquiera; lo escribe cualquier
+       jugador con cuenta, porque cada apuesta aporta y no hay
+       servidor que lo haga por él.
+
+       Dos escrituras y nada más:
+
+         APORTE   el pozo sube, acotado, y el contador de premios
+                  no se mueve. El tope son 10.000 fichas por
+                  escritura, o sea un millón apostado entre dos
+                  envíos: de sobra para jugar fuerte, poco para
+                  inflarlo a mano.
+
+         PREMIO   el pozo vuelve a la base, el contador sube uno, y
+                  queda escrito QUIÉN lo cobró y cuánto. Ese
+                  registro es público: un premio inventado no se
+                  puede impedir desde acá, pero no se puede
+                  esconder.
+
+       LO QUE ESTA REGLA NO PUEDE HACER: comprobar que la apuesta
+       que generó el aporte haya existido. Eso lo afirma el
+       navegador del jugador y no hay forma de verificarlo sin un
+       servidor. Es a prueba de manotazos y deja rastro; no es a
+       prueba de trampa. En este casino los saldos ya viven en
+       players/{uid}, que cada uno escribe, así que no habría nada
+       que blindar que no estuviera ya abierto.
+
+       El 250000 es MCBote.BASE (src/progress/bote.js). No se puede
+       compartir una constante entre las reglas y el navegador: si
+       se cambia allá, hay que cambiarlo acá y volver a publicar.
+       ======================================================== */
+    match /casa/bote {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.resource.data.pozo == 250000
+                    && request.resource.data.ganados == 0;
+      allow update: if request.auth != null
+                    && request.resource.data.pozo is number
+                    && request.resource.data.at is int
+                    && (
+                      // aporte
+                      (request.resource.data.pozo > resource.data.pozo
+                       && request.resource.data.pozo <= resource.data.pozo + 10000
+                       && request.resource.data.get('ganados', 0) == resource.data.get('ganados', 0))
+                      ||
+                      // premio
+                      (request.resource.data.pozo == 250000
+                       && request.resource.data.ganados == resource.data.get('ganados', 0) + 1
+                       && request.resource.data.ultimoPor == request.auth.uid
+                       && request.resource.data.ultimo >= resource.data.pozo
+                       && request.resource.data.ultimo <= resource.data.pozo + 10000)
+                    );
+    }
+
     // Todo lo demás cerrado. Si mañana se agrega una colección se le
     // escribe su regla a propósito, y no queda abierta por olvido.
     match /{document=**} {
