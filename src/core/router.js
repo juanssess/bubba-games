@@ -62,7 +62,12 @@ window.MC = window.MC || {};
 
     if (meta) {
       document.getElementById('stageTitle').textContent = meta.name;
-      document.getElementById('stageTag').textContent = meta.tag || '';
+      /* El renglón del escenario pasa por MC.rtp: tres juegos lo tienen
+         escrito con un número que depende del retorno ("Ventaja de la
+         casa 3%", "Pleno paga 35:1") y con el retorno bajado serían
+         falsos. */
+      document.getElementById('stageTag').textContent =
+        (MC.rtp ? MC.rtp.tagDe(meta) : meta.tag) || '';
       if (engines[engine] && engines[engine].load) engines[engine].load(meta);
     }
 

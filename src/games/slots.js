@@ -18,6 +18,22 @@
   var el = {};
 
   function currentBet() { return BETS[betIndex]; }
+
+  /* ---------------- la ventaja de la casa ----------------
+     Este motor expresa su margen en la tabla de pagos y en ningún
+     otro lado, así que es ahí donde entra el panel de la casa. Como
+     el RTP es Σ p·pago y el factor multiplica cada pago sin tocar
+     ninguna probabilidad, el retorno baja exactamente por k.
+
+     Lo que importa es que estas dos funciones las usan TANTO el pago
+     como la tabla que se ve en pantalla. No hay forma de que la
+     vitrina diga 250x y la caja pague 225x: sale del mismo número. */
+  function factorCasa() { return game ? MC.rtp.factor(game.id) : 1; }
+  function triple(sym) { return sym.triple * factorCasa(); }
+  function par(sym) { return (sym.pair || 0) * factorCasa(); }
+
+  // Para los carteles: sin decimales de más.
+  function visible(v) { return Math.round(v * 100) / 100; }
   function isSeven(sym) { return sym.face === '7'; }
 
   /* ---------------- carga de un título ---------------- */
@@ -57,17 +73,21 @@
     var grid = document.getElementById('paytableGrid');
     grid.innerHTML = symbols.slice().reverse().map(function (s) {
       var pairTxt = s.pair
-        ? '<span style="color:var(--txt-dim);font-size:11px">par ' + s.pair + 'x</span>'
+        ? '<span style="color:var(--txt-dim);font-size:11px">par ' + visible(par(s)) + 'x</span>'
         : '<span style="color:var(--txt-dim);font-size:11px">&nbsp;</span>';
       return '<div class="pt-item" title="' + s.name + '">' +
                '<span class="pt-sym' + (isSeven(s) ? ' sym-seven' : '') + '">' + s.face + '</span>' +
-               '<span style="text-align:right"><span class="pt-mult">' + s.triple + 'x</span><br>' + pairTxt + '</span>' +
+               '<span style="text-align:right"><span class="pt-mult">' + visible(triple(s)) + 'x</span><br>' + pairTxt + '</span>' +
              '</div>';
     }).join('');
 
     var head = document.getElementById('paytableHead');
     if (head && game) {
-      head.textContent = game.rtp + ' · máx. ' + Math.round(game.maxWin) + 'x la apuesta';
+      /* El RTP sale del módulo y no del texto fijo del catálogo: si
+         saliera de ahí, bajarle el retorno a esta máquina dejaría el
+         cartel anunciando el de fábrica. */
+      head.textContent = MC.rtp.etiqueta(game) + ' · máx. ' +
+                         visible(game.maxWin * factorCasa()) + 'x la apuesta';
     }
   }
 
@@ -112,14 +132,14 @@
   function evaluate(result, bet) {
     var a = result[0], b = result[1], c = result[2];
     if (a.id === b.id && b.id === c.id) {
-      return { payout: Math.round(bet * a.triple), kind: 'triple', symbol: a };
+      return { payout: MC.rtp.fichas(bet * triple(a)), kind: 'triple', symbol: a };
     }
     var pairSym = null;
     if (a.id === b.id) pairSym = a;
     else if (b.id === c.id) pairSym = b;
     else if (a.id === c.id) pairSym = a;
     if (pairSym && pairSym.pair > 0) {
-      return { payout: Math.round(bet * pairSym.pair), kind: 'pair', symbol: pairSym };
+      return { payout: MC.rtp.fichas(bet * par(pairSym)), kind: 'pair', symbol: pairSym };
     }
     return { payout: 0, kind: 'none', symbol: null };
   }
@@ -168,15 +188,15 @@
         el.message.textContent = '¡PREMIO MAYOR!';
         MC.sound.jackpot();
         MC.modal('¡Premio mayor!',
-          '<p>Tres <strong>' + outcome.symbol.name + '</strong> en línea (' + outcome.symbol.triple + 'x).</p>' +
+          '<p>Tres <strong>' + outcome.symbol.name + '</strong> en línea (' + visible(triple(outcome.symbol)) + 'x).</p>' +
           '<p>Te llevás <strong style="color:var(--gold)">' + MC.fmt(outcome.payout) + ' fichas</strong>.</p>',
           [{ label: 'Seguir jugando', kind: 'primary' }]);
       } else if (outcome.kind === 'triple') {
-        el.message.textContent = 'Tres ' + outcome.symbol.name + ' — ' + outcome.symbol.triple + 'x';
+        el.message.textContent = 'Tres ' + outcome.symbol.name + ' — ' + visible(triple(outcome.symbol)) + 'x';
         MC.sound.win();
         MC.toast('¡Tres ' + outcome.symbol.name + '! ' + v.texto, v.tono);
       } else {
-        el.message.textContent = 'Par de ' + outcome.symbol.name + ' — ' + outcome.symbol.pair + 'x';
+        el.message.textContent = 'Par de ' + outcome.symbol.name + ' — ' + visible(par(outcome.symbol)) + 'x';
         // Sonido de premio sólo si hubo premio. Un par de campanas
         // devuelve la apuesta clavada: eso no se festeja.
         if (v.gano) MC.sound.win(); else MC.sound.click();

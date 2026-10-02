@@ -40,6 +40,11 @@ window.MC = window.MC || {};
     porJuego: {},      // por juego, de toda la vida
     caja: [],          // libro de movimientos (solo cuentas de agente)
     cajaAgente: null,  // saldo y comision del agente (solo cuentas de agente)
+    /* El retorno de la casa: factor global y ajustes por juego. Va en
+       defaults por el motivo que explica el comentario de arriba: una
+       clave que no este en esta lista la borra la primera sincronia con
+       la nube, y ahi se perderia la configuracion del panel. */
+    rtp: { global: 1, juegos: {} },
 
     xp: 0,                                        // rango VIP
     missions: { day: '', items: [] },             // objetivos del día

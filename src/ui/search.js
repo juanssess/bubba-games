@@ -108,7 +108,7 @@ window.MCSearch = (function () {
     return '<div class="sr-item" id="sr-' + g.id + '" role="option" aria-selected="false" data-game="' + g.id + '">' +
              '<span class="sr-thumb" style="background:' + g.art + '">' + g.emoji + '</span>' +
              '<span><strong>' + g.name + '</strong><br>' +
-               '<span style="font-size:11.5px;color:var(--txt-dim)">' + g.studio + ' · ' + g.rtp + '</span>' +
+               '<span style="font-size:11.5px;color:var(--txt-dim)">' + g.studio + ' · ' + MC.rtp.etiqueta(g) + '</span>' +
              '</span>' +
            '</div>';
   }

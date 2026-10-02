@@ -216,7 +216,10 @@ window.MCSlots5 = (function () {
 
     var lineaGanada = ev.lineTotal * lineBet();
     var scatterGanado = ev.scatterPay * totalBet();
-    var ganado = lineaGanada + scatterGanado;
+    /* Con el retorno bajado la tabla deja de ser entera, así que el
+       premio se redondea al azar: el jugador cobra fichas enteras y
+       el valor esperado queda exacto. Ver MC.rtp.fichas. */
+    var ganado = MC.rtp.fichas(lineaGanada + scatterGanado);
 
     if (ganado > 0) MC.addBalance(ganado);
     roundReturn += ganado;
@@ -503,7 +506,12 @@ window.MCSlots5 = (function () {
   function pintarTabla() {
     var orden = ['W', 'H', 'G', 'F', 'E', 'D', 'C', 'B', 'A'];
     el.paytable.innerHTML = orden.map(function (id) {
-      var p = M.PAYS[id];
+      /* Los pagos salen de M.payLine y no de M.PAYS: así la tabla que
+         se ve en pantalla es literalmente la que cobra el jugador,
+         con el factor de la casa ya puesto. */
+      var p = [0, 0, 0].concat([3, 4, 5].map(function (n) {
+        return Math.round(M.payLine(id, n) * 100) / 100;
+      }));
       return '<div class="g5-pt">' +
                '<span class="g5-pt-sym">' + M.FACE[id] + '</span>' +
                '<span class="g5-pt-name">' + M.NAME[id] + '</span>' +
@@ -565,6 +573,11 @@ window.MCSlots5 = (function () {
     el.autoBar = document.getElementById('g5AutoBar');
     el.autoLeftLbl = document.getElementById('g5AutoLeft');
     el.autoStop = document.getElementById('g5AutoStop');
+
+    /* El módulo de matemática lee el factor de la casa por acá. Se
+       engancha un lector y no un valor para que cambiarlo en el panel
+       se note en el giro siguiente, sin avisarle a nadie. */
+    M.setFactor(function () { return MC.rtp.factor('slots5'); });
 
     el.turbo.onclick = alternarTurbo;
     el.auto.onclick = pedirAuto;

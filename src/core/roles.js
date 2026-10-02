@@ -82,7 +82,13 @@ window.MCRoles = (function () {
     // justo a la cuenta que no puede hacerlo.
     'walletBox', 'depositBtn'
   ];
-  var SOLO_AGENTE = ['sbAgente'];
+  /* El panel de retorno es de la casa, no del jugador: decide cuanto
+     paga cada mesa. Mostrarselo a quien apuesta seria poner la perilla
+     del margen del lado del mostrador equivocado.
+
+     Si lo querés ver siempre con tu cuenta de jugador, sacá 'sbCasa' de
+     esta lista y 'casa' de VISTAS: son esas dos lineas y nada mas. */
+  var SOLO_AGENTE = ['sbAgente', 'sbCasa'];
 
   function mostrar(id, si) {
     var el = document.getElementById(id);
@@ -119,6 +125,7 @@ window.MCRoles = (function () {
   /** Vistas cerradas por rol. El resto está abierto para los dos. */
   var VISTAS = {
     agente: AGENTE,
+    casa: AGENTE,
     ranking: JUGADOR,
     torneo: JUGADOR,
     missions: JUGADOR,

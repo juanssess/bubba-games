@@ -2,6 +2,13 @@
    BUBBA GAMES — Mines
    Tablero de 5x5. Cada gema sube el multiplicador; una mina y perdés.
    Multiplicador = 0.97 · C(25,k) / C(25-minas,k)   (3% para la casa)
+
+   El 0.97 ES el RTP de este juego, para cualquier forma de jugarlo:
+   la probabilidad de descubrir k gemas es C(25-minas,k)/C(25,k), que
+   es justo la inversa del multiplicador, así que al multiplicarlas
+   queda 0.97 pelado. Por eso el panel de la casa entra acá y no en
+   el pago: bajar esta constante baja el retorno Y el número que se
+   muestra en pantalla al mismo tiempo, sin que puedan separarse.
    ============================================================ */
 (function () {
   'use strict';
@@ -24,9 +31,12 @@
     return r;
   }
 
+  // La ventaja efectiva: la de fábrica por el factor de la casa.
+  function ventaja() { return EDGE * MC.rtp.factor('mines'); }
+
   function multiplierAt(k) {
     if (k <= 0) return 1;
-    return EDGE * comb(SIZE, k) / comb(SIZE - mines, k);
+    return ventaja() * comb(SIZE, k) / comb(SIZE - mines, k);
   }
 
   /* ---------------- tablero ---------------- */
@@ -104,14 +114,14 @@
   function updateInfo() {
     var m = multiplierAt(revealed);
     el.mult.textContent = MC.fmtMult(m);
-    el.payout.textContent = MC.fmt(Math.floor(bet * m));
+    el.payout.textContent = MC.fmt(Math.round(bet * m));
     el.next.textContent = revealed < SIZE - mines ? MC.fmtMult(multiplierAt(revealed + 1)) : '–';
     el.cashout.disabled = !playing || revealed === 0;
   }
 
   function cashout(auto) {
     if (!playing || revealed === 0) return;
-    var payout = Math.floor(bet * multiplierAt(revealed));
+    var payout = MC.rtp.fichas(bet * multiplierAt(revealed));
     MC.addBalance(payout);
     MC.recordRound(bet, payout, revealed + ' gemas · ' + MC.fmtMult(multiplierAt(revealed)));
 

@@ -183,7 +183,7 @@
   function buildModes() {
     el.modes.innerHTML = MODES.map(function (m) {
       // El pago sale del modelo, no de una tabla escrita a mano.
-      var paga = pagoDe({ type: m.id, value: 7 });
+      var paga = pagoVisible({ type: m.id, value: 7 });
       return '<button class="bet-mode' + (m.id === modo ? ' active' : '') + '" data-modo="' + m.id + '">' +
                '<b>' + m.nombre + '</b>' +
                '<span>' + paga + ':1 · ' + m.ayuda + '</span>' +
@@ -331,10 +331,25 @@
     }
   }
 
-  // El pago se DERIVA del tamaño del conjunto. No se escribe en ningún lado.
+  /* El pago se DERIVA del tamaño del conjunto. No se escribe en ningún
+     lado — y por eso el panel de la casa tiene UN solo lugar donde
+     entrar. El factor multiplica el 36 (lo que se devuelve en total),
+     no el 35 (la ganancia): con k, una apuesta de monto m sobre n
+     números devuelve m·k·36/n, así que
+
+         RTP = (n/37) · k·36/n = k · 36/37
+
+     se mantiene igual para las trece apuestas de la mesa. Ninguna
+     queda mejor que otra después de bajar el retorno, que es la
+     propiedad que hace honesta a esta ruleta. */
   function pagoDe(bet) {
     var n = cubre(bet).length;
-    return n ? 36 / n - 1 : 0;
+    return n ? MC.rtp.factor('roulette') * 36 / n - 1 : 0;
+  }
+
+  // Para los carteles: el pago redondeado a dos decimales.
+  function pagoVisible(bet) {
+    return Math.round(pagoDe(bet) * 100) / 100;
   }
 
   function payoutFor(bet, n) {
@@ -375,6 +390,11 @@
         winningCells[b.cellId] = true;
       }
     });
+
+    /* Con el retorno bajado los pagos dejan de ser enteros, así que se
+       redondea UNA vez sobre el total y no por apuesta: menos ruido, y
+       el redondeo al azar mantiene el valor esperado exacto. */
+    returned = MC.rtp.fichas(returned);
 
     el.result.textContent = n;
     el.result.style.color = colorOf(n) === 'black' ? '#f2f1ef' : (colorOf(n) === 'red' ? '#ff6b74' : '#4bbf7a');
@@ -439,6 +459,12 @@
     el.modes = document.getElementById('rouletteModes');
 
     buildModes();
+    /* Y de nuevo cada vez que se entra a la mesa: los pagos de estos
+       botones salen de pagoDe(), así que si alguien bajó el retorno
+       desde el panel mientras tanto, construidos una sola vez al
+       arrancar se quedarían anunciando el 35:1 de fábrica. */
+    MC.onEnter('roulette', buildModes);
+
     buildTable();
     buildChipRack();
     buildWheel();

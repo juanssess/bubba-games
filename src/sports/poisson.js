@@ -112,10 +112,20 @@ window.MCPoisson = (function () {
 
   /* ---------------- cuotas ----------------
      Con margen, las inversas de las cuotas de un mercado suman
-     1 + margen. El jugador recibe, a la larga, 1/(1+margen). */
+     1 + margen. El jugador recibe, a la larga, 1/(1+margen).
+
+     Acá también entra el panel de la casa, y es el lugar natural:
+     un corredor de apuestas no recorta el pago después del partido,
+     cotiza más bajo. Como el retorno de un cupón es cuota × P(acertar)
+     y el factor sólo toca la cuota, el retorno baja exactamente por k.
+
+     El factor se lee con guarda porque este archivo también corre en
+     Node, dentro de `tools/probar-modelos.js`, donde no hay casino:
+     ahí k vale 1 y el modelo se mide limpio. */
   function oddsFor(probs) {
+    var k = (window.MC && MC.rtp) ? MC.rtp.factor('sports') : 1;
     return probs.map(function (p) {
-      var o = 1 / (p * (1 + MARGIN));
+      var o = k / (p * (1 + MARGIN));
       return Math.max(1.01, Math.round(o * 100) / 100);
     });
   }

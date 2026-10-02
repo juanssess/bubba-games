@@ -20,7 +20,11 @@ window.MCCard = (function () {
              '<div class="gcard-art" data-arte="' + g.id + '" style="background:' + g.art + '">' +
                '<span class="gcard-emoji">' + g.emoji + '</span>' +
                badge +
-               '<span class="gcard-live">' + g.rtp + '</span>' +
+               // El RTP sale de MC.rtp y no de g.rtp: con el retorno
+               // bajado desde el panel, el texto fijo del catálogo
+               // dejaría la vitrina anunciando el de fábrica.
+               '<span class="gcard-live' + (MC.rtp.ajustado(g.id) ? ' ajustado' : '') +
+                 '">' + MC.rtp.etiqueta(g) + '</span>' +
                '<div class="gcard-play"><span>Jugar</span></div>' +
              '</div>' +
              '<div class="gcard-body">' +

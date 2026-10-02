@@ -1,0 +1,250 @@
+/* ============================================================
+   NÚCLEO / RETORNO — el margen de la casa, en un solo lugar.
+
+   Este módulo es el que permite bajarle el RTP a los juegos sin
+   tocar la matemática de ninguno. Lo configura el panel de la casa
+   (ui/casa.js) y lo consultan los motores.
+
+   ---------------------------------------------------------------
+   CÓMO SE BAJA UN RTP, Y CÓMO **NO**
+   ---------------------------------------------------------------
+   La forma fácil sería recortar el pago al final: calcular el premio
+   como siempre y entregar el 90%. Está mal, y vale decir por qué:
+   la pantalla seguiría anunciando "paga 35:1" mientras la caja paga
+   31,5:1. El jugador no puede ver el recorte en ningún lado.
+
+   Acá se hace al revés. Cada juego expresa su ventaja en ALGÚN
+   número propio —una constante, una tabla, una cuota—, y el factor
+   se aplica AHÍ, antes de que ese número llegue a la pantalla. El
+   resultado es que la interfaz se corrige sola: Mines muestra
+   multiplicadores más chicos, la ruleta dice "paga 31:1", la liga
+   cotiza más bajo. Nada queda mintiendo, porque nada se recorta
+   después de haberlo mostrado.
+
+   Dónde entra el factor en cada juego:
+
+     Bubba Jet (crash)   punto de reventón  0.97/(1−r) → k·0.97/(1−r)
+     Mines               EDGE = 0.97        → 0.97·k
+     Ruleta Europea      pago = 36/n − 1    → k·36/n − 1
+     Bubba 777           multiplicadores de la tabla × k
+     Bubba Gold          tabla de pagos × k (en slots5-math)
+     Doble o Nada        PAGO = 1.95        → 1.95·k
+     Liga Argentina      cuota = 1/(p(1+m)) → × k
+     Blackjack           la GANANCIA × k; el empate no se toca
+
+   Las tres tragamonedas servidas en iframe (Maverick, Se Busca, La
+   Vendimia) quedan afuera: su matemática corre en otro proyecto y
+   este módulo no la alcanza. El panel lo dice en pantalla en vez de
+   mostrar un control que no haría nada.
+
+   ---------------------------------------------------------------
+   POR QUÉ EL RTP RESULTANTE ES EXACTAMENTE k · NOMINAL
+   ---------------------------------------------------------------
+   En los siete juegos de arriba —todos menos blackjack— el retorno
+   esperado es una suma de (probabilidad × pago), y el factor
+   multiplica cada pago sin tocar ninguna probabilidad. Sacar k de
+   factor común da:
+
+       RTP(k) = Σ pᵢ · (k·cᵢ) = k · Σ pᵢ · cᵢ = k · RTP(1)
+
+   Por eso el panel puede prometer un número y cumplirlo, en vez de
+   estimarlo. En crash y en Mines sale todavía más directo: el RTP
+   de esos dos ES la constante, para cualquier forma de jugarlos.
+
+   Blackjack es el único distinto y está explicado en su propio
+   motor: el empate devuelve la apuesta y no es un premio, así que
+   no se escala. Eso deja el retorno real un poco por ENCIMA de
+   k·nominal, y el panel lo avisa en vez de publicar un número que
+   no puede sostener.
+
+   Depende de: state (para guardar), rng (para el redondeo).
+   Lo consultan los nueve motores y las tarjetas del catálogo.
+   ============================================================ */
+window.MC = window.MC || {};
+
+(function (MC) {
+  'use strict';
+
+  /* Hasta dónde se puede bajar. El tope de arriba es 1: este panel
+     BAJA el retorno, no lo sube. Dejar pasar k>1 sería publicar un
+     juego que paga más de lo que su matemática dice aguantar, y el
+     bote y el ranking dejarían de significar lo mismo. */
+  var MIN = 0.50;
+  var MAX = 1.00;
+
+  /* Los juegos que este módulo no puede alcanzar: corren en un iframe
+     con su propia matemática. Se listan para que el panel los muestre
+     como lo que son en vez de ofrecer una perilla muerta. */
+  var FUERA_DE_ALCANCE = ['maverick', 'sebusca', 'vendimia'];
+
+  function config() {
+    if (!MC.state.rtp) MC.state.rtp = { global: 1, juegos: {} };
+    if (!MC.state.rtp.juegos) MC.state.rtp.juegos = {};
+    return MC.state.rtp;
+  }
+
+  function limitar(f) {
+    f = Number(f);
+    if (!isFinite(f)) return 1;
+    return Math.min(MAX, Math.max(MIN, f));
+  }
+
+  /* ---------------- consulta ---------------- */
+
+  /**
+   * El factor que corre para un juego.
+   *
+   * El ajuste propio GANA sobre el global, no se multiplican. Dos
+   * perillas que se multiplican entre sí son imposibles de leer:
+   * poner 90% en un juego y ver 85% porque además había un global
+   * del 95% es la clase de sorpresa que hace que nadie confíe en el
+   * panel. Acá, el número que pusiste en un juego es el que corre.
+   */
+  function factor(gameId) {
+    var c = config();
+    var id = gameId || MC.getCurrentGame();
+    if (id && fueraDeAlcance(id)) return 1;
+    if (id && c.juegos[id] !== undefined) return limitar(c.juegos[id]);
+    return limitar(c.global);
+  }
+
+  /** El factor global, el que siguen los juegos sin ajuste propio. */
+  function global_() { return limitar(config().global); }
+
+  function fueraDeAlcance(gameId) {
+    return FUERA_DE_ALCANCE.indexOf(gameId) >= 0;
+  }
+
+  /** El RTP con el que el juego fue diseñado (el del catálogo). */
+  function nominal(gameId) {
+    var g = MC.getGame ? MC.getGame(gameId) : null;
+    return g && g.rtpValue ? g.rtpValue : 0;
+  }
+
+  /** El RTP que de verdad está pagando hoy. */
+  function efectivo(gameId) {
+    return nominal(gameId) * factor(gameId);
+  }
+
+  /** ¿Este juego está tocado? Sirve para marcarlo en pantalla. */
+  function ajustado(gameId) {
+    return Math.abs(factor(gameId) - 1) > 0.0005;
+  }
+
+  /** ¿Hay algo tocado en todo el casino? */
+  function hayAjustes() {
+    var c = config();
+    if (Math.abs(limitar(c.global) - 1) > 0.0005) return true;
+    return Object.keys(c.juegos).some(function (id) {
+      return Math.abs(limitar(c.juegos[id]) - 1) > 0.0005;
+    });
+  }
+
+  /* ---------------- escritura ---------------- */
+  function setGlobal(f) {
+    config().global = limitar(f);
+    MC.save();
+  }
+
+  function set(gameId, f) {
+    config().juegos[gameId] = limitar(f);
+    MC.save();
+  }
+
+  /** Saca el ajuste propio: el juego vuelve a seguir al global. */
+  function quitar(gameId) {
+    delete config().juegos[gameId];
+    MC.save();
+  }
+
+  function reset() {
+    MC.state.rtp = { global: 1, juegos: {} };
+    MC.save();
+  }
+
+  /* ============================================================
+     REDONDEO A FICHAS — por qué no se usa Math.floor
+
+     Con los multiplicadores enteros de antes, redondear era casi
+     gratis. Con un factor dejan de ser enteros: Doble o Nada pasa de
+     pagar 1.95 a pagar 1.755, y `Math.floor(10 × 1.755)` da 17
+     cuando el pago justo es 17,55. Sobre apuestas de 10 fichas eso
+     es un 3% que se pierde por el piso, no por el factor: el panel
+     prometería 90% y la caja pagaría 87%.
+
+     La salida es redondear al azar con la probabilidad del resto:
+     17,55 paga 18 el 55% de las veces y 17 el 45%. Así
+
+         E[fichas(x)] = x
+
+     exactamente, para cualquier x y cualquier apuesta. El jugador ve
+     un entero —las fichas no se parten— y la caja respeta la
+     matemática al decimal.
+
+     De paso arregla un sesgo que ya existía: el `Math.floor` de
+     Mines, Crash y la liga venía comiéndose una fracción de ficha en
+     cada pago, así que esos juegos pagaban un pelo menos que el RTP
+     que publicaban.
+     ============================================================ */
+  function fichas(x) {
+    if (!(x > 0)) return 0;
+    var piso = Math.floor(x);
+    var resto = x - piso;
+    return resto > 0 && MC.rand() < resto ? piso + 1 : piso;
+  }
+
+  /* ---------------- texto para la pantalla ---------------- */
+  function pct(x) { return (x * 100).toFixed(1).replace('.', ',') + '%'; }
+
+  /**
+   * La etiqueta de RTP de una tarjeta del catálogo.
+   *
+   * Existe para que las tarjetas no puedan quedar desactualizadas:
+   * si el número saliera de `g.rtp` —el texto fijo del catálogo—,
+   * bajar el retorno dejaría la vitrina anunciando el de fábrica.
+   */
+  function etiqueta(g) {
+    if (!g) return '';
+    if (!g.rtpValue || !ajustado(g.id)) return g.rtp;
+    var base = g.rtp.indexOf('Retorno') === 0 ? 'Retorno ' : 'RTP ';
+    return base + pct(g.rtpValue * factor(g.id));
+  }
+
+  /**
+   * El renglón chico de la tarjeta.
+   *
+   * Tres juegos lo tienen escrito con un número que depende del RTP
+   * ("Ventaja de la casa 3%", "Pleno paga 35:1"). Con el retorno
+   * bajado esos textos pasan a ser falsos, así que se derivan.
+   */
+  function tagDe(g) {
+    if (!g || !ajustado(g.id)) return g ? g.tag : '';
+    var k = factor(g.id);
+    if (g.id === 'crash' || g.id === 'mines') {
+      return 'Ventaja de la casa ' + pct(1 - 0.97 * k);
+    }
+    if (g.id === 'roulette') {
+      return 'Pleno paga ' + (Math.round((k * 36 - 1) * 100) / 100) + ':1';
+    }
+    return g.tag;
+  }
+
+  MC.rtp = {
+    MIN: MIN, MAX: MAX,
+    factor: factor,
+    global: global_,
+    nominal: nominal,
+    efectivo: efectivo,
+    ajustado: ajustado,
+    hayAjustes: hayAjustes,
+    fueraDeAlcance: fueraDeAlcance,
+    setGlobal: setGlobal,
+    set: set,
+    quitar: quitar,
+    reset: reset,
+    fichas: fichas,
+    etiqueta: etiqueta,
+    tagDe: tagDe,
+    pct: pct
+  };
+})(window.MC);

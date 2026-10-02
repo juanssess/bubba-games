@@ -35,7 +35,10 @@ window.MCCatalogView = (function () {
     } else if (sort === 'pago') {
       filtered = filtered.slice().sort(function (a, b) { return b.maxWin - a.maxWin; });
     } else if (sort === 'rtp') {
-      filtered = filtered.slice().sort(function (a, b) { return b.rtpValue - a.rtpValue; });
+      // Por el retorno de hoy, no por el de fábrica.
+      filtered = filtered.slice().sort(function (a, b) {
+        return MC.rtp.efectivo(b.id) - MC.rtp.efectivo(a.id);
+      });
     }
 
     shown = PAGE;

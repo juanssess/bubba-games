@@ -1,0 +1,173 @@
+/* ============================================================
+   PANEL DE LA CASA — cuánto paga cada mesa.
+   Usa los tokens de tokens.css: nada de colores escritos a mano,
+   así el panel acompaña el tema claro y el oscuro sin tocar nada.
+   ============================================================ */
+
+/* ---------------- encabezado explicativo ---------------- */
+.casa-intro{
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
+.casa-intro h3{ margin: 0 0 8px; font-size: 17px; }
+.casa-intro p{ margin: 0 0 8px; font-size: 13.5px; line-height: 1.55; color: var(--txt-dim); }
+.casa-intro p:last-child{ margin-bottom: 0; }
+.casa-intro .casa-aviso{ color: var(--txt); font-size: 13px; }
+.casa-intro.activo{ border-color: var(--gold); }
+.casa-intro.activo .casa-aviso{ color: var(--gold); }
+
+/* ---------------- control global ---------------- */
+.casa-global{
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 16px 20px 18px;
+  margin-bottom: 18px;
+}
+.cg-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+.cg-head strong{ display:block; font-size:15px; }
+.cg-head span{ display:block; font-size:12.5px; color:var(--txt-dim); margin-top:3px; line-height:1.5; }
+.cg-head b{ color: var(--gold); font-variant-numeric: tabular-nums; }
+
+.casa-presets{ display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+.casa-presets button{
+  background: transparent;
+  border: 1px solid var(--line-2);
+  color: var(--txt-dim);
+  border-radius: 999px;
+  padding: 5px 13px;
+  font-size: 12.5px;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.casa-presets button:hover{ color: var(--txt); border-color: var(--txt-dim); }
+.casa-presets button.on{
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #141414;
+  font-weight: 600;
+}
+
+/* ---------------- el deslizador ---------------- */
+.casa-range{
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 4px; margin: 14px 0 0;
+  background: var(--line-2);
+  border-radius: 999px; cursor: pointer;
+}
+.casa-range::-webkit-slider-thumb{
+  -webkit-appearance: none; appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--bg-2);
+  box-shadow: 0 2px 8px rgba(0,0,0,.45);
+}
+.casa-range::-moz-range-thumb{
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--bg-2);
+  box-shadow: 0 2px 8px rgba(0,0,0,.45);
+}
+
+/* ---------------- una mesa ---------------- */
+.casa-lista{ display:grid; gap:10px; }
+
+.casa-fila{
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 14px 16px 16px;
+}
+.casa-fila.tocado{ border-color: var(--line-2); }
+
+.cf-top{ display:flex; align-items:center; gap:12px; }
+.cf-emoji{ font-size:24px; line-height:1; flex:0 0 auto; }
+
+.cf-id{ flex:1 1 auto; min-width:0; }
+.cf-id strong{ display:block; font-size:14.5px; }
+.cf-id span{
+  display:block; font-size:11.5px; color:var(--txt-dim);
+  margin-top:2px; line-height:1.45;
+}
+
+.cf-nums{ flex:0 0 auto; text-align:right; font-variant-numeric: tabular-nums; }
+.cf-fab{ display:block; font-size:11px; color:var(--txt-dim); text-decoration: line-through; }
+.casa-fila:not(.tocado) .cf-fab{ text-decoration: none; visibility: hidden; }
+.cf-hoy{ display:block; font-size:19px; line-height:1.15; }
+.casa-fila.tocado .cf-hoy{ color: var(--gold); }
+.cf-margen{ display:block; font-size:11px; color:var(--txt-dim); }
+
+.cf-ctrl{ display:flex; align-items:center; gap:14px; }
+.cf-ctrl .cf-range{ flex:1 1 auto; }
+.cf-soltar, .cf-sigue{ flex:0 0 auto; font-size:11.5px; margin-top:14px; }
+.cf-sigue{ color:var(--txt-dim); }
+.cf-soltar{
+  background:transparent; border:1px solid var(--line-2);
+  color:var(--txt-dim); border-radius:999px; padding:4px 11px; cursor:pointer;
+}
+.cf-soltar:hover{ color:var(--txt); border-color:var(--txt-dim); }
+
+.cf-nota{
+  margin: 12px 0 0; font-size: 12px; line-height: 1.5;
+  color: var(--txt-dim);
+  border-left: 2px solid var(--gold);
+  padding-left: 10px;
+}
+
+/* ---------------- lo que el panel no alcanza ---------------- */
+.casa-afuera{
+  margin-top: 18px; padding: 16px 20px;
+  background: var(--bg-2);
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-md);
+}
+.casa-afuera h4{ margin:0 0 7px; font-size:13.5px; color:var(--txt-dim); text-transform:uppercase; letter-spacing:.06em; }
+.casa-afuera p{ margin:0; font-size:12.5px; line-height:1.55; color:var(--txt-dim); }
+.casa-afuera code{ font-size:11.5px; }
+.ca-chips{ display:flex; flex-wrap:wrap; gap:8px; margin-top:11px; }
+.ca-chips span{
+  font-size:12px; padding:4px 11px; border-radius:999px;
+  background: var(--bg-3);
+  border: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- resumen ---------------- */
+.casa-pie{
+  margin-top: 18px; padding: 16px 20px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 22px;
+}
+.cp-dato span{ display:block; font-size:11.5px; color:var(--txt-dim); }
+.cp-dato strong{ display:block; font-size:19px; font-variant-numeric: tabular-nums; }
+.casa-pie .btn{ margin-left:auto; }
+.cp-nota{
+  flex: 1 0 100%; margin: 0; font-size: 11.5px;
+  line-height: 1.5; color: var(--txt-dim);
+}
+
+/* ---------------- la marca en la vitrina ---------------- */
+/* Una mesa con el retorno bajado se distingue en el salón. No es un
+   adorno: es lo que evita que el cartel de RTP parezca el de fábrica. */
+.gcard-live.ajustado{
+  background: var(--gold);
+  color: #141414;
+  font-weight: 600;
+}
+
+/* ---------------- teléfono ---------------- */
+@media (max-width: 620px){
+  .cf-top{ flex-wrap: wrap; }
+  .cf-nums{ width:100%; text-align:left; display:flex; align-items:baseline; gap:10px; }
+  .cf-fab, .cf-margen{ font-size:11px; }
+  .casa-fila:not(.tocado) .cf-fab{ display:none; }
+  .cf-ctrl{ flex-wrap: wrap; gap:8px; }
+  .cf-ctrl .cf-range{ flex:1 0 100%; }
+  .cf-soltar, .cf-sigue{ margin-top:4px; }
+  .casa-pie .btn{ margin-left:0; flex:1 0 100%; }
+}

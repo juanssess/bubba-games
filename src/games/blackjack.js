@@ -74,6 +74,11 @@
   }
 
   function render() {
+    /* El cartel de la mesa se pinta en cada render y no vive fijo en el
+       HTML: con el retorno bajado, "paga 3:2" sería falso. */
+    var sub = document.getElementById('bjSubtitulo');
+    if (sub) sub.textContent = 'Blackjack paga ' + pagoNatural();
+
     // Crupier
     el.dealerHand.innerHTML = '';
     dealer.forEach(function (c, i) {
@@ -181,7 +186,7 @@
         settleHand(hands[0], 1, 'Empate');
         banner('Blackjack de los dos — empate', true);
       } else if (playerBJ) {
-        settleHand(hands[0], 2.5, 'Blackjack 3:2');
+        settleHand(hands[0], 2.5, 'Blackjack ' + pagoNatural());
         banner('¡BLACKJACK!', true);
         MC.sound.jackpot();
       } else {
@@ -326,11 +331,42 @@
     finishRound();
   }
 
-  // multiplier: 0 pierde · 1 empate · 2 gana · 2.5 blackjack
+  /* ============================================================
+     multiplier: 0 pierde · 1 empate · 2 gana · 2.5 blackjack
+
+     EL FACTOR DE LA CASA TOCA LA GANANCIA, NO LA DEVOLUCIÓN
+
+     En los otros siete juegos el factor multiplica el pago entero,
+     porque ahí todo lo que se devuelve es premio. Acá no: el empate
+     devuelve la apuesta clavada, y escalarlo haría que empatar te
+     saque fichas. Un "Empate" que te cobra el 10% no es un empate,
+     es una mesa rota.
+
+     Así que se escala sólo lo que está POR ENCIMA de la apuesta:
+     ganar pasa de 2 a 1+k, un blackjack de 2.5 a 1+1.5k, el empate
+     sigue siendo 1 y perder sigue siendo 0.
+
+     Consecuencia honesta, y es la razón por la que el panel marca a
+     esta mesa aparte: el retorno real queda un poco por ENCIMA de
+     k·nominal, porque la parte que viene de los empates no baja. Con
+     ~8,7% de manos empatadas, pedir el 90% deja el retorno cerca del
+     91%. El panel lo dice en pantalla en vez de publicar un número
+     que esta mesa no puede sostener.
+     ============================================================ */
   function settleHand(hand, multiplier, label) {
     hand.result = label;
-    hand.returned = Math.round(hand.bet * multiplier);
+    var m = multiplier > 1
+      ? 1 + (multiplier - 1) * MC.rtp.factor('blackjack')
+      : multiplier;
+    hand.returned = MC.rtp.fichas(hand.bet * m);
     if (hand.returned > 0) MC.addBalance(hand.returned);
+  }
+
+  /* Cuánto paga un blackjack natural, en formato "3:2". Se deriva del
+     factor para que el cartel de la mesa no pueda quedar mintiendo. */
+  function pagoNatural() {
+    var g = 1.5 * MC.rtp.factor('blackjack');
+    return Math.abs(g - 1.5) < 0.005 ? '3:2' : (Math.round(g * 100) / 100) + ':1';
   }
 
   function finishRound() {
@@ -377,6 +413,11 @@
     el.betDown.onclick = function () { if (betIndex > 0) { betIndex--; MC.sound.click(); render(); } };
 
     render();
+
+    /* El cartel "Blackjack paga 3:2" lo pinta render(), y render() sólo
+       corría al repartir: entrar a la mesa con el retorno bajado dejaba
+       el de fábrica en pantalla hasta la primera mano. */
+    MC.onEnter('blackjack', render);
   }
 
   window.MCBlackjack = { init: init, refresh: function () { render(); } };

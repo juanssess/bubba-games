@@ -212,8 +212,9 @@ window.MCAgente = (function () {
      Positivo quiere decir que gano el casino. Es la cuenta al reves
      de la del jugador, y es la que mira un agente.
 
-     El margen es netwin sobre apostado. Con los RTP de esta casa
-     (96% a 97,5%) tiene que rondar el 3%. Si en un periodo corto da
+     El margen es netwin sobre apostado. Con los RTP de fabrica de esta
+     casa (96% a 97,5%) tiene que rondar el 3% —mas si alguien bajo el
+     retorno desde el panel de la casa. Si en un periodo corto da
      muy distinto es varianza, no que las cuentas esten mal: hacen
      falta muchas rondas para que el margen se parezca al teorico.
      ============================================================ */

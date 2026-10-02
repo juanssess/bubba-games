@@ -134,6 +134,39 @@
 
   var PAYING = Object.keys(PAYS);   // todos menos el scatter
 
+  /* ============================================================
+     EL FACTOR DE LA CASA
+
+     El panel de retorno baja el RTP de este juego multiplicando la
+     tabla de pagos. Entra acá, en el módulo de matemática, y no en
+     el motor, por una razón concreta: `tools/slots5-rtp.js` importa
+     ESTE archivo para medir el RTP. Si el recorte viviera en el
+     motor, la herramienta seguiría midiendo el juego de fábrica y el
+     número verificado dejaría de ser el número que se paga.
+
+     No se guarda un valor sino un lector: así el factor nunca queda
+     viejo: cambiarlo en el panel se nota en el giro siguiente sin
+     que nadie tenga que acordarse de avisarle a este módulo.
+
+     Los giros gratis NO se escalan: son tiradas, no fichas. Lo que
+     se escala son los pagos, y de ahí que el RTP baje exactamente
+     por k (ver el encabezado de core/rtp.js).
+     ============================================================ */
+  var leerFactor = function () { return 1; };
+
+  /** Acepta un número (para medir) o una función (para el casino). */
+  function setFactor(f) {
+    leerFactor = typeof f === 'function' ? f : function () { return Number(f) || 1; };
+  }
+  function factor() {
+    var k = Number(leerFactor());
+    return isFinite(k) && k > 0 ? k : 1;
+  }
+
+  // Los dos pagos del juego, ya con el factor puesto.
+  function payLine(sym, n) { return (PAYS[sym][n] || 0) * factor(); }
+  function payScatter(k) { return (SCATTER_PAYS[k] || 0) * factor(); }
+
   /* ---------------- líneas de pago ----------------
      Cada línea dice qué fila toma de cada rodillo (0 arriba, 2 abajo).
      Las 20 clásicas: rectas, en V, en zigzag. */
@@ -177,7 +210,10 @@
         for (var k = 0; k < n; k++) if (line[k] === WILD) usedWild = true;
       }
     }
-    return { pay: best, symbol: bestSym, count: bestCount, wild: usedWild };
+    /* El factor multiplica todos los pagos por igual, así que el
+       símbolo ganador no cambia: se compara en nominal y se escala
+       una sola vez, al salir. */
+    return { pay: best * factor(), symbol: bestSym, count: bestCount, wild: usedWild };
   }
 
   /* ---------------- probabilidades por rodillo ---------------- */
@@ -256,7 +292,7 @@
 
     var scatterRTP = 0;
     for (var k = 0; k < dist.length; k++) {
-      scatterRTP += dist[k] * (SCATTER_PAYS[k] || 0);
+      scatterRTP += dist[k] * payScatter(k);
     }
 
     // Giros que se agregan, en esperanza, por cada giro gratis jugado.
@@ -306,7 +342,7 @@
     var dist = scatterDistribution();
 
     var scatterRTP = 0;
-    for (var k = 0; k < dist.length; k++) scatterRTP += dist[k] * (SCATTER_PAYS[k] || 0);
+    for (var k = 0; k < dist.length; k++) scatterRTP += dist[k] * payScatter(k);
 
     var growth = 0;
     for (var g = 3; g < dist.length; g++) growth += dist[g] * (FREE_SPINS[g] || 0);
@@ -368,7 +404,7 @@
       wins: wins,
       lineTotal: lineTotal,                       // en apuestas por línea
       scatters: scatters,
-      scatterPay: SCATTER_PAYS[scatters] || 0,    // en apuestas totales
+      scatterPay: payScatter(scatters),           // en apuestas totales
       freeSpins: FREE_SPINS[scatters] || 0
     };
   }
@@ -379,6 +415,8 @@
     SYMBOLS: SYMBOLS, FACE: FACE, NAME: NAME,
     STRIPS: STRIPS, COUNTS: COUNTS,
     PAYS: PAYS, SCATTER_PAYS: SCATTER_PAYS,
+    setFactor: setFactor, factor: factor,
+    payLine: payLine, payScatter: payScatter,
     FREE_SPINS: FREE_SPINS, FS_WILD_MULT: FS_WILD_MULT,
     PAYLINES: PAYLINES,
     lineWin: lineWin, expectedLineWin: expectedLineWin,

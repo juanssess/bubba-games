@@ -95,15 +95,18 @@ window.MCAsistente = (function () {
     {
       claves: ['rtp', 'paga', 'devuelve', 'ventaja', 'probabilidad', 'chances'],
       responde: function () {
+        // Ordena por el retorno EFECTIVO: si la casa bajó uno, el
+        // asistente no puede seguir recomendándolo como el que más paga.
         var mejor = MCCatalog.all.slice().sort(function (a, b) {
-          return (b.rtpValue || 0) - (a.rtpValue || 0);
+          return MC.rtp.efectivo(b.id) - MC.rtp.efectivo(a.id);
         })[0];
         return 'El RTP es cuánto devuelve un juego a la larga: 96% quiere decir que ' +
           'de cada 100 fichas apostadas vuelven 96 en promedio, y las otras 4 son la ' +
           'ventaja de la casa.<br>' +
           'Acá <strong>ningún RTP es de adorno</strong>: están calculados sobre la tabla ' +
           'de pagos real de cada juego.<br>' +
-          'El que más devuelve ahora es <strong>' + mejor.name + '</strong> (' + mejor.rtp + ').';
+          'El que más devuelve ahora es <strong>' + mejor.name + '</strong> (' +
+          MC.rtp.etiqueta(mejor) + ').';
       }
     },
     {
@@ -238,7 +241,8 @@ window.MCAsistente = (function () {
           return g.volatility === 'Extrema' || g.volatility === 'Alta';
         })[0];
         var txt = 'Depende de qué tengas ganas:<br>';
-        if (suave) txt += '· Para que dure: <strong>' + suave.name + '</strong> (' + suave.rtp + ')<br>';
+        if (suave) txt += '· Para que dure: <strong>' + suave.name + '</strong> (' +
+          MC.rtp.etiqueta(suave) + ')<br>';
         if (bravo) txt += '· Para buscar el golpe: <strong>' + bravo.name + '</strong>, ' +
           'volatilidad ' + bravo.volatility.toLowerCase() + '<br>';
         txt += 'Con ' + MC.fmt(s) + ' fichas, apostando el 1% por ronda te alcanza ' +

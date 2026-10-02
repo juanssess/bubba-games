@@ -40,6 +40,7 @@
     // Despues de MCAgente: si el perfil activo es agente, lo lleva a su panel.
     MCRoles.init();
     MCAjustes.init();
+    MCCasa.init();
     MCAsistente.init();
 
     // 2. Motores de juego (cada uno se registra solo en el router)

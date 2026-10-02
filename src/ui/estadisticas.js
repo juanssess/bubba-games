@@ -159,10 +159,28 @@ window.MCEstadisticas = (function () {
         '±' + (margen * 100).toFixed(1).replace('.', ',') + ' puntos. ' +
         (confiable
           ? 'Ya son suficientes rondas para que el número quiera decir algo.'
+          /* El rango de RTP se calcula, no se escribe: con el panel de
+              retorno estos números se pueden bajar, y este cartel era el
+              único lugar del casino que afirmaba que "no cambian nunca". */
           : 'Todavía son pocas rondas: este número se mueve muchísimo y no dice ' +
-            'si un juego está “frío” o “caliente”. Los RTP de la casa son del 96% al 97,5% ' +
-            'y no cambian nunca.') +
+            'si un juego está “frío” o “caliente”. ' + rangoDeRTP()) +
       '</span></div>';
+  }
+
+  /* El rango de retorno que está pagando la casa HOY, sacado del
+     catálogo. Si alguien bajó alguno desde el panel, lo dice. */
+  function rangoDeRTP() {
+    var vals = MCCatalog.all
+      .map(function (g) { return MC.rtp.efectivo(g.id); })
+      .filter(function (v) { return v > 0; });
+    if (!vals.length) return '';
+
+    var min = Math.min.apply(null, vals);
+    var max = Math.max.apply(null, vals);
+    var txt = 'Los RTP de la casa van del ' + MC.rtp.pct(min) + ' al ' + MC.rtp.pct(max);
+    return MC.rtp.hayAjustes()
+      ? txt + ', con el retorno bajado a mano en alguna mesa.'
+      : txt + ' y no cambian de una ronda a la otra.';
   }
 
   /* La curva del resultado acumulado. Es el gráfico que un jugador

@@ -160,7 +160,7 @@ window.MCSportsbook = (function () {
       var complete = t.selections.every(function (s) { return !!byId[s.matchId]; });
       if (!complete) { open.push(t); return; }
       var hit = t.selections.every(function (s) { return MCLeague.isWinner(s.pick, byId[s.matchId]); });
-      var payout = hit ? Math.floor(t.stake * t.odds) : 0;
+      var payout = hit ? MC.rtp.fichas(t.stake * t.odds) : 0;
       if (payout) { MC.addBalance(payout); won++; }
       var detail = (t.selections.length > 1 ? 'combinada de ' + t.selections.length : t.selections[0].label) +
         ' · cuota ' + t.odds.toFixed(2) + ' · resultado oficial';

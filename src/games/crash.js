@@ -2,6 +2,12 @@
    BUBBA GAMES — Crash ("Bubba Jet")
    El multiplicador sube hasta que revienta. Retirás antes o perdés.
    Punto de reventón: 0.97 / (1 - r)  →  3% de ventaja para la casa.
+
+   Ese 0.97 es el RTP del juego para CUALQUIER estrategia: la chance
+   de que el cohete llegue a m es 0.97/m, y retirarse en m paga m, así
+   que el producto da 0.97 siempre. De ahí que el panel de la casa
+   entre acá, en la constante, y no en el pago: el multiplicador que
+   se ve en pantalla sigue siendo exactamente lo que se cobra.
    ============================================================ */
 (function () {
   'use strict';
@@ -24,7 +30,7 @@
   function rollCrashPoint() {
     var r = MC.rand();
     if (r > 0.9999) r = 0.9999;
-    var point = 0.97 / (1 - r);
+    var point = (0.97 * MC.rtp.factor('crash')) / (1 - r);
     return Math.min(MAX_MULT, Math.max(1, Math.floor(point * 100) / 100));
   }
 
@@ -160,7 +166,7 @@
   function cashout(auto) {
     if (phase !== 'running' || cashedAt) return;
     cashedAt = mult;
-    var payout = Math.floor(bet * cashedAt);
+    var payout = MC.rtp.fichas(bet * cashedAt);
     MC.addBalance(payout);
     MC.recordRound(bet, payout, 'retiro en ' + MC.fmtMult(cashedAt));
 

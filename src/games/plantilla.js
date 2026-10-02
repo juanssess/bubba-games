@@ -37,6 +37,11 @@ window.MCPlantilla = (function () {
 
   var BETS = [10, 25, 50, 100, 250, 500, 1000];
   var PAGO = 1.95;              // cuánto multiplica la apuesta al acertar
+
+  /* El pago efectivo. Es el único número con el que este juego
+     expresa su ventaja, así que es acá donde entra el panel de la
+     casa: con el factor al 90% paga 1.755 y el cartel lo dice. */
+  function pagoEfectivo() { return PAGO * MC.rtp.factor('plantilla'); }
   var DURACION_TIRADA = 1200;   // ms que dura la animación
 
   var betIndex = 3;
@@ -57,7 +62,7 @@ window.MCPlantilla = (function () {
     return {
       salio: salio,
       acerto: acerto,
-      pago: acerto ? Math.floor(apuesta() * PAGO) : 0
+      pago: acerto ? MC.rtp.fichas(apuesta() * pagoEfectivo()) : 0
     };
   }
 
@@ -137,6 +142,21 @@ window.MCPlantilla = (function () {
   }
 
   /* ---------------- controles ---------------- */
+  /* El cartel del pago y el del RTP se pintan, no se escriben en el
+     HTML. Si estuvieran fijos, bajarle el retorno a este juego
+     dejaría la pantalla anunciando el 97,5% de fábrica. */
+  function pintarFicha() {
+    var k = MC.rtp.factor('plantilla');
+    var pago = Math.round(pagoEfectivo() * 1000) / 1000;
+    el.paga.textContent = pago + 'x';
+    el.rtp.textContent = MC.rtp.pct(0.5 * pagoEfectivo());
+    el.hint.textContent = k < 1
+      ? 'Cincuenta y cincuenta, pero paga ' + pago + ' en vez de 2: ahí está la ' +
+        'ventaja de la casa, bajada a mano desde el panel.'
+      : 'Cincuenta y cincuenta, pero paga 1.95 en vez de 2: ahí está la ' +
+        'ventaja de la casa, declarada y calculada.';
+  }
+
   function actualizarControles() {
     el.bet.textContent = MC.fmt(apuesta());
     el.betUp.disabled = tirando || betIndex === BETS.length - 1;
@@ -153,6 +173,7 @@ window.MCPlantilla = (function () {
     el.face.textContent = '?';
     el.msg.className = 'pl-msg';
     el.msg.textContent = 'Elegí un color y tirá la ficha';
+    pintarFicha();
     pintarHistorial();
     actualizarControles();
   }
@@ -168,6 +189,9 @@ window.MCPlantilla = (function () {
     el.betDown = document.getElementById('plBetDown');
     el.red = document.getElementById('plRed');
     el.black = document.getElementById('plBlack');
+    el.paga = document.getElementById('plPaga');
+    el.rtp = document.getElementById('plRtp');
+    el.hint = document.getElementById('plHint');
 
     el.betUp.onclick = function () {
       if (betIndex < BETS.length - 1) { betIndex++; MC.sound.click(); actualizarControles(); }
