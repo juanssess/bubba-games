@@ -60,9 +60,12 @@ ventana.MC.getGame = function (id) { return CATALOGO[id] || null; };
    el navegador los lee de MCCatalog. Si alguno cambia allá y acá no,
    la prueba de "k·nominal" avisa sola. */
 const CATALOGO = {
-  slots5:   { id: 'slots5',   rtpValue: 0.9546, rtp: 'RTP 95,5%' },
-  roulette: { id: 'roulette', rtpValue: 36 / 37, rtp: 'RTP 97,3%' }
+  slots5:   { id: 'slots5',   name: 'Bubba Gold',     rtpValue: 0.9546,  rtp: 'RTP 95,5%' },
+  roulette: { id: 'roulette', name: 'Ruleta Europea', rtpValue: 36 / 37, rtp: 'RTP 97,3%' },
+  mines:    { id: 'mines',    name: 'Mines',          rtpValue: 0.97,    rtp: 'RTP 97,0%' }
 };
+// codigo() recorre el catálogo para saber qué mesas tienen número propio.
+ventana.MCCatalog = { all: Object.keys(CATALOGO).map((k) => CATALOGO[k]) };
 
 function cargar(rel) {
   new Function(fs.readFileSync(path.join(RAIZ, rel), 'utf8'))();
@@ -288,6 +291,95 @@ function probarRuleta() {
   MC.rtp.reset();
 }
 
+/* ============================================================
+   6. EL CIRCUITO DE PUBLICAR, DE PUNTA A PUNTA
+
+   El panel no puede escribir en el disco: devuelve el texto que va
+   en PUBLICADO y vos lo pegás. Eso deja un hueco donde nada avisa si
+   el texto sale mal — y saldría mal en silencio, porque un PUBLICADO
+   con un error de sintaxis rompe rtp.js entero y el casino no abre.
+
+   Esta prueba cierra el hueco: configura un retorno a mano, pide las
+   líneas, las PEGA de verdad en una copia del módulo, la carga en un
+   navegador nuevo y sin nada guardado, y comprueba que las mesas
+   paguen lo mismo. Si el generador se equivoca de coma, acá se cae.
+   ============================================================ */
+function probarPublicar() {
+  titulo('6. PUBLICAR — ¿las líneas que entrega el panel reproducen lo configurado?');
+
+  // 1. Alguien configura esto en su navegador y queda conforme.
+  MC.rtp.reset();
+  MC.rtp.setGlobal(0.93);
+  MC.rtp.set('slots5', 0.85);
+
+  const esperado = {};
+  Object.keys(CATALOGO).forEach((id) => { esperado[id] = MC.rtp.factor(id); });
+  const codigo = MC.rtp.codigo();
+
+  console.log('\n  Lo que entrega el panel:\n');
+  codigo.split('\n').forEach((l) => console.log('    ' + l));
+  console.log('');
+
+  // 2. Se pega en el módulo, como haría el usuario.
+  const fuente = fs.readFileSync(path.join(RAIZ, 'src/core/rtp.js'), 'utf8');
+  const bloque = /  var PUBLICADO = \{[\s\S]*?\n  \};/;
+  exige(bloque.test(fuente), 'el bloque PUBLICADO se encuentra en el archivo');
+  const pegado = fuente.replace(bloque, codigo);
+
+  // 3. Un navegador nuevo: nadie tocó nada en ESA compu.
+  const otra = { MCCatalog: ventana.MCCatalog };
+  otra.MC = { state: {}, rand: Math.random, getCurrentGame: () => null,
+              save: () => {}, getGame: (id) => CATALOGO[id] || null };
+  const cargarEn = new Function('window', 'MC', pegado);
+  try {
+    cargarEn(otra, otra.MC);
+  } catch (e) {
+    exige(false, 'el código pegado se carga sin romper', e.message);
+    return;
+  }
+  exige(true, 'el código pegado se carga sin romper');
+
+  // 4. ¿Paga lo mismo que pagaba el que lo configuró?
+  let todas = true;
+  Object.keys(esperado).forEach((id) => {
+    const ahora = otra.MC.rtp.factor(id);
+    const ok = Math.abs(ahora - esperado[id]) < 0.0001;
+    if (!ok) todas = false;
+    console.log('    ' + id.padEnd(10) + ' configurado ' + esperado[id].toFixed(4) +
+                '  publicado ' + ahora.toFixed(4) + (ok ? '' : '   <-- MAL'));
+  });
+  exige(todas, 'cada mesa paga lo mismo publicada que configurada a mano');
+  exige(!otra.MC.rtp.hayLocal(),
+    'y en esa compu no hay nada local: lo que se ve viene del código');
+
+  MC.rtp.reset();
+}
+
+/* ============================================================
+   7. LA MIGRACIÓN DE LAS CUENTAS VIEJAS
+
+   La primera versión de este panel guardaba {global:1, juegos:{}} en
+   toda cuenta, tocara o no la perilla. Con las reglas de hoy eso es
+   "quiero el 100%, ignorá lo publicado", y le taparía a la casa
+   cualquier recorte que publicara después. Tiene que limpiarse.
+   ============================================================ */
+function probarMigracion() {
+  titulo('7. MIGRACIÓN — una cuenta vieja no debe tapar lo publicado');
+
+  MC.state.rtp = { global: 1, juegos: {} };     // como la guardaba la versión anterior
+  exige(!MC.rtp.hayLocal(),
+    'el {global:1} de fábrica se limpia: la cuenta queda sin nada propio');
+
+  // Pero un 100% puesto A PROPÓSITO, después, se respeta.
+  MC.rtp.setGlobal(1);
+  MC.rtp.set('mines', 0.9);
+  MC.rtp.quitar('mines');
+  exige(MC.rtp.hayLocal(),
+    'y un 100% elegido a mano después NO se borra');
+
+  MC.rtp.reset();
+}
+
 /* ---------------- corrida ---------------- */
 console.log('\n' + '#'.repeat(62));
 console.log('#  VERIFICACIÓN DEL PANEL DE RETORNO');
@@ -298,6 +390,8 @@ probarFactor();
 probarGoldExacto();
 probarGoldSimulado(0.9, RONDAS);
 probarRuleta();
+probarPublicar();
+probarMigracion();
 
 titulo('RESULTADO');
 if (fallas === 0) {

@@ -90,6 +90,8 @@ window.MCCasa = (function () {
 
   function intro() {
     var hay = MC.rtp.hayAjustes();
+    var local = MC.rtp.hayLocal();
+
     return '<div class="casa-intro' + (hay ? ' activo' : '') + '">' +
       '<h3>Cuánto paga cada mesa</h3>' +
       '<p>Bajar el retorno no recorta el premio al final: mueve el número con el ' +
@@ -101,6 +103,34 @@ window.MCCasa = (function () {
           'muestran el RTP nuevo, no el de fábrica.</p>'
         : '<p class="casa-aviso">Ahora mismo todas las mesas pagan el RTP con el que ' +
           'fueron diseñadas.</p>') +
+      '</div>' +
+
+      /* Esto es lo que más se presta a malentendido, así que va arriba
+         de todo y con el estado concreto en vez de una explicación
+         general: mover una perilla acá no le cambia el retorno a nadie
+         más. Sólo publicar lo hace. */
+      '<div class="casa-capas' + (local ? ' pisando' : '') + '">' +
+        '<div class="cc-fila">' +
+          '<span class="cc-ico">🌐</span>' +
+          '<div><strong>Lo que ve todo el mundo</strong>' +
+          '<span>Viaja en el código, en <code>PUBLICADO</code> de ' +
+          '<code>src/core/rtp.js</code>. ' +
+          (MC.rtp.hayPublicado()
+            ? 'Hoy la casa publica un recorte.'
+            : 'Hoy la casa no publica ningún recorte: todos ven el RTP de fábrica.') +
+          '</span></div>' +
+        '</div>' +
+        '<div class="cc-fila">' +
+          '<span class="cc-ico">💻</span>' +
+          '<div><strong>Lo que ves vos, en esta compu</strong>' +
+          '<span>' + (local
+            ? 'Estás pisando lo publicado desde este navegador. <strong>Nadie más lo ve.</strong>'
+            : 'No estás pisando nada: ves lo mismo que todos.') +
+          '</span></div>' +
+        '</div>' +
+        (local
+          ? '<button class="btn btn-gold" id="casaPublicar">Publicar esto para todos</button>'
+          : '') +
       '</div>';
   }
 
@@ -110,6 +140,9 @@ window.MCCasa = (function () {
         '<div><strong>Todas las mesas</strong>' +
         '<span>Paga el <b id="casaGlobalVal">' + Math.round(gl * 100) + '%</b> de lo que ' +
         'cada juego paga de fábrica. Un juego con ajuste propio no sigue a este control.</span></div>' +
+        (MC.state.rtp && MC.state.rtp.global !== undefined
+          ? '<button class="cf-soltar" id="casaSoltarGlobal">volver a lo publicado</button>'
+          : '') +
       '</div>' +
       '<input type="range" id="casaGlobal" class="casa-range" min="' +
         Math.round(MC.rtp.MIN * 100) + '" max="100" step="1" value="' +
@@ -152,7 +185,12 @@ window.MCCasa = (function () {
           'min="' + min + '" max="' + max + '" step="0.1" value="' + (efectivo * 100).toFixed(1) + '">' +
         (propio
           ? '<button class="cf-soltar" data-soltar="' + g.id + '">seguir al global</button>'
-          : '<span class="cf-sigue">sigue al global</span>') +
+          : '<span class="cf-sigue">' +
+            (MC.rtp.hayLocal() ? 'sigue al global' : 'como se publica') + '</span>') +
+        (MC.rtp.pisado(g.id)
+          ? '<span class="cf-pisado" title="Publicado: ' +
+            pct1(g.rtpValue * MC.rtp.factorPublicado(g.id)) + '%">sólo en esta compu</span>'
+          : '') +
       '</div>' +
       (APROXIMADO[g.id] && tocado
         ? '<p class="cf-nota">El empate devuelve la apuesta y no se escala, así que esta ' +
@@ -192,7 +230,7 @@ window.MCCasa = (function () {
         pct1(sumaEf / n) + '%</strong></div>' +
       '<div class="cp-dato"><span>Ventaja media de la casa</span><strong>' +
         pct1(1 - sumaEf / n) + '%</strong></div>' +
-      '<button class="btn btn-ghost" id="casaReset">Volver todo a como fue diseñado</button>' +
+      '<button class="btn btn-ghost" id="casaReset">Borrar lo de este navegador</button>' +
       '<p class="cp-nota">Estos promedios son por mesa, no ponderados por lo que se ' +
       'apuesta en cada una: sirven para ver el conjunto, no para proyectar la caja.</p>' +
     '</div>';
@@ -242,6 +280,13 @@ window.MCCasa = (function () {
       };
     });
 
+    var sg = document.getElementById('casaSoltarGlobal');
+    if (sg) sg.onclick = function () {
+      MC.rtp.quitarGlobal();
+      MC.sound.click();
+      aplicado();
+    };
+
     document.querySelectorAll('[data-soltar]').forEach(function (b) {
       b.onclick = function () {
         MC.rtp.quitar(b.dataset.soltar);
@@ -250,21 +295,88 @@ window.MCCasa = (function () {
       };
     });
 
+    var pub = document.getElementById('casaPublicar');
+    if (pub) pub.onclick = publicar;
+
     var reset = document.getElementById('casaReset');
     if (reset) reset.onclick = function () {
-      MC.modal('¿Volver todo atrás?',
-        '<p>Las ocho mesas vuelven a pagar el RTP con el que fueron diseñadas.</p>' +
-        '<p style="font-size:12.5px;color:var(--txt-dim)">No toca saldos ni historial: ' +
-        'sólo cuánto paga cada juego de acá en adelante.</p>',
+      MC.modal('¿Borrar lo de este navegador?',
+        '<p>Se va todo lo que ajustaste en esta compu. Las mesas vuelven a pagar ' +
+        '<strong>lo que la casa publica</strong> en el código.</p>' +
+        '<p style="font-size:12.5px;color:var(--txt-dim)">No toca saldos ni historial, ' +
+        'ni lo publicado: sólo cuánto paga cada juego de acá en adelante, y sólo acá.</p>',
         [
           { label: 'Cancelar' },
           { label: 'Sí, volver', kind: 'primary', onClick: function () {
             MC.rtp.reset();
             aplicado();
-            MC.toast('Todas las mesas pagan como fueron diseñadas', 'info');
+            MC.toast('Listo: ves lo mismo que el resto', 'info');
           } }
         ]);
     };
+  }
+
+  /* ============================================================
+     PUBLICAR
+
+     El panel corre en el navegador: no tiene manos sobre el disco y
+     no puede escribir un archivo. Lo único honesto que puede hacer es
+     devolver el texto exacto que va en el código, y decir con todas
+     las letras qué falta después — porque hasta que no haya push, el
+     cambio sigue siendo sólo tuyo.
+     ============================================================ */
+  function publicar() {
+    var codigo = MC.rtp.codigo();
+    MC.sound.click();
+
+    /* El botón de copiar va DENTRO del cuerpo y no en las acciones:
+       MC.modal cierra el diálogo antes de llamar al onClick de una
+       acción, y copiar necesita que el <pre> siga en pantalla para
+       poder seleccionarlo si el portapapeles falla. */
+    MC.modal('Publicar esto para todos',
+      '<p>Pegá esto en <code>src/core/rtp.js</code>, reemplazando el bloque ' +
+      '<code>var PUBLICADO = { ... }</code>:</p>' +
+      '<pre class="casa-codigo" id="casaCodigo">' + escapar(codigo) + '</pre>' +
+      '<button class="btn btn-ghost casa-copiar" id="casaCopiar">Copiar</button>' +
+      '<p style="font-size:12.5px;color:var(--txt-dim)">Después <strong>commit y ' +
+      'push</strong>. Recién cuando GitHub Pages reconstruya, el retorno nuevo es el ' +
+      'de la casa. Hasta entonces sigue siendo sólo el de esta compu.</p>' +
+      '<p style="font-size:12.5px;color:var(--txt-dim)">Cuando eso esté publicado, ' +
+      'conviene borrar lo de este navegador: si no, seguís viendo lo tuyo encima y no ' +
+      'lo que ve el resto.</p>',
+      [{ label: 'Listo' }]);
+
+    var btn = document.getElementById('casaCopiar');
+    if (btn) btn.onclick = function () { copiar(codigo); };
+  }
+
+  function escapar(t) {
+    return t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function copiar(texto) {
+    /* El portapapeles moderno falla sin https y sin permiso, así que
+       si no anda se deja el texto seleccionado: copiar a mano con
+       Ctrl+C siempre funciona, y es mejor que un botón que no hace
+       nada sin decir por qué. */
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(texto).then(function () {
+        MC.toast('Copiado. Pegalo en src/core/rtp.js', 'win');
+      }, seleccionar);
+    } else {
+      seleccionar();
+    }
+  }
+
+  function seleccionar() {
+    var pre = document.getElementById('casaCodigo');
+    if (!pre) return;
+    var rango = document.createRange();
+    rango.selectNodeContents(pre);
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(rango);
+    MC.toast('No pude copiar solo: te lo dejé seleccionado, Ctrl+C', 'info');
   }
 
   /* Después de cada cambio: repintar el panel y corregir las etiquetas

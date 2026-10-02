@@ -44,7 +44,11 @@ window.MC = window.MC || {};
        defaults por el motivo que explica el comentario de arriba: una
        clave que no este en esta lista la borra la primera sincronia con
        la nube, y ahi se perderia la configuracion del panel. */
-    rtp: { global: 1, juegos: {} },
+    /* Vacio a proposito: una clave ausente quiere decir "segui lo que
+       publica la casa en el codigo". Si aca dijera {global: 1}, cada
+       cuenta nueva nacería pisando lo publicado con un 100%, y la casa
+       no podria bajarle el retorno a nadie. Ver PUBLICADO en core/rtp.js. */
+    rtp: {},
 
     xp: 0,                                        // rango VIP
     missions: { day: '', items: [] },             // objetivos del día

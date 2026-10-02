@@ -84,6 +84,57 @@ esos tres pagaban un poco menos que el RTP que publicaban.
 
 ---
 
+## Las dos capas: lo que ve todo el mundo y lo que ves vos
+
+Esta es la parte que más se presta a malentendido, así que va con
+todas las letras: **mover una perilla del panel no le cambia el
+retorno a nadie más.**
+
+El panel escribe en el `localStorage` del navegador, y el
+almacenamiento de un navegador no es de nadie más. No es una
+limitación que se pueda programar alrededor: el casino corre entero
+en la máquina del que lo abre y no hay servidor donde guardar una
+decisión de la casa. Si el número tiene que valer para todos, tiene
+que estar en un archivo que se publique.
+
+Por eso hay dos capas:
+
+| | Dónde vive | Quién lo ve |
+|---|---|---|
+| **Publicado** | `PUBLICADO`, arriba de `src/core/rtp.js` | todos los que abran el sitio |
+| **Local** | el `localStorage` de tu navegador | sólo vos, en esa compu |
+
+Lo local pisa a lo publicado, y el orden completo es: ajuste propio
+de la mesa → global tuyo → ajuste publicado de la mesa → global
+publicado.
+
+### Cómo se publica
+
+El panel no puede escribir en el disco —corre en el navegador—, así
+que hace lo único honesto que puede: te da el texto exacto.
+
+1. Movés las perillas y probás hasta que te guste.
+2. **Publicar esto para todos** te devuelve el bloque `PUBLICADO`.
+3. Lo pegás en `src/core/rtp.js`, reemplazando el que está.
+4. Commit y push. Cuando GitHub Pages reconstruya, ese es el retorno
+   de la casa.
+5. Conviene después **borrar lo de este navegador**: si no, seguís
+   viendo lo tuyo encima y no lo que ve el resto.
+
+Hasta el paso 4 el cambio sigue siendo sólo tuyo. El panel lo dice en
+pantalla en vez de dejarte creer que ya está hecho.
+
+### La migración de las cuentas viejas
+
+La primera versión de este panel guardaba `{global: 1, juegos: {}}` en
+toda cuenta, tocara o no la perilla. Con las reglas de hoy eso sería
+un jugador diciendo "quiero el 100%, ignorá lo publicado", y le
+taparía a la casa cualquier recorte que publicara después. Se limpia
+**una sola vez**, marcada con `v: 2`, para que un 100% elegido a mano
+más adelante sí se respete.
+
+---
+
 ## Cómo se usa
 
 - **Todas las mesas**: un solo control, en porcentaje de lo que cada
@@ -125,7 +176,14 @@ Carga los archivos del casino tal cual —no una copia— y comprueba:
 2. la aritmética del factor (el propio gana, los topes, los iframes);
 3. que el RTP exacto de Bubba Gold dé `k × 95,46%` para todo `k`;
 4. lo mismo jugando rondas completas con giros gratis y retriggers;
-5. que las trece apuestas de la ruleta sigan teniendo el mismo margen.
+5. que las trece apuestas de la ruleta sigan teniendo el mismo margen;
+6. **el circuito de publicar completo**: configura un retorno, pide las
+   líneas, las pega de verdad en una copia del módulo, la carga en un
+   navegador sin nada guardado y comprueba que las mesas paguen lo
+   mismo. Si el generador se equivoca de coma, acá se cae — y un
+   `PUBLICADO` con un error de sintaxis rompe `rtp.js` entero;
+7. que la migración limpie el rastro viejo sin borrar una elección
+   deliberada.
 
 Mines y Bubba Jet no están ahí a propósito: en esos dos el RTP **es** la
 constante que el panel mueve, la demostración son dos líneas en el

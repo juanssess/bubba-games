@@ -77,10 +77,66 @@ window.MC = window.MC || {};
      como lo que son en vez de ofrecer una perilla muerta. */
   var FUERA_DE_ALCANCE = ['maverick', 'sebusca', 'vendimia'];
 
+  /* ============================================================
+     LO QUE SE PUBLICA — el retorno que viaja en el código
+
+     Acá abajo está el retorno que la casa publica, y es lo ÚNICO de
+     este módulo que vale para todo el mundo. Se sirve junto con el
+     sitio, así que cualquiera que lo abra lo recibe.
+
+     Hace falta porque el panel no puede hacer eso. El panel escribe
+     en el almacenamiento del navegador, y el almacenamiento de un
+     navegador no es de nadie más: bajar una mesa desde ahí la baja
+     para vos y para nadie más. No es una limitación que se pueda
+     programar alrededor — no hay servidor donde guardar una decisión
+     de la casa. Si el número tiene que valer para todos, tiene que
+     estar en un archivo que se publique.
+
+     Entonces queda así:
+
+       PUBLICADO   está acá, viaja en el push, lo ve todo el mundo
+       el panel    está en tu navegador, lo ves vos
+
+     El panel sigue sirviendo para probar: movés, mirás cómo queda y,
+     cuando estás conforme, el botón "Publicar esto para todos" te da
+     las líneas exactas para pegar justo acá abajo. Después un commit
+     y un push, y recién ahí el cambio es de la casa.
+
+     Formato: igual que el del panel. `global` es el factor que
+     siguen todas las mesas; `juegos` lleva las que tienen número
+     propio. Dejarlo en 1 y vacío es lo de fábrica.
+     ============================================================ */
+  var PUBLICADO = {
+    global: 1,
+    juegos: {}
+  };
+
+  /* Lo que decidiste vos en ESTE navegador. Arranca vacío a propósito:
+     una clave ausente quiere decir "seguí lo publicado", y por eso el
+     objeto no se rellena con valores por defecto.
+
+     La migración de abajo existe por una versión anterior de este
+     módulo que guardaba {global: 1, juegos: {}} en toda cuenta, aunque
+     nadie hubiera tocado nada. Eso, leído con las reglas de hoy, sería
+     un jugador diciendo "quiero el 100%, ignorá lo publicado", y le
+     taparía a la casa cualquier retorno que publicara después. Si no
+     hay ningún juego con número propio, un global en 1 es el rastro de
+     aquello y no una decisión: se borra. */
   function config() {
-    if (!MC.state.rtp) MC.state.rtp = { global: 1, juegos: {} };
-    if (!MC.state.rtp.juegos) MC.state.rtp.juegos = {};
-    return MC.state.rtp;
+    if (!MC.state.rtp) MC.state.rtp = {};
+    var c = MC.state.rtp;
+    if (!c.juegos) c.juegos = {};
+
+    /* La limpieza corre UNA sola vez y queda marcada. Si corriera
+       siempre, borraría también un 100% puesto a propósito —alguien
+       que quiere ver el retorno de fábrica en su compu mientras la
+       casa publica un recorte—, y esa es una elección legítima que el
+       panel tiene que poder guardar. */
+    if (c.v !== 2) {
+      if (c.global === 1 && !Object.keys(c.juegos).length) delete c.global;
+      c.v = 2;
+    }
+    return c;
   }
 
   function limitar(f) {
@@ -104,12 +160,47 @@ window.MC = window.MC || {};
     var c = config();
     var id = gameId || MC.getCurrentGame();
     if (id && fueraDeAlcance(id)) return 1;
+
+    /* El orden es de lo más específico a lo más general, y lo de este
+       navegador va antes que lo publicado: el panel existe para poder
+       probar algo distinto sin publicarlo. */
     if (id && c.juegos[id] !== undefined) return limitar(c.juegos[id]);
-    return limitar(c.global);
+    if (c.global !== undefined) return limitar(c.global);
+    if (id && PUBLICADO.juegos[id] !== undefined) return limitar(PUBLICADO.juegos[id]);
+    return limitar(PUBLICADO.global);
   }
 
-  /** El factor global, el que siguen los juegos sin ajuste propio. */
-  function global_() { return limitar(config().global); }
+  /** El factor global que corre: el tuyo si lo pusiste, si no el publicado. */
+  function global_() {
+    var c = config();
+    return limitar(c.global !== undefined ? c.global : PUBLICADO.global);
+  }
+
+  /** El factor que la casa publica para un juego, sin mirar este navegador. */
+  function factorPublicado(gameId) {
+    if (fueraDeAlcance(gameId)) return 1;
+    if (gameId && PUBLICADO.juegos[gameId] !== undefined) {
+      return limitar(PUBLICADO.juegos[gameId]);
+    }
+    return limitar(PUBLICADO.global);
+  }
+
+  /** ¿Este navegador le está pisando el valor publicado a este juego? */
+  function pisado(gameId) {
+    return Math.abs(factor(gameId) - factorPublicado(gameId)) > 0.0005;
+  }
+
+  /** ¿Hay algo decidido en este navegador, sea lo que sea? */
+  function hayLocal() {
+    var c = config();
+    return c.global !== undefined || Object.keys(c.juegos).length > 0;
+  }
+
+  /** ¿La casa publicó algún recorte? */
+  function hayPublicado() {
+    if (Math.abs(limitar(PUBLICADO.global) - 1) > 0.0005) return true;
+    return Object.keys(PUBLICADO.juegos).length > 0;
+  }
 
   function fueraDeAlcance(gameId) {
     return FUERA_DE_ALCANCE.indexOf(gameId) >= 0;
@@ -133,11 +224,12 @@ window.MC = window.MC || {};
 
   /** ¿Hay algo tocado en todo el casino? */
   function hayAjustes() {
-    var c = config();
-    if (Math.abs(limitar(c.global) - 1) > 0.0005) return true;
-    return Object.keys(c.juegos).some(function (id) {
-      return Math.abs(limitar(c.juegos[id]) - 1) > 0.0005;
-    });
+    /* Se accede por window y no por el global suelto: este módulo
+       también se carga fuera del navegador, en tools/rtp-verificar.js,
+       donde el catálogo se inyecta en un window de mentira y el
+       nombre pelado no existe. */
+    if (!window.MCCatalog) return hayLocal() || hayPublicado();
+    return window.MCCatalog.all.some(function (g) { return ajustado(g.id); });
   }
 
   /* ---------------- escritura ---------------- */
@@ -157,10 +249,58 @@ window.MC = window.MC || {};
     MC.save();
   }
 
+  /** Borra lo de ESTE navegador. Lo publicado no se toca desde acá:
+      para cambiarlo hay que editar PUBLICADO y publicar el sitio. */
   function reset() {
-    MC.state.rtp = { global: 1, juegos: {} };
+    MC.state.rtp = {};
     MC.save();
   }
+
+  /** Saca el global propio: todo vuelve a seguir lo publicado. */
+  function quitarGlobal() {
+    delete config().global;
+    MC.save();
+  }
+
+  /* ============================================================
+     LAS LÍNEAS PARA PUBLICAR
+
+     El puente entre las dos capas. El panel no puede escribir en un
+     archivo —corre en el navegador, no tiene manos sobre el disco—,
+     así que hace lo único honesto que puede hacer: te devuelve
+     exactamente el texto que va en PUBLICADO, arriba de este archivo.
+
+     Se arma con lo que está corriendo AHORA (lo tuyo pisando lo
+     publicado), que es lo que acabás de probar y querés dejar fijo.
+     ============================================================ */
+  function codigo() {
+    var juegos = [];
+    if (window.MCCatalog) {
+      window.MCCatalog.all.forEach(function (g) {
+        if (fueraDeAlcance(g.id)) return;
+        var f = factor(g.id);
+        if (Math.abs(f - global_()) > 0.0005) {
+          juegos.push("      " + g.id + ": " + redondear(f) +
+                      ",   // " + g.name + " → " + pct(g.rtpValue * f));
+        }
+      });
+    }
+    var lineas = [
+      '  var PUBLICADO = {',
+      '    global: ' + redondear(global_()) + ',',
+      juegos.length ? '    juegos: {' : '    juegos: {}'
+    ];
+    if (juegos.length) {
+      // La última sin coma, para que no quede basura en el archivo.
+      juegos[juegos.length - 1] = juegos[juegos.length - 1].replace(',   //', '    //');
+      lineas = lineas.concat(juegos, ['    }']);
+    }
+    lineas.push('  };');
+    return lineas.join('\n');
+  }
+
+  // Cuatro decimales alcanzan: es la milésima de punto de RTP.
+  function redondear(f) { return Math.round(f * 10000) / 10000; }
 
   /* ============================================================
      REDONDEO A FICHAS — por qué no se usa Math.floor
@@ -238,9 +378,16 @@ window.MC = window.MC || {};
     ajustado: ajustado,
     hayAjustes: hayAjustes,
     fueraDeAlcance: fueraDeAlcance,
+    // Las dos capas, por separado: lo que publica la casa y lo tuyo.
+    factorPublicado: factorPublicado,
+    pisado: pisado,
+    hayLocal: hayLocal,
+    hayPublicado: hayPublicado,
+    codigo: codigo,
     setGlobal: setGlobal,
     set: set,
     quitar: quitar,
+    quitarGlobal: quitarGlobal,
     reset: reset,
     fichas: fichas,
     etiqueta: etiqueta,

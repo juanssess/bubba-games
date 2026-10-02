@@ -171,3 +171,51 @@
   .cf-soltar, .cf-sigue{ margin-top:4px; }
   .casa-pie .btn{ margin-left:0; flex:1 0 100%; }
 }
+
+/* ============================================================
+   LAS DOS CAPAS — lo que se publica y lo que es sólo tuyo.
+   Va arriba de todo en el panel porque es lo que más se presta a
+   malentendido: mover una perilla acá no le cambia el retorno a
+   nadie más.
+   ============================================================ */
+.casa-capas{
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 16px 20px;
+  margin-bottom: 18px;
+  display: grid;
+  gap: 12px;
+}
+.casa-capas.pisando{ border-color: var(--line-2); }
+
+.cc-fila{ display:flex; gap:12px; align-items:flex-start; }
+.cc-ico{ font-size:18px; line-height:1.3; flex:0 0 auto; }
+.cc-fila strong{ display:block; font-size:13.5px; }
+.cc-fila span{ display:block; font-size:12.5px; color:var(--txt-dim); line-height:1.5; margin-top:2px; }
+.cc-fila code{ font-size:11.5px; }
+.casa-capas .btn{ justify-self:start; }
+
+/* La marca de "esto lo ves sólo vos" en la fila de una mesa. */
+.cf-pisado{
+  flex:0 0 auto; margin-top:14px;
+  font-size:11px; padding:3px 9px; border-radius:999px;
+  background: var(--bg-3); border:1px solid var(--line-2);
+  color: var(--gold);
+}
+
+/* El bloque de código que entrega el diálogo de publicar. */
+.casa-codigo{
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  margin: 10px 0;
+  font-size: 12px;
+  line-height: 1.55;
+  overflow-x: auto;
+  white-space: pre;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.casa-copiar{ margin-bottom: 6px; }
