@@ -3,7 +3,7 @@ window.MCFootball = (function () {
   'use strict';
   var API = 'https://www.thesportsdb.com/api/v1/json/123/';
   var ZONE = 'America/Argentina/Buenos_Aires';
-  var CACHE = 'bubba_futbol_diario_v3';
+  var CACHE = 'bubba_futbol_diario_v4';
   var TTL = 10 * 60 * 1000;
   var LEAGUES = [
     { id: '4406', name: 'Liga Argentina', country: 'Argentina' },
@@ -73,6 +73,16 @@ window.MCFootball = (function () {
   function finished(m) { return ['FT', 'AET', 'PEN'].indexOf(m.status) !== -1 && m.gh !== null && m.ga !== null; }
   function cancelled(m) { return ['CANC', 'CANCELLED', 'ABD', 'ABANDONED', 'PST', 'POSTPONED'].indexOf(m.status) !== -1; }
   function inPlay(m) { return ['1H', '2H', 'HT', 'ET', 'LIVE', 'IN PLAY', 'IN PROGRESS'].indexOf(m.status) !== -1; }
+  function liveLabel(m) {
+    if (m.status === 'HT') return 'Entretiempo';
+    if (!inPlay(m)) return '';
+    var period = { '1H': 'Primer tiempo', '2H': 'Segundo tiempo', ET: 'Pr\u00f3rroga' }[m.status];
+    if (period) return period;
+    // A reported minute can identify the half, but is never displayed as a clock.
+    if (Number.isInteger(m.minute) && m.minute >= 0 && m.minute <= 90)
+      return m.minute <= 45 ? 'Primer tiempo' : 'Segundo tiempo';
+    return 'En juego';
+  }
   function marketOpen(m) {
     if (m.provider === 'football-data' && (!m.feedAt || Date.now() - Date.parse(m.feedAt) >= 2 * 60 * 60 * 1000)) return false;
     return !!m.date && ['NS', 'NOT STARTED', 'SCHEDULED'].indexOf(m.status) !== -1 && new Date(m.date).getTime() > Date.now();
@@ -227,7 +237,7 @@ window.MCFootball = (function () {
     return resultRequest;
   }
   return { LEAGUES: LEAGUES, ZONE: ZONE, day: day, normalize: normalize, timestamp: timestamp,
-    image: image, score: score, marketOpen: marketOpen, finished: finished, cancelled: cancelled, inPlay: inPlay,
+    image: image, score: score, marketOpen: marketOpen, finished: finished, cancelled: cancelled, inPlay: inPlay, liveLabel: liveLabel,
     odds: odds, refresh: refresh, find: find, ticketResults: ticketResults,
     status: function () { return state; }, onChange: function (fn) { listeners.push(fn); } };
 })();

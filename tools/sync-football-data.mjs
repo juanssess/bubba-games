@@ -8,6 +8,8 @@ function compact(row) {
       !row.homeTeam?.name || !row.awayTeam?.name || !Number.isFinite(Date.parse(row.utcDate))) return null;
   const team = t => ({ id: t.id, name: t.name, shortName: t.shortName, tla: t.tla, crest: t.crest });
   return { id: row.id, utcDate: row.utcDate, status: row.status, matchday: row.matchday,
+    minute: Number.isInteger(row.minute) && row.minute >= 0 && row.minute <= 120 ? row.minute : null,
+    injuryTime: Number.isInteger(row.injuryTime) && row.injuryTime >= 0 && row.injuryTime <= 30 ? row.injuryTime : null,
     competition: { code: row.competition.code }, homeTeam: team(row.homeTeam), awayTeam: team(row.awayTeam),
     score: row.score, checkedAt: new Date().toISOString() };
 }

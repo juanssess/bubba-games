@@ -13,11 +13,12 @@ const calls = [];
 const output = await sync({ token: 'test-secret', now: new Date(now), pause: async () => {},
   fetcher: async (url, options) => {
     calls.push(url); assert.equal(options.headers['X-Auth-Token'], 'test-secret');
-    return { ok: true, json: async () => ({ resultSet: { count: 1 }, matches: [row()] }) };
+    return { ok: true, json: async () => ({ resultSet: { count: 1 }, matches: [row(1, 'PL', { minute: 67, injuryTime: 0 })] }) };
   }, previous: { matches: [row(8, 'PD', { utcDate: '2026-09-30T20:00:00Z', status: 'FINISHED' })] } });
 assert.equal(calls.length, 2);
 assert.equal(output.matches.length, 2, 'Deduplicate overlapping windows and preserve past results');
 assert.ok(!JSON.stringify(output).includes('test-secret'));
+assert.equal(output.matches.find(m => m.id === 1).minute, 67, 'Public snapshot retains the reported minute');
 await assert.rejects(sync({ token: '' }), /Falta el secreto/);
 await assert.rejects(sync({ token: 'x', fetcher: async () => ({ ok: false, status: 429 }) }), /429/);
 await assert.rejects(sync({ token: 'x', fetcher: async () => ({ ok: true, json: async () => ({ matches: [] }) }) }), /incompleta/);
@@ -51,6 +52,10 @@ assert.ok(combined.api.find('fd-1'));
 assert.equal(combined.api.status().matches.length, 5, 'Three shared matches plus Argentina and Libertadores');
 assert.ok(!combined.requests.some(u => /[?&]l=4328/.test(u)), 'Covered leagues do not use SportsDB or duplicate fixtures');
 assert.ok(combined.api.marketOpen(combined.api.find('fd-1')));
+const live = combined.feed.normalize(row(5, 'PL', { status: 'IN_PLAY', minute: 90, injuryTime: 3 }));
+assert.equal(combined.api.liveLabel(live), 'Segundo tiempo');
+assert.equal(combined.api.marketOpen(live), false, 'Reported minutes must not enable stale prematch odds');
+assert.equal(combined.feed.normalize(row(5, 'PL', { minute: '67', injuryTime: -1 })).minute, null);
 assert.equal(combined.api.marketOpen(combined.feed.normalize(row(5, 'PL', { status: 'SCHEDULED' }))), false, 'A tentative schedule cannot open a market');
 assert.equal(combined.api.finished(combined.api.find('fd-3')), true);
 const results = await combined.api.ticketResults([{ selections: [{ matchId: 'fd-3', source: 'daily' }] }]);

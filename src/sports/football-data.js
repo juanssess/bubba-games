@@ -38,6 +38,8 @@ window.MCFootballData = (function () {
       league: league.name, country: league.country, home: home.id, away: away.id, homeTeam: home, awayTeam: away,
       date: row.status === 'SCHEDULED' ? null : date.toISOString(), day: MCFootball.day(date), status: statuses[row.status] || 'UNKNOWN',
       feedAt: snapshot ? snapshot.generatedAt : null,
+      minute: Number.isInteger(row.minute) && row.minute >= 0 && row.minute <= 120 ? row.minute : null,
+      injuryTime: Number.isInteger(row.injuryTime) && row.injuryTime >= 0 && row.injuryTime <= 30 ? row.injuryTime : null,
       round: Number(row.matchday) || 0, gh: MCFootball.score(goals.home), ga: MCFootball.score(goals.away) };
   }
   function fresh() {

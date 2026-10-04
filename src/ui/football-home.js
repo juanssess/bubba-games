@@ -14,7 +14,7 @@ window.MCFootballHome = (function () {
   function card(m) {
     var home = MCTeams.get(m.home), away = MCTeams.get(m.away);
     var open = MCFootball.marketOpen(m), live = MCFootball.inPlay(m);
-    var label = MCFootball.finished(m) ? 'Final' : MCFootball.cancelled(m) ? 'Suspendido' : live ? 'En juego' :
+    var label = MCFootball.finished(m) ? 'Final' : MCFootball.cancelled(m) ? 'Suspendido' : live ? MCFootball.liveLabel(m) :
       !m.date ? 'Horario a confirmar' : open ? (MCFootball.day(m.date) === MCFootball.day() ? 'Hoy' :
         new Date(m.date).toLocaleDateString('es-AR', { timeZone: MCFootball.ZONE, day: '2-digit', month: '2-digit' })) : 'Iniciado';
     var time = m.date ? new Date(m.date).toLocaleTimeString('es-AR', {
@@ -24,11 +24,11 @@ window.MCFootballHome = (function () {
     return '<article class="fb-match" aria-label="' + escape(home.name + ' contra ' + away.name) + '">' +
       '<div class="fb-league"><span>' + escape(m.league) + '</span><small>' + escape(m.country) + '</small></div>' +
       '<div class="fb-versus"><div class="fb-team">' + crest(home) + '<strong>' + escape(home.name) + '</strong></div>' +
-        '<div class="fb-kickoff' + (live ? ' fb-inplay' : '') + '"><span>' + label + '</span><b>' + score + '</b></div>' +
+        '<div class="fb-kickoff' + (live ? ' fb-inplay' : '') + '"' + (live ? ' title="Ultimo estado informado por la fuente; puede tener demora"' : '') + '><span>' + escape(label) + '</span><b>' + score + '</b></div>' +
         '<div class="fb-team">' + crest(away) + '<strong>' + escape(away.name) + '</strong></div></div>' +
       '<div class="fb-odds">' + [['home', '1', home.name], ['draw', 'X', 'Empate'], ['away', '2', away.name]].map(function (p) {
         return '<button type="button" data-fb-match="' + m.id + '" data-fb-pick="' + p[0] + '"' +
-          (open ? '' : ' disabled') + ' title="' + escape(open ? p[2] + ' · Cuota virtual ' + o[p[0]].toFixed(2) : 'Mercado cerrado') +
+          (open ? '' : ' disabled') + ' title="' + escape(open ? p[2] + ' · Cuota virtual ' + o[p[0]].toFixed(2) : live ? 'Sin cuotas en vivo: apuestas disponibles antes del inicio' : 'Mercado cerrado') +
           '" aria-label="' + escape(p[2] + (open ? ', cuota virtual ' + o[p[0]].toFixed(2) : ', mercado cerrado')) + '">' +
           '<b>' + (open ? o[p[0]].toFixed(2) : '&#8212;') + '</b><span>' + p[1] + '</span></button>';
       }).join('') + '</div></article>';

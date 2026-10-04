@@ -146,3 +146,13 @@ Los resultados de cupones anteriores de TheSportsDB siguen verificandose en
 su proveedor original. Los mercados son de 90 minutos: un resultado con
 prorroga o penales solo liquida si incluye `regularTime`; de otro modo queda
 pendiente. El inicio acredita ambas fuentes cuando el archivo esta activo.
+# Estado del partido
+
+El inicio y la pantalla de apuestas muestran Primer tiempo, Segundo tiempo o
+Entretiempo, sin minutos ni reloj. El estado explicito tiene prioridad; si la
+fuente solo informa En juego y un minuto valido, este identifica la mitad.
+No se calcula el tiempo de juego usando la hora programada.
+La etiqueta representa el ultimo estado informado y puede tener demora.
+Si no se puede identificar la mitad, se mantiene En juego; para tiempo extra
+se muestra Prorroga segun el estado de la fuente.
+Las apuestas durante el partido siguen cerradas porque no hay cuotas en vivo.

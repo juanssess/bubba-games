@@ -297,6 +297,7 @@ window.MCSportsbook = (function () {
       return '<article class="sp-match"><div class="sp-match-row">' +
                '<div class="sp-match-info">' +
                  '<span class="sp-kickoff">' + escape(m.league || 'Liga Argentina') + ' · ' + horaPartido(m) +
+                   (MCFootball.inPlay(m) ? ' · ' + escape(MCFootball.liveLabel(m)) + (m.gh !== null && m.ga !== null ? ' · ' + m.gh + ' - ' + m.ga : '') : '') +
                    (marketOpen(m) ? ' · Prepartido' : ' · Mercado cerrado') + '</span>' +
                  '<span class="sp-team">' + crest(h) + '<strong>' + escape(h.name) + '</strong></span>' +
                  '<span class="sp-team">' + crest(a) + '<strong>' + escape(a.name) + '</strong></span>' +

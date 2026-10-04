@@ -53,7 +53,7 @@ try {
   await page.evaluate(() => MC.closeModal());
   await page.waitForFunction(() => MCFootball.status().ready && !MCFootball.status().loading);
   assert.equal(await page.locator('.fb-match').count(), 11);
-  assert.match(await page.locator('.fb-match').first().innerText(), /En juego/);
+  assert.match(await page.locator('.fb-match').first().innerText(), /Primer tiempo/);
   assert.match(await page.locator('.fb-match').first().innerText(), /1 - 0/);
   assert.equal(await page.locator('.fb-match').first().locator('button:not(:disabled)').count(), 0);
   await page.selectOption('#fbCompetition', '4328');
@@ -129,11 +129,16 @@ try {
     homeTeam: { id: 101, name: 'Flamengo' }, awayTeam: { id: 102, name: 'Palmeiras' },
     score: { duration: 'REGULAR', fullTime: { home: null, away: null } } });
   await combined.route('https://raw.githubusercontent.com/juanssess/bubba-games/football-data/**', route => route.fulfill({ json: {
-    version: 1, generatedAt: stamp, competitions: ['PL', 'BSA'], matches: [shared(900), shared(901)]
+    version: 1, generatedAt: stamp, competitions: ['PL', 'BSA'], matches: [shared(900), shared(901),
+      { ...shared(902), status: 'IN_PLAY', minute: 67, injuryTime: 0,
+        score: { duration: 'REGULAR', fullTime: { home: 1, away: 0 } } }]
   } }));
   await combined.goto(base + '/?nosync=1');
   await combined.evaluate(() => MC.closeModal());
   await combined.waitForFunction(() => MCFootball.status().ready && !MCFootball.status().loading);
+  assert.match(await combined.locator('.fb-match').first().innerText(), /Segundo tiempo/);
+  assert.doesNotMatch(await combined.locator('.fb-match').first().innerText(), /67'/);
+  assert.equal(await combined.locator('[data-fb-match="fd-902"][data-fb-pick="home"]').isDisabled(), true);
   await combined.selectOption('#fbCompetition', 'fd-BSA');
   assert.equal(await combined.locator('.fb-match').count(), 1);
   assert.match(await combined.locator('.fb-source').innerText(), /football-data.org/);
