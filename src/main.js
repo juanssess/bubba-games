@@ -80,11 +80,9 @@
   /* ---------------- accesos rápidos del lobby ---------------- */
   function buildQuickRow() {
     var row = document.getElementById('quickRow');
-    // Tres accesos fijos + un atajo por cada juego VISIBLE. Se arma
-    // desde el catálogo para que la fila nunca ofrezca un juego oculto.
-    /* Los accesos llevan icono de trazo y los juegos, una muestra de su
-       propio color. Mezclar emojis de accion con emojis de juego hacia que
-       la tira se leyera como un cajon de stickers en vez de un menu. */
+    // Solo los tres accesos de cuenta: los atajos a juegos repetían lo que
+    // ya muestran los banners de arriba. Cada uno lleva una línea que dice
+    // para qué sirve, así la fila se lee como menú y no como etiquetas.
     function trazo(d) {
       return '<svg class="quick-svg" viewBox="0 0 24 24" fill="none" ' +
         'stroke="currentColor" stroke-width="1.8" stroke-linecap="round" ' +
@@ -93,25 +91,21 @@
 
     var items = [
       { ico: trazo('<circle cx="12" cy="15" r="5"/><path d="m9 10-2-6M15 10l2-6"/>'),
-        title: 'Misiones', action: 'missions' },
+        title: 'Misiones', sub: 'Completá desafíos y sumá XP', action: 'missions' },
       { ico: trazo('<rect x="3.5" y="9" width="17" height="11" rx="1.6"/>' +
                    '<path d="M3.5 13h17M12 9v11"/>' +
                    '<path d="M12 9C10 9 7.5 8.4 7.5 6.5A2 2 0 0 1 11 5.2c.6.7 1 2.1 1 3.8Z"/>'),
-        title: 'Bono', action: 'bonus' },
+        title: 'Bono', sub: 'Fichas gratis cada 8 horas', action: 'bonus' },
       { ico: trazo('<rect x="3" y="5" width="18" height="14" rx="2"/>' +
                    '<path d="M8 9v6M12 9v6M16 9v6"/>'),
-        title: 'Catálogo', action: 'catalog' }
-    ].concat(MCCatalog.all.slice(0, 5).map(function (g) {
-      return {
-        ico: '<span class="quick-art" style="background:' + g.art + '"></span>',
-        title: g.name, action: 'game:' + g.id
-      };
-    }));
+        title: 'Catálogo', sub: 'Todos los juegos del salón', action: 'catalog' }
+    ];
 
     row.innerHTML = items.map(function (q) {
       return '<div class="quick" data-action="' + q.action + '">' +
                '<span class="quick-ico">' + q.ico + '</span>' +
-               '<span class="quick-txt"><strong>' + q.title + '</strong></span>' +
+               '<span class="quick-txt"><strong>' + q.title + '</strong><span>' + q.sub + '</span></span>' +
+               '<span class="quick-go" aria-hidden="true">›</span>' +
              '</div>';
     }).join('');
 

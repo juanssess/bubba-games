@@ -150,3 +150,24 @@
   .gb-cf{display:none}
   #carousel .dot.active::after{transform:none}
 }
+
+/* ---------------- accesos de cuenta ----------------
+   Sin los atajos a juegos quedan tres accesos: ocupan el ancho en partes
+   iguales, como tarjetas, con una linea que explica cada uno. */
+.quick-row.quick-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;overflow:visible}
+.quick-row .quick{padding:14px 16px;gap:14px;border:1px solid var(--line);white-space:normal}
+.quick-row .quick-ico{
+  display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:10px;
+  background:#d8b77514;border:1px solid #d8b77533;
+}
+.quick-row .quick-svg{width:20px;height:20px;opacity:1}
+.quick-row .quick-txt{flex:1;min-width:0}
+.quick-row .quick-txt strong{font-size:14px}
+.quick-row .quick-txt span{display:block;font-size:11.5px;color:var(--txt-dim);margin-top:2px}
+.quick-go{font-size:20px;color:var(--gold);opacity:.5;transition:.2s}
+.quick-row .quick:hover{border-color:#d8b77566}
+.quick-row .quick:hover .quick-go{opacity:1;transform:translateX(3px)}
+@media(max-width:760px){
+  .quick-row.quick-row{grid-template-columns:1fr;gap:8px;-webkit-mask-image:none;mask-image:none}
+  .quick-row .quick{padding:11px 14px}
+}
