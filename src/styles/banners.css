@@ -1,0 +1,152 @@
+/* ============================================================
+   BANNERS DE JUEGO — el hero del lobby y la fila de banners chicos.
+   Todo el arte es el mismo de las portadas: la escena sale de
+   environments.png y el personaje, del sprite de cada juego. Va
+   despues de midnight.css porque pisa su fondo de .promo.
+   ============================================================ */
+
+/* ---------------- banner grande ---------------- */
+.promo.promo-game{
+  display:grid;grid-template-columns:34% 1fr 26%;align-items:center;
+  padding:0;cursor:pointer;background:#1a0a14!important;
+}
+.promo.promo-game::before{content:none}
+.promo-game > .gb-bg{
+  position:absolute;inset:-4%;z-index:0;
+  transform-origin:30% 50%;
+}
+/* El velo deja ver la escena a la izquierda y oscurece hacia la derecha,
+   donde va el texto. */
+.promo-game > .gb-veil{
+  position:absolute;inset:0;z-index:0;
+  background:linear-gradient(90deg,#12070f00 0%,#12070fa6 38%,#0d060be6 70%,#0b050af2 100%);
+}
+.promo-game.is-active > .gb-bg{animation:gb-kenburns 14s ease-in-out infinite alternate}
+@keyframes gb-kenburns{to{transform:scale(1.08) translateX(-1.5%)}}
+
+.gb-sym{justify-self:center;width:clamp(150px,17vw,240px);aspect-ratio:1;animation:gb-float 4s ease-in-out infinite}
+.gb-sym::before{
+  content:"";position:absolute;inset:8%;border-radius:50%;
+  background:radial-gradient(#f5c45166,#f5c45100 70%);
+}
+.gb-sym .illustrated-symbol{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 18px 24px #000a)}
+@keyframes gb-float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(2deg)}}
+
+.gb-mid{text-align:center;padding:0 10px}
+.gb-pill{
+  display:inline-block;background:#f5c451;color:#2a1a00;font-weight:800;
+  font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  padding:4px 12px;border-radius:99px;margin-bottom:12px;
+}
+.gb-kicker{display:block;color:#fff8ee;font-weight:800;letter-spacing:.25em;font-size:14px;text-transform:uppercase}
+.promo-game h3.gb-title{
+  max-width:none;margin:6px auto 12px;color:#f5c451;
+  font-size:clamp(38px,5.2vw,68px);line-height:1;text-transform:none;
+  text-shadow:0 2px 0 #b8862b,0 4px 0 #6b4a12,0 10px 24px #000c;
+}
+.gb-chips{display:flex;justify-content:center;flex-wrap:wrap;gap:6px}
+.gb-chips span{
+  font-size:11px;color:#f3e3ea;border:1px solid #ffffff33;background:#0006;
+  padding:4px 10px;border-radius:99px;white-space:nowrap;
+}
+
+.gb-side{text-align:center;padding-right:20px}
+.gb-side b{display:block;color:#f5c451;font-size:17px;letter-spacing:.06em;text-transform:uppercase}
+.gb-side i{display:block;color:#fff8ee;font-style:normal;font-weight:800;font-size:17px;margin-bottom:16px;text-transform:uppercase}
+.gb-cta{
+  position:relative;overflow:hidden;cursor:pointer;font:inherit;
+  background:linear-gradient(#ffe08a,#f5c451 50%,#d9a234);color:#3a2400;
+  font-weight:900;font-size:18px;text-transform:uppercase;
+  padding:14px 26px;border-radius:12px;border:0;border-bottom:4px solid #9a6c1c;
+  box-shadow:0 10px 24px #0008;transition:transform .15s;
+}
+.gb-cta:hover{transform:translateY(-2px)}
+.gb-cta:active{transform:translateY(1px);border-bottom-width:2px}
+/* Un brillo que cruza el boton cada tanto: llama sin parpadear. */
+.gb-cta::after{
+  content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;
+  background:#fff8;transform:skewX(-20deg);animation:gb-shine 3s ease-in-out infinite;
+}
+@keyframes gb-shine{0%{left:-40%}60%,100%{left:130%}}
+
+.gb-cf{
+  position:absolute;top:-14px;z-index:1;width:7px;height:12px;border-radius:2px;
+  opacity:.85;pointer-events:none;animation:gb-fall 6s linear infinite;
+}
+@keyframes gb-fall{to{transform:translateY(380px) rotate(540deg)}}
+
+/* ---------------- puntos como barra de progreso ---------------- */
+#carousel .dot{overflow:hidden}
+#carousel .dot.active{background:#ffffff30}
+#carousel .dot.active::after{
+  content:"";position:absolute;inset:0;background:#d8b775;transform-origin:left;
+  animation:gb-progress var(--autoplay,6.5s) linear infinite;
+}
+#carousel.is-paused .dot.active::after,
+#carousel.is-held .dot.active::after{animation-play-state:paused}
+@keyframes gb-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ---------------- banners chicos ---------------- */
+.mini-banners{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;
+  padding-top:18px;margin-bottom:28px;
+}
+.mini-banner{
+  position:relative;height:96px;border-radius:12px;border:1px solid var(--mb-c);
+  display:flex;align-items:center;padding:0 12px 0 118px;cursor:pointer;
+  background:none;font:inherit;text-align:left;transition:transform .2s,box-shadow .2s;
+}
+.mini-banner .mb-bg{position:absolute;inset:0;border-radius:11px}
+.mini-banner .mb-bg::after{
+  content:"";position:absolute;inset:0;border-radius:11px;
+  background:linear-gradient(90deg,#0000 20%,#000c);
+}
+/* El personaje sobresale por arriba del recuadro, como en las vitrinas
+   de los casinos grandes. */
+.mini-banner .illustrated-symbol{
+  position:absolute;left:4px;bottom:4px;width:116px;height:116px;
+  filter:drop-shadow(0 8px 10px #000b);transition:transform .2s;
+}
+.mini-banner strong{position:relative;font-size:21px;font-weight:900;color:#fff;text-shadow:0 2px 6px #000;line-height:1.1}
+.mini-banner small{
+  position:absolute;right:10px;top:8px;font-size:10px;color:#fffc;
+  background:#0008;padding:2px 7px;border-radius:99px;
+}
+.mini-banner:hover,.mini-banner:focus-visible{transform:translateY(-4px);box-shadow:0 0 0 1px var(--mb-c),0 10px 30px #000a}
+.mini-banner:hover .illustrated-symbol{transform:scale(1.08) rotate(-3deg)}
+
+/* ---------------- tamaños ---------------- */
+@media(max-width:1100px){
+  .promo.promo-game{grid-template-columns:30% 1fr 30%}
+  .mini-banner{padding-left:96px}
+  .mini-banner .illustrated-symbol{width:94px;height:94px}
+  .mini-banner strong{font-size:17px}
+}
+/* En celular: el personaje arriba, el texto y el boton debajo. */
+@media(max-width:760px){
+  .promo.promo-game{grid-template-columns:1fr;align-content:center;padding:18px 16px 46px;gap:4px}
+  .gb-sym{width:130px}
+  .gb-side{padding:0}
+  .gb-side b,.gb-side i{display:none}
+  .gb-cta{font-size:15px;padding:11px 20px;margin-top:10px}
+  .promo-game > .gb-veil{background:linear-gradient(#12070f55,#0d060be6 55%)}
+  .mini-banners{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 10px}
+  /* Angosto no entran nombre y RTP lado a lado: el RTP baja abajo del nombre. */
+  .mini-banner{
+    height:84px;padding:0 8px 0 80px;
+    flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;
+  }
+  .mini-banner .illustrated-symbol{width:80px;height:80px;left:0}
+  .mini-banner strong{font-size:15px}
+  .mini-banner small{
+    position:relative;right:auto;top:auto;max-width:100%;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .promo-game.is-active > .gb-bg,.gb-sym,.gb-cta::after,.gb-cf,
+  #carousel .dot.active::after{animation:none}
+  .gb-cf{display:none}
+  #carousel .dot.active::after{transform:none}
+}

@@ -224,8 +224,26 @@ window.MCCatalog = (function () {
   /* ---------------- banners ----------------
      Los banners sólo pueden apuntar a juegos visibles: si mandan a
      uno oculto, el botón no hace nada y parece que la página falla. */
+  /* Banners de juego: van primero en el carrusel y usan el arte real
+     (la escena de environments.png y el sprite de la portada). Los
+     numeros —RTP, premio maximo— salen de la ficha del juego, no de aca. */
+  var GAME_BANNERS = [
+    { game: 'vendimia', scene: 'wine',    kicker: 'Ya llegó',   side: ['Exclusivo', 'del salón'], chip: 'Cascadas' },
+    { game: 'sebusca',  scene: 'western', kicker: 'El más buscado', side: ['Volatilidad', 'extrema'], chip: 'Wilds pegajosos' },
+    { game: 'maverick', scene: 'temple',  kicker: 'Subí la pirámide', side: ['Top', 'del salón'], chip: '20 líneas' }
+  ];
+
+  /* La fila de banners chicos debajo del carrusel. */
+  var MINI_BANNERS = [
+    { game: 'maverick', scene: 'temple',  color: '#c8901f', tint: '#1a120899,#140d06f2' },
+    { game: 'sebusca',  scene: 'western', color: '#c8452f', tint: '#2a120a88,#1a0c06f2' },
+    { game: 'crash',    scene: 'temple',  color: '#2f6bff', tint: '#0b1a4cd9,#08112ef5' },
+    { game: 'sports',   scene: 'western', color: '#15803d', tint: '#06301fd9,#04170ef5' }
+  ];
+
   var PROMOS = [
     {
+      id: 'welcome',
       kicker: 'Bienvenida',
       title: '5.000 fichas para arrancar',
       text: 'Tu cuenta se crea sola al abrir la página. Sin registro, sin datos, sin dinero real.',
@@ -233,6 +251,7 @@ window.MCCatalog = (function () {
       bg: 'linear-gradient(120deg,#2a0d12,#d81e34 60%,#ff7a86)'
     },
     {
+      id: 'catalog',
       kicker: 'Explorá el salón',
       title: 'Encontrá tu juego favorito',
       text: 'Tragamonedas, mesas y deportes. Descubrí el catálogo y elegí cómo jugar hoy.',
@@ -240,6 +259,7 @@ window.MCCatalog = (function () {
       bg: 'linear-gradient(120deg,#1a1413,#3a2b27 55%,#c9922b)'
     },
     {
+      id: 'bonus',
       kicker: 'Bono recargable',
       title: '+2.500 fichas cada 8 horas',
       text: 'Y si te quedás en cero, la casa te rescata al instante. Acá nadie se queda afuera.',
@@ -247,6 +267,7 @@ window.MCCatalog = (function () {
       bg: 'linear-gradient(120deg,#3a1150,#8b5cf6 60%,#c4a6ff)'
     },
     {
+      id: 'liga',
       kicker: 'Mesa abierta',
       title: 'Liga Argentina',
       text: 'Partidos y resultados reales de la temporada 2026, con apuestas exclusivamente en fichas virtuales.',
@@ -264,6 +285,8 @@ window.MCCatalog = (function () {
     generated: GENERATED,
     rails: RAILS,
     promos: PROMOS,
+    gameBanners: GAME_BANNERS,
+    miniBanners: MINI_BANNERS,
     studios: ['Bubba Originals'].concat(MCThemes.STUDIOS),
     size: ALL.length
   };
