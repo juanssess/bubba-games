@@ -56,6 +56,7 @@ internacionales consultados tambien aparecen en la pestana Resultados.
 
 ```text
 node tools/test-football.mjs
+node tools/test-football-data.mjs
 node tools/test-football-ui.mjs <ruta-absoluta-a-playwright/index.mjs> [URL-local]
 ```
 
@@ -64,3 +65,48 @@ del proveedor, sin apostar sobre partidos reales ni modificar perfiles del
 usuario. Cubre horarios UTC/Argentina, filtros, mercados cerrados, pagos unicos,
 cancelaciones, fuentes vacias y caidas parciales, en 1366, 390 y 320 pixeles.
 Las capturas se guardan en `tmp/requests-football-*.png`.
+
+## Segunda Fuente Gratuita
+
+La integracion con [football-data.org](https://www.football-data.org/coverage)
+agrega las 12 competiciones gratuitas. Se mantienen Argentina y Libertadores
+con TheSportsDB: en total hay 14 competiciones configuradas, no todos los
+partidos del mundo. El plan gratuito puede retrasar horarios y resultados.
+
+La pagina NO consulta football-data.org con una clave privada. Una tarea de
+GitHub Actions descarga datos cada 30 minutos y publica solo el JSON en la
+rama independiente `football-data`, sin tocar el codigo de `master`. Los
+visitantes consultan ese archivo publico. GitHub puede demorar o suspender
+tareas programadas por inactividad; no es una garantia de tiempo real.
+
+Activacion pendiente hasta tener cuenta, secreto y workflow publicado:
+
+1. Crear una cuenta gratuita en https://www.football-data.org/client/register.
+2. En el repositorio, Settings > Secrets and variables > Actions > New
+   repository secret, guardar la clave como `FOOTBALL_DATA_TOKEN`.
+3. Subir estos cambios a la rama predeterminada del repositorio.
+4. En Actions, ejecutar `Actualizar futbol internacional` con Run workflow.
+5. Verificar que la rama `football-data` contenga `data/football-data.json`.
+
+Nunca guardar la clave en HTML, JavaScript, JSON publico, commits ni capturas.
+No hace falta Firebase Functions, un plan pago nuevo ni un proxy abierto.
+GitHub Actions esta sujeto a las cuotas de la cuenta; las ramas protegidas
+deben permitir la escritura de la rama de datos por la tarea.
+
+Cada actualizacion hace dos consultas de fechas (ultima semana y proxima
+semana) y hasta seis comprobaciones de encuentros antiguos no resueltos,
+espaciadas siete segundos. Conserva 90 dias de historial para los cupones.
+Un error HTTP, falta de clave o respuesta incompleta conserva el archivo
+anterior, nunca publica un vacio como si fuera una actualizacion correcta.
+Los cupones sin un resultado disponible siguen pendientes, incluso si ya
+quedaron fuera del historial. No se fabrican resultados para liquidarlos.
+
+Para las ligas cubiertas por un archivo reciente se usa esa fuente en vez
+de mezclar dos identidades del mismo encuentro. Si el archivo falta o tiene
+mas de dos horas, se vuelve a TheSportsDB; sus ligas exclusivas quedan sin
+partidos nuevos. Se deshabilitan mercados provenientes de una cache vencida.
+Los identificadores llevan prefijos `fd-` y `fd-team-` para evitar colisiones.
+Los resultados de cupones anteriores de TheSportsDB siguen verificandose en
+su proveedor original. Los mercados son de 90 minutos: un resultado con
+prorroga o penales solo liquida si incluye `regularTime`; de otro modo queda
+pendiente. El inicio acredita ambas fuentes cuando el archivo esta activo.

@@ -63,6 +63,8 @@ window.MCFootballHome = (function () {
             view === 'today' ? 'La fuente no tiene partidos de hoy para esta seleccion.' : 'No hay proximos partidos disponibles para esta seleccion.') + '</div>') + '</div>' +
       '<p class="fb-source">Cuotas virtuales orientativas &middot; Cobertura limitada &middot; Sin seguimiento minuto a minuto &middot; ' +
         '<a href="https://www.thesportsdb.com" target="_blank" rel="noopener noreferrer">TheSportsDB</a>' +
+        (state.sharedFeed ? ' + <a href="https://www.football-data.org" target="_blank" rel="noopener noreferrer">football-data.org</a>' +
+          ' &middot; Datos internacionales con demora &middot; Fuente internacional ' + new Date(state.feedUpdatedAt).toLocaleTimeString('es-AR', { timeZone: MCFootball.ZONE, hour: '2-digit', minute: '2-digit' }) : '') +
         (state.updatedAt ? ' &middot; Actualizado ' + new Date(state.updatedAt).toLocaleTimeString('es-AR', { timeZone: MCFootball.ZONE, hour: '2-digit', minute: '2-digit' }) : '') + '</p>';
     root.querySelector('.fb-track').scrollLeft = left;
     if (focused) { var control = document.getElementById(focused); if (control) control.focus({ preventScroll: true }); }

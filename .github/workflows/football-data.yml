@@ -1,0 +1,48 @@
+name: Actualizar futbol internacional
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17,47 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: football-data-feed
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Recuperar historial publicado
+        run: |
+          mkdir -p data
+          if git ls-remote --exit-code --heads origin football-data >/dev/null; then
+            git fetch origin football-data:refs/remotes/origin/football-data
+            git show FETCH_HEAD:data/football-data.json > data/football-data.json
+          fi
+      - name: Consultar fuente privada
+        env:
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+        run: node tools/sync-football-data.mjs
+      - name: Publicar solo los datos publicos
+        run: |
+          publish_dir=$(mktemp -d)
+          cp data/football-data.json "$publish_dir/football-data.json"
+          rm data/football-data.json
+          if git show-ref --verify --quiet refs/remotes/origin/football-data; then
+            git checkout -B football-data refs/remotes/origin/football-data
+          else
+            git checkout --orphan football-data
+            git rm -rf --cached .
+          fi
+          mkdir -p data
+          cp "$publish_dir/football-data.json" data/football-data.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/football-data.json
+          git diff --cached --quiet || git commit -m 'Actualizar datos de futbol'
+          git push origin HEAD:football-data

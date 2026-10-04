@@ -18,6 +18,7 @@ function event(league, suffix = '', extra = {}) {
 let mode = 'today', finals = {}, calls = [];
 async function configure(page) {
   await page.clock.setFixedTime(new Date(stamp));
+  await page.route('https://raw.githubusercontent.com/juanssess/bubba-games/football-data/**', route => route.fulfill({ status: 404, json: {} }));
   await page.route('https://badges.invalid/**', route => route.abort());
   await page.route('https://www.thesportsdb.com/api/**', async route => {
     const url = new URL(route.request().url());
@@ -120,5 +121,37 @@ try {
     }
     await p.close();
   }
-  console.log('PASS: football homepage, leagues, Argentina times, closed markets, responsive cards, coupon payouts and unavailable data.');
+  mode = 'today';
+  const combined = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await configure(combined);
+  const shared = id => ({ id, competition: { code: id === 901 ? 'BSA' : 'PL' },
+    utcDate: '2026-10-04T21:00:00Z', status: 'TIMED',
+    homeTeam: { id: 101, name: 'Flamengo' }, awayTeam: { id: 102, name: 'Palmeiras' },
+    score: { duration: 'REGULAR', fullTime: { home: null, away: null } } });
+  await combined.route('https://raw.githubusercontent.com/juanssess/bubba-games/football-data/**', route => route.fulfill({ json: {
+    version: 1, generatedAt: stamp, competitions: ['PL', 'BSA'], matches: [shared(900), shared(901)]
+  } }));
+  await combined.goto(base + '/?nosync=1');
+  await combined.evaluate(() => MC.closeModal());
+  await combined.waitForFunction(() => MCFootball.status().ready && !MCFootball.status().loading);
+  await combined.selectOption('#fbCompetition', 'fd-BSA');
+  assert.equal(await combined.locator('.fb-match').count(), 1);
+  assert.match(await combined.locator('.fb-source').innerText(), /football-data.org/);
+  assert.equal(await combined.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
+  await combined.locator('[data-fb-match="fd-901"][data-fb-pick="draw"]').click();
+  assert.equal(await combined.locator('#spSlipCount').innerText(), '1');
+  assert.match(await combined.locator('#spSlip').innerText(), /Brasileir/i);
+  await combined.locator('#spStake').fill('100');
+  await combined.locator('#spPlace').click();
+  const balance = await combined.evaluate(() => MC.getBalance());
+  await combined.route('https://raw.githubusercontent.com/juanssess/bubba-games/football-data/**', route => route.fulfill({ json: {
+    version: 1, generatedAt: '2026-10-04T15:11:00Z', competitions: ['PL', 'BSA'],
+    matches: [shared(900), { ...shared(901), status: 'FINISHED', score: { duration: 'REGULAR', fullTime: { home: 0, away: 0 } } }]
+  } }));
+  await combined.clock.setFixedTime(new Date('2026-10-04T15:11:00Z'));
+  await combined.locator('#spSimulate').click();
+  await combined.waitForFunction(() => MC.state.sports.tickets.length === 0);
+  assert.ok(await combined.evaluate(() => MC.getBalance()) > balance, 'Shared provider results settle the virtual coupon');
+  await combined.close();
+  console.log('PASS: football homepage, combined providers, responsive cards, coupons, results and fallback.');
 } finally { await browser.close(); }

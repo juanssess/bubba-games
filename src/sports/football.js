@@ -3,7 +3,7 @@ window.MCFootball = (function () {
   'use strict';
   var API = 'https://www.thesportsdb.com/api/v1/json/123/';
   var ZONE = 'America/Argentina/Buenos_Aires';
-  var CACHE = 'bubba_futbol_diario_v1';
+  var CACHE = 'bubba_futbol_diario_v2';
   var TTL = 10 * 60 * 1000;
   var LEAGUES = [
     { id: '4406', name: 'Liga Argentina', country: 'Argentina' },
@@ -15,6 +15,10 @@ window.MCFootball = (function () {
     { id: '4480', name: 'Champions League', country: 'Europa' },
     { id: '4501', name: 'Copa Libertadores', country: 'Sudam\u00e9rica' }
   ];
+  var sportsDBLeagues = LEAGUES.slice();
+  if (window.MCFootballData) window.MCFootballData.leagues.forEach(function (league) {
+    if (!LEAGUES.some(function (l) { return l.id === league.id; })) LEAGUES.push(league);
+  });
   var state = { ready: false, loading: false, date: '', matches: [], upcoming: [],
     updatedAt: 0, error: '', partial: false };
   var pending = null;
@@ -69,6 +73,7 @@ window.MCFootball = (function () {
   function cancelled(m) { return ['CANC', 'CANCELLED', 'ABD', 'ABANDONED', 'PST', 'POSTPONED'].indexOf(m.status) !== -1; }
   function inPlay(m) { return ['1H', '2H', 'HT', 'ET', 'LIVE', 'IN PLAY', 'IN PROGRESS'].indexOf(m.status) !== -1; }
   function marketOpen(m) {
+    if (m.provider === 'football-data' && (!m.feedAt || Date.now() - Date.parse(m.feedAt) >= 2 * 60 * 60 * 1000)) return false;
     return !!m.date && ['NS', 'NOT STARTED', 'SCHEDULED'].indexOf(m.status) !== -1 && new Date(m.date).getTime() > Date.now();
   }
   function unique(list) {
@@ -129,19 +134,25 @@ window.MCFootball = (function () {
     if (state.date !== today) state = Object.assign(state, { ready: false, date: today, matches: [], upcoming: [], updatedAt: 0, partial: false });
     state.loading = true; state.error = ''; emit();
     pending = (async function () {
+      var feed = window.MCFootballData;
+      if (feed) await feed.refresh();
+      var covered = feed ? feed.covered() : [];
+      var shared = feed ? feed.matches() : [];
       var jobs = [];
-      LEAGUES.forEach(function (league) {
+      var fallbackLeagues = sportsDBLeagues.filter(function (league) { return covered.indexOf(league.id) < 0; });
+      fallbackLeagues.forEach(function (league) {
         [today, nextDay(today)].forEach(function (date) {
           jobs.push({ league: league, path: 'eventsday.php?d=' + date + '&s=Soccer&l=' + league.id });
         });
       });
       var data = await batch(jobs);
+      if (covered.length) { data.matches = data.matches.concat(shared); data.successes++; }
       var matches = data.matches.filter(function (m) { return m.date ? day(m.date) === today : m.day === today; });
       var upcoming = data.matches.filter(function (m) { return marketOpen(m) && day(m.date) > today; });
       if (data.successes) {
         var seenLeagues = {};
         data.matches.forEach(function (m) { seenLeagues[m.leagueId] = true; });
-        var next = await batch(LEAGUES.filter(function (league) { return !matches.length || !seenLeagues[league.id]; }).map(function (league) {
+        var next = await batch(fallbackLeagues.filter(function (league) { return !matches.length || !seenLeagues[league.id]; }).map(function (league) {
           return { league: league, path: 'eventsnextleague.php?id=' + league.id };
         }));
         upcoming = unique(upcoming.concat(next.matches.filter(function (m) { return marketOpen(m) && day(m.date) > today; })));
@@ -160,6 +171,8 @@ window.MCFootball = (function () {
           matches = unique(matches.concat(state.matches.filter(function (m) { return data.failedLeagues[m.leagueId]; })));
         }
         state.matches = ordered(matches); state.upcoming = ordered(upcoming);
+        state.sharedFeed = !!covered.length;
+        state.feedUpdatedAt = feed ? feed.updatedAt() : null;
         state.ready = true; state.updatedAt = Date.now(); state.partial = !!data.failures;
         save();
       }
@@ -189,6 +202,10 @@ window.MCFootball = (function () {
       });
     });
     resultRequest = (async function () {
+      var feed = window.MCFootballData;
+      if (feed && (tickets || []).some(function (t) {
+        return (t.selections || []).some(function (s) { return /^fd-\d+$/.test(s.matchId); });
+      })) await feed.refresh();
       var requests = 0;
       for (var id of Object.keys(ids)) {
         if (checked[id] && Date.now() - checked[id].at < TTL) continue;
@@ -203,6 +220,7 @@ window.MCFootball = (function () {
       }
       var results = {};
       Object.keys(checked).forEach(function (id) { results[id] = checked[id].match; });
+      if (feed) Object.assign(results, feed.results());
       return results;
     })().finally(function () { resultRequest = null; });
     return resultRequest;
