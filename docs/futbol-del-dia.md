@@ -52,11 +52,47 @@ anula el cupon completo y devuelve la apuesta virtual; un aplazamiento queda
 pendiente. No se cambian los cupones argentinos anteriores. Los resultados
 internacionales consultados tambien aparecen en la pestana Resultados.
 
+## Mercados Ampliados
+
+`src/sports/markets.js` define 71 selecciones en 24 grupos: resultado 1/X/2,
+doble oportunidad, empate no valido, ambos marcan, totales 0.5 a 4.5,
+totales por equipo 0.5 a 2.5, par/impar, handicap de medio gol,
+16 marcadores exactos de 0-0 a 3-3 mas otros resultados por ganador,
+y resultado combinado con ambos marcan.
+
+Precios y liquidacion comparten las mismas definiciones. Los precios se
+calculan con la grilla existente Poisson/Dixon-Coles, el modelo argentino
+cuando esta disponible o las medias genericas internacionales. Las siete
+cuotas anteriores se conservan exactamente. Los precios nuevos se limitan
+a 1.000 y el retorno de un nuevo cupon a 1.000 millones de fichas. No se
+afirma un retorno medido para estos mercados nuevos.
+
+Todos los mercados son de 90 minutos mas tiempo agregado. SportsDB no
+ofrece aqui goles reglamentarios separados para AET/PEN: esos resultados
+quedan pendientes, nunca se pagan sobre goles de prorroga. football-data
+solo liquida esos encuentros si incluye los goles de `regularTime`.
+
+Un empate no valido devuelve la apuesta simple. En combinadas la seleccion
+empatada toma cuota 1; se multiplican solo las cuotas fijadas de las demas.
+Si todas son devueltas se recupera exactamente el importe. Una seleccion
+desconocida, marcador incompleto o resultado ausente mantiene el cupon
+pendiente. Se conserva la anulacion completa por cancelacion de un partido
+para no cambiar las reglas de los cupones anteriores.
+
+El sportsbook tiene busqueda, filtros de liga/fecha/prepartido, mercados
+desplegables por categoria, acceso al cupon en movil, reglas, y un historial
+de las ultimas 50 apuestas resueltas junto con las pendientes. Se guarda
+dentro de `MC.state.sports`, que usa la sincronizacion existente. El importe
+pasa por `MC.canBet`, incluidos roles y limites de juego responsable.
+No hay apuestas en vivo ni tarjetas/corners/jugadores sin datos verificables.
+
 ## Verificacion
 
 ```text
 node tools/test-football.mjs
 node tools/test-football-data.mjs
+node tools/test-sports-markets.mjs
+node tools/test-sports-markets-ui.mjs <ruta-absoluta-a-playwright/index.mjs> [URL-local]
 node tools/test-football-ui.mjs <ruta-absoluta-a-playwright/index.mjs> [URL-local]
 ```
 

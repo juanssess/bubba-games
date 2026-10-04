@@ -48,6 +48,8 @@ assert.equal(s.api.image('http://bad.example/badge.png'), '');
 assert.equal(s.api.normalize(event(8, '4328', 'bad', { strTimestamp: null, strTime: null }), s.api.LEAGUES[1]).date, null);
 assert.equal(s.api.normalize(event(8, '4328', undefined, { intHomeScore: '', intAwayScore: undefined }), s.api.LEAGUES[1]).gh, null);
 assert.equal(s.api.normalize(event(8, '4328', undefined, { strSport: 'Basketball' }), s.api.LEAGUES[1]), null);
+assert.equal(s.api.normalize(event(8, '4328', undefined, { strStatus: 'AET', intHomeScore: 3, intAwayScore: 2 }), s.api.LEAGUES[1]).gh, null,
+  'Extra-time totals cannot settle 90-minute markets');
 const o = s.api.odds(s.api.find('1'));
 assert.ok(o.home > 1 && o.draw > 1 && o.away > 1);
 await s.api.refresh();

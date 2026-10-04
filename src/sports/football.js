@@ -3,7 +3,7 @@ window.MCFootball = (function () {
   'use strict';
   var API = 'https://www.thesportsdb.com/api/v1/json/123/';
   var ZONE = 'America/Argentina/Buenos_Aires';
-  var CACHE = 'bubba_futbol_diario_v2';
+  var CACHE = 'bubba_futbol_diario_v3';
   var TTL = 10 * 60 * 1000;
   var LEAGUES = [
     { id: '4406', name: 'Liga Argentina', country: 'Argentina' },
@@ -67,7 +67,8 @@ window.MCFootball = (function () {
     return { id: String(e.idEvent), source: 'daily', leagueId: league.id, league: league.name,
       country: league.country, home: home.id, away: away.id, homeTeam: home, awayTeam: away,
       date: timestamp(e), day: e.dateEvent || '', status: status, round: Number(e.intRound) || 0,
-      gh: score(e.intHomeScore), ga: score(e.intAwayScore) };
+      gh: ['AET', 'PEN'].indexOf(status) >= 0 ? null : score(e.intHomeScore),
+      ga: ['AET', 'PEN'].indexOf(status) >= 0 ? null : score(e.intAwayScore) };
   }
   function finished(m) { return ['FT', 'AET', 'PEN'].indexOf(m.status) !== -1 && m.gh !== null && m.ga !== null; }
   function cancelled(m) { return ['CANC', 'CANCELLED', 'ABD', 'ABANDONED', 'PST', 'POSTPONED'].indexOf(m.status) !== -1; }

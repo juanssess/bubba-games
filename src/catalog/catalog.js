@@ -139,7 +139,7 @@ window.MCCatalog = (function () {
          modelo o el margen, hay que volver a medir y actualizar esto. */
       id: 'sports', engine: 'sportsbook', name: 'Fútbol', kind: 'Deportes',
       studio: 'Bubba Originals', volatility: 'Alta',
-      tag: 'Argentina y el mundo · Cuotas virtuales', rtpValue: 0.9697, rtp: 'Argentina: 97,0%',
+      tag: 'Argentina y el mundo · Cuotas virtuales', rtpValue: 0.9697, rtp: 'Argentina base: 97,0%',
       maxWin: 500, emoji: '⚽', badge: 'new',
       art: 'linear-gradient(135deg,#052e16,#15803d 60%,#86efac)',
       desc: 'Fixture y resultados reales'

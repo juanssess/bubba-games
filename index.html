@@ -29,7 +29,7 @@
 <link rel="stylesheet" href="src/styles/asistente.css?v=82">
 <link rel="stylesheet" href="src/styles/games/slots.css?v=81">
 <link rel="stylesheet" href="src/styles/games/slots5.css?v=81">
-<link rel="stylesheet" href="src/styles/games/sportsbook.css?v=81">
+<link rel="stylesheet" href="src/styles/games/sportsbook.css?v=82">
 <link rel="stylesheet" href="src/styles/football-home.css?v=1">
 <link rel="stylesheet" href="src/styles/games/proveedor.css?v=81">
 <link rel="stylesheet" href="src/styles/games/plantilla.css?v=81">
@@ -445,8 +445,10 @@
 
           <nav class="sp-tabs" role="tablist" aria-label="Secciones de futbol">
             <button class="active" role="tab" aria-selected="true" data-sp-tab="matches">Partidos <span id="spMatchCount">8</span></button>
+            <button role="tab" aria-selected="false" data-sp-tab="bets">Mis apuestas <span id="spTicketCount">0</span></button>
             <button role="tab" aria-selected="false" data-sp-tab="results">Resultados <span id="spResultCount">0</span></button>
             <button role="tab" aria-selected="false" data-sp-tab="table">Posiciones <span id="spTableCount">0</span></button>
+            <button role="tab" aria-selected="false" data-sp-tab="rules">Reglas</button>
           </nav>
 
           <div class="sp-layout">
@@ -460,10 +462,36 @@
                   <button class="btn btn-accent" id="spSimulate">Actualizar datos</button>
                   <p class="sp-note">Cuotas virtuales orientativas, no oficiales. Modelo genérico para ligas internacionales; modelo de temporada para Argentina. Margen nominal 8%. Cobertura limitada.</p>
                 </div>
+                <div class="sp-filters">
+                  <input type="search" id="spSearch" placeholder="Buscar equipo" aria-label="Buscar equipo">
+                  <select id="spCompetition" aria-label="Competición"></select>
+                  <select id="spWhen" aria-label="Fecha"><option value="all">Todas las fechas</option><option value="today">Hoy</option><option value="future">Próximos días</option></select>
+                  <label><input type="checkbox" id="spOpenOnly"> Solo prepartido</label>
+                  <span id="spVisibleCount" role="status"></span>
+                </div>
                 <div class="sp-market-head" aria-hidden="true">
                   <span>Partido</span><span>Ganador</span><span>Total 2.5</span><span>Ambos marcan</span>
                 </div>
                 <div id="spMatches"></div>
+              </section>
+
+              <section class="sp-section" role="tabpanel" data-sp-section="bets" hidden>
+                <div class="sp-section-head"><h3>Mis apuestas</h3><select id="spHistoryFilter" aria-label="Estado de las apuestas"><option value="all">Todas</option><option value="pending">Pendientes</option><option value="won">Ganadas</option><option value="lost">Perdidas</option><option value="refunded">Devueltas</option></select></div>
+                <div id="spBetHistory"></div>
+              </section>
+
+              <section class="sp-section sp-rules" role="tabpanel" data-sp-section="rules" hidden>
+                <h3>Reglas de los mercados</h3>
+                <dl>
+                  <dt>Tiempo reglamentario</dt><dd>Todos los mercados se resuelven con 90 minutos y el tiempo añadido. No incluyen prórroga ni penales.</dd>
+                  <dt>Doble oportunidad</dt><dd>1X: gana el local o empatan. X2: empatan o gana el visitante. 12: gana cualquiera de los dos.</dd>
+                  <dt>Empate no válido</dt><dd>Un empate devuelve el importe de una apuesta simple. En una combinada, esa selección pasa a cuota 1; las demás siguen vigentes.</dd>
+                  <dt>Goles y hándicap</dt><dd>Las líneas de medio gol no tienen devolución. El hándicap suma o resta los goles indicados al equipo elegido antes de comparar el marcador.</dd>
+                  <dt>Resultado exacto</dt><dd>El primer número es el local. “Otro” incluye marcadores con 4 o más goles de algún equipo, según gane el local, haya empate o gane el visitante.</dd>
+                  <dt>Combinadas</dt><dd>Máximo 8 partidos y una selección por partido. “Resultado y ambos marcan” es un mercado conjunto con una sola cuota. Retorno máximo: 1.000 millones de fichas por cupón.</dd>
+                  <dt>Cancelaciones y resultados pendientes</dt><dd>Una cancelación o abandono confirmado devuelve el cupón completo. Un aplazamiento o un resultado sin confirmar mantiene la apuesta pendiente.</dd>
+                  <dt>Fichas virtuales</dt><dd>Las cuotas son orientativas, no de una casa de apuestas. La cobertura puede ser parcial y los resultados pueden llegar con demora. No hay apuestas en vivo, córners, tarjetas ni jugadores sin una fuente verificable.</dd>
+                </dl>
               </section>
 
               <section class="sp-section" role="tabpanel" data-sp-section="results" hidden>
@@ -500,9 +528,10 @@
               <button class="btn btn-accent btn-block" id="spPlace" disabled>Confirmar apuesta</button>
               <button class="sp-clear" id="spClear">Vaciar selecciones</button>
               <div id="spTickets"></div>
-              <p class="sp-slip-legal">Fichas virtuales · Sin dinero real · +18</p>
+              <p class="sp-slip-legal">90 minutos · Una selección por partido<br>Fichas virtuales · Sin dinero real · +18</p>
             </aside>
           </div>
+          <button class="sp-slip-jump" id="spSlipJump" hidden>Ver cupón <b id="spJumpCount">0</b></button>
         </section>
 
         <!-- ---------- CRASH ---------- -->
@@ -722,7 +751,7 @@
 <script src="src/core/rng.js?v=81"></script>
 <script src="src/core/justo.js?v=81"></script>
 <script src="src/core/state.js?v=81"></script>
-<script src="src/core/rtp.js?v=82"></script>
+<script src="src/core/rtp.js?v=83"></script>
 <script src="src/core/audio.js?v=81"></script>
 <script src="src/core/ui.js?v=81"></script>
 <script src="src/core/wallet.js?v=81"></script>
@@ -744,8 +773,8 @@
 <script src="src/sports/teams.js?v=81"></script>
 <script src="src/sports/poisson.js?v=81"></script>
 <script src="src/sports/football-data.js?v=1"></script>
-<script src="src/sports/football.js?v=2"></script>
-<script src="src/sports/league.js?v=82"></script>
+<script src="src/sports/football.js?v=3"></script>
+<script src="src/sports/league.js?v=83"></script>
 
 <!-- 4. Motores de juego -->
 <script src="src/ui/cinema.js?v=1"></script>
@@ -757,7 +786,8 @@
 <script src="src/games/blackjack.js?v=81"></script>
 <script src="src/games/crash.js?v=81"></script>
 <script src="src/games/mines.js?v=81"></script>
-<script src="src/games/sportsbook.js?v=82"></script>
+<script src="src/sports/markets.js?v=1"></script>
+<script src="src/games/sportsbook.js?v=83"></script>
 <script src="src/games/plantilla.js?v=81"></script>
 <script src="src/games/proveedor.js?v=81"></script>
 
@@ -765,7 +795,7 @@
 <script src="src/catalog/themes.js?v=81"></script>
 <script src="src/catalog/slot-math.js?v=81"></script>
 <script src="src/catalog/generator.js?v=81"></script>
-<script src="src/catalog/catalog.js?v=83"></script>
+<script src="src/catalog/catalog.js?v=84"></script>
 
 <!-- 6. Interfaz del portal -->
 <script src="src/ui/game-card.js?v=81"></script>

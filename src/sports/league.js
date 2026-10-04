@@ -14,7 +14,7 @@ window.MCLeague = (function () {
      promedio real es 1,04 y no 1,35, y la ventaja de local 1,29 y no 1,15.
      Ahora los dos salen de la tabla de la temporada. Ver `promedios`. */
   var API = 'https://www.thesportsdb.com/api/v1/json/123/';
-  var CACHE_KEY = 'bubba_liga_argentina_2026_v2';
+  var CACHE_KEY = 'bubba_liga_argentina_2026_v3';
   var CACHE_MS = 10 * 60 * 1000;
   var live = { ready: false, loading: false, error: '', round: 1,
     matches: [], results: [], historia: [], table: [], updatedAt: 0 };
@@ -39,6 +39,7 @@ window.MCLeague = (function () {
     var h = eventTeam(e, true), a = eventTeam(e, false);
     var gh = MCFootball.score(e.intHomeScore), ga = MCFootball.score(e.intAwayScore);
     var status = String(e.strStatus || (gh !== null && ga !== null ? 'FT' : 'NS')).toUpperCase();
+    if (['AET', 'PEN'].indexOf(status) >= 0) { gh = null; ga = null; }
     return { id: String(e.idEvent), round: num(e.intRound), home: h.id, away: a.id,
       date: date.toISOString(), status: status, venue: e.strVenue || '',
       gh: gh, ga: ga };
