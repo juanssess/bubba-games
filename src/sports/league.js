@@ -14,7 +14,7 @@ window.MCLeague = (function () {
      promedio real es 1,04 y no 1,35, y la ventaja de local 1,29 y no 1,15.
      Ahora los dos salen de la tabla de la temporada. Ver `promedios`. */
   var API = 'https://www.thesportsdb.com/api/v1/json/123/';
-  var CACHE_KEY = 'bubba_liga_argentina_2026_v1';
+  var CACHE_KEY = 'bubba_liga_argentina_2026_v2';
   var CACHE_MS = 10 * 60 * 1000;
   var live = { ready: false, loading: false, error: '', round: 1,
     matches: [], results: [], historia: [], table: [], updatedAt: 0 };
@@ -22,11 +22,7 @@ window.MCLeague = (function () {
   function num(v) { return Number(v) || 0; }
 
   function eventDate(e) {
-    var day = e.dateEventLocal || e.dateEvent;
-    var time = e.strTimeLocal || e.strTime || '00:00:00';
-    var d = new Date(day + 'T' + time + '-03:00');
-    if (isNaN(d.getTime())) d = new Date(e.strTimestamp || day);
-    return d;
+    return new Date(MCFootball.timestamp(e) || NaN);
   }
 
   function eventTeam(e, home) {
@@ -38,12 +34,14 @@ window.MCLeague = (function () {
   }
 
   function normalizeEvent(e) {
+    var date = eventDate(e);
+    if (isNaN(date.getTime())) return null;
     var h = eventTeam(e, true), a = eventTeam(e, false);
-    var status = String(e.strStatus || (e.intHomeScore !== null ? 'FT' : 'NS')).toUpperCase();
+    var gh = MCFootball.score(e.intHomeScore), ga = MCFootball.score(e.intAwayScore);
+    var status = String(e.strStatus || (gh !== null && ga !== null ? 'FT' : 'NS')).toUpperCase();
     return { id: String(e.idEvent), round: num(e.intRound), home: h.id, away: a.id,
-      date: eventDate(e).toISOString(), status: status, venue: e.strVenue || '',
-      gh: e.intHomeScore === null ? null : num(e.intHomeScore),
-      ga: e.intAwayScore === null ? null : num(e.intAwayScore) };
+      date: date.toISOString(), status: status, venue: e.strVenue || '',
+      gh: gh, ga: ga };
   }
 
   function finished(m) {
@@ -52,7 +50,7 @@ window.MCLeague = (function () {
 
   function around(events, pivot) {
     var center = pivot.getTime(), range = 30 * 86400000;
-    return (events || []).map(normalizeEvent).filter(function (m) {
+    return (events || []).map(normalizeEvent).filter(Boolean).filter(function (m) {
       return Math.abs(new Date(m.date).getTime() - center) < range;
     });
   }
@@ -275,7 +273,7 @@ window.MCLeague = (function () {
                         pasaria de quince partidos a noventa. */
         var historia = [];
         rounds.slice(2).forEach(function (data) {
-          (data.events || []).map(normalizeEvent).forEach(function (m) {
+          (data.events || []).map(normalizeEvent).filter(Boolean).forEach(function (m) {
             if (!finished(m)) return;
             historia.push(m);
             if (ticketIds[m.id]) older.push(m);

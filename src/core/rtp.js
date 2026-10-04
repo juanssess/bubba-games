@@ -446,7 +446,7 @@ window.MC = window.MC || {};
   function etiqueta(g) {
     if (!g) return '';
     if (!g.rtpValue || !ajustado(g.id)) return g.rtp;
-    var base = g.rtp.indexOf('Retorno') === 0 ? 'Retorno ' : 'RTP ';
+    var base = g.id === 'sports' ? 'Argentina: ' : g.rtp.indexOf('Retorno') === 0 ? 'Retorno ' : 'RTP ';
     return base + pct(g.rtpValue * factor(g.id));
   }
 

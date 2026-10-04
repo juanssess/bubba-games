@@ -33,6 +33,31 @@ window.MCSportsbook = (function () {
   var slip = [];      // selecciones aún no confirmadas
   var el = {};
   var activeTab = 'matches';
+  var dailyResults = {};
+
+  function escape(t) {
+    return String(t || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function fixture() {
+    var daily = MCFootball.status();
+    var list = daily.matches.concat(daily.upcoming), ids = {};
+    list.forEach(function (m) { ids[m.id] = true; });
+    return list.concat(MCLeague.fixture().filter(function (m) { return !ids[m.id]; })).filter(function (m) {
+      return !MCFootball.finished(m) && !MCFootball.cancelled(m);
+    }).sort(function (a, b) { return new Date(a.date || '9999-01-01') - new Date(b.date || '9999-01-01'); });
+  }
+  function odds(m) { return m.source === 'daily' ? MCFootball.odds(m) : MCLeague.odds(m); }
+  function marketOpen(m) { return MCFootball.marketOpen(m); }
+  async function updateResults() {
+    var owner = MC.auth.current().uid;
+    var state = MC.state;
+    var results = await MCFootball.ticketResults(tickets());
+    if (MC.auth.current().uid !== owner || MC.state !== state) return;
+    dailyResults = results;
+    settleTickets(); renderAll();
+  }
 
   function tickets() {
     if (!MC.state.sports.tickets) MC.state.sports.tickets = [];
@@ -53,7 +78,7 @@ window.MCSportsbook = (function () {
 
   function crest(team) {
     if (team && team.logo) {
-      return '<img class="sp-crest sp-crest-real" src="' + team.logo + '" alt="" loading="lazy">';
+      return '<img class="sp-crest sp-crest-real" src="' + escape(MCFootball.image(team.logo)) + '" alt="" loading="lazy">';
     }
     return '<i class="sp-crest" style="--tc:' + team.color + ';--tc2:' + team.color2 + '">' +
       team.code + '</i>';
@@ -65,13 +90,14 @@ window.MCSportsbook = (function () {
   }
 
   function toggle(matchId, pick) {
-    var match = MCLeague.fixture(MCLeague.currentRound()).filter(function (m) {
+    if (!PICKS[pick]) return false;
+    var match = fixture().filter(function (m) {
       return m.id === matchId;
     })[0];
-    if (!match) return;
-    if (new Date(match.date).getTime() <= Date.now()) {
+    if (!match) return false;
+    if (!marketOpen(match)) {
       MC.toast('Este partido ya comenzó y el mercado está cerrado.', 'lose');
-      return;
+      return false;
     }
 
     var existing = slip.filter(function (s) { return s.matchId === matchId; })[0];
@@ -81,11 +107,11 @@ window.MCSportsbook = (function () {
       MC.sound.click();
       renderSlip();
       renderMatches();
-      return;
+      return true;
     }
     if (!existing && slip.length >= MAX_LEGS) {
       MC.toast('Máximo ' + MAX_LEGS + ' partidos por cupón.', 'lose');
-      return;
+      return false;
     }
 
     // Una sola selección por partido: la nueva reemplaza a la anterior.
@@ -93,8 +119,11 @@ window.MCSportsbook = (function () {
     slip.push({
       matchId: matchId,
       pick: pick,
-      odds: MCLeague.odds(match)[pick],
+      odds: odds(match)[pick],
       date: match.date,
+      source: match.source || 'argentina',
+      leagueId: match.leagueId || '4406',
+      league: match.league || 'Liga Profesional Argentina',
       label: PICKS[pick].long(match),
       match: MCTeams.get(match.home).name + ' vs ' + MCTeams.get(match.away).name
     });
@@ -102,12 +131,15 @@ window.MCSportsbook = (function () {
     MC.sound.chip();
     renderSlip();
     renderMatches();
+    return true;
   }
 
   function place() {
     if (!slip.length) return;
-    if (slip.some(function (s) { return s.date && new Date(s.date).getTime() <= Date.now(); })) {
-      slip = slip.filter(function (s) { return !s.date || new Date(s.date).getTime() > Date.now(); });
+    var available = {};
+    fixture().forEach(function (m) { if (marketOpen(m)) available[m.id] = m; });
+    if (slip.some(function (s) { return !available[s.matchId] || s.date !== available[s.matchId].date; })) {
+      slip = slip.filter(function (s) { return available[s.matchId] && s.date === available[s.matchId].date; });
       MC.toast('Se quitó un partido que ya comenzó.', 'lose');
       renderAll();
       return;
@@ -142,21 +174,32 @@ window.MCSportsbook = (function () {
   }
 
   /* ---------------- actualización y liquidación real ---------------- */
-  function simulateRound() {
+  async function simulateRound() {
     el.simulate.disabled = true;
     el.simulate.textContent = 'Actualizando…';
-    MCLeague.refresh(true).then(function () {
-      settleTickets();
-      renderAll();
-      MC.toast('Liga actualizada', 'info');
-    });
+    await Promise.all([MCLeague.refresh(true), MCFootball.refresh(true)]);
+    await updateResults();
+    MC.toast('Datos de futbol actualizados', 'info');
   }
 
   function settleTickets() {
     var byId = {};
     MCLeague.results().forEach(function (r) { byId[r.id] = r; });
+    Object.keys(dailyResults).forEach(function (id) {
+      if (MCFootball.finished(dailyResults[id])) byId[id] = dailyResults[id];
+    });
     var open = [], settled = 0, won = 0;
     tickets().forEach(function (t) {
+      var voided = t.selections.some(function (s) {
+        var r = s.source === 'daily' && dailyResults[s.matchId];
+        return r && ['CANC', 'CANCELLED', 'ABD', 'ABANDONED'].indexOf(r.status) !== -1;
+      });
+      if (voided) {
+        MC.addBalance(t.stake);
+        MC.recordRound(t.stake, t.stake, 'Cupon anulado: partido cancelado. Fichas devueltas.');
+        settled++;
+        return;
+      }
       var complete = t.selections.every(function (s) { return !!byId[s.matchId]; });
       if (!complete) { open.push(t); return; }
       var hit = t.selections.every(function (s) { return MCLeague.isWinner(s.pick, byId[s.matchId]); });
@@ -178,20 +221,22 @@ window.MCSportsbook = (function () {
   function renderMatches() {
     var round = MCLeague.currentRound();
     var state = MCLeague.status();
-    var matches = MCLeague.fixture();
+    var matches = fixture();
     el.round.textContent = round;
-    el.heroRound.textContent = round;
+    var competitions = {};
+    matches.forEach(function (m) { competitions[m.leagueId || '4406'] = true; });
+    el.heroRound.textContent = Object.keys(competitions).length;
     el.matchCount.textContent = matches.length;
     el.heroMatches.textContent = matches.length;
-    el.simulate.disabled = state.loading;
-    el.simulate.textContent = state.loading ? 'Actualizando…' : 'Actualizar datos';
+    el.simulate.disabled = state.loading || MCFootball.status().loading;
+    el.simulate.textContent = el.simulate.disabled ? 'Actualizando…' : 'Actualizar datos';
 
     var picked = {};
     slip.forEach(function (s) { picked[s.matchId] = s.pick; });
 
-    if (!state.ready) {
-      el.matches.innerHTML = '<div class="sp-empty"><span>⚽</span><strong>Cargando la Liga Profesional</strong>' +
-        '<p>' + (state.error || 'Buscando el fixture oficial…') + '</p></div>';
+    if (!state.ready && !MCFootball.status().ready && !matches.length) {
+      el.matches.innerHTML = '<div class="sp-empty"><span>⚽</span><strong>Consultando los partidos</strong>' +
+        '<p>' + escape(MCFootball.status().error || state.error || 'Buscando el fixture oficial…') + '</p></div>';
       return;
     }
     if (!matches.length) {
@@ -201,25 +246,27 @@ window.MCSportsbook = (function () {
     }
 
     el.matches.innerHTML = matches.map(function (m) {
-      var o = MCLeague.odds(m);
+      var o = odds(m);
       var h = MCTeams.get(m.home);
       var a = MCTeams.get(m.away);
 
       function odd(pick, extraClass) {
         var on = picked[m.id] === pick ? ' active' : '';
-        var label = PICKS[pick].long(m) + ', cuota ' + o[pick].toFixed(2);
+        var label = escape(PICKS[pick].long(m) + ', cuota virtual ' + o[pick].toFixed(2));
         return '<button class="sp-odd' + on + (extraClass || '') + '" data-m="' + m.id +
           '" data-p="' + pick + '" aria-pressed="' + (on ? 'true' : 'false') +
-          '" aria-label="' + label + '">' +
+          '"' + (marketOpen(m) ? '' : ' disabled') +
+          ' aria-label="' + label + '">' +
                  '<b>' + PICKS[pick].short + '</b><span>' + o[pick].toFixed(2) + '</span>' +
                '</button>';
       }
 
       return '<article class="sp-match">' +
                '<div class="sp-match-info">' +
-                 '<span class="sp-kickoff">' + horaPartido(m) + ' · Prepartido</span>' +
-                 '<span class="sp-team">' + crest(h) + '<strong>' + h.name + '</strong></span>' +
-                 '<span class="sp-team">' + crest(a) + '<strong>' + a.name + '</strong></span>' +
+                 '<span class="sp-kickoff">' + escape(m.league || 'Liga Argentina') + ' · ' + horaPartido(m) +
+                   (marketOpen(m) ? ' · Prepartido' : ' · Mercado cerrado') + '</span>' +
+                 '<span class="sp-team">' + crest(h) + '<strong>' + escape(h.name) + '</strong></span>' +
+                 '<span class="sp-team">' + crest(a) + '<strong>' + escape(a.name) + '</strong></span>' +
                '</div>' +
                '<div class="sp-markets">' +
                  '<div class="sp-group"><span class="sp-glabel">Ganador</span><div>' +
@@ -234,9 +281,10 @@ window.MCSportsbook = (function () {
   }
 
   function horaPartido(match) {
+    if (!match.date) return 'Horario a confirmar';
     var d = new Date(match.date);
-    return d.toLocaleDateString('es-AR', { weekday: 'short', day: '2-digit', month: '2-digit' }) +
-      ' · ' + d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleDateString('es-AR', { timeZone: MCFootball.ZONE, weekday: 'short', day: '2-digit', month: '2-digit' }) +
+      ' · ' + d.toLocaleTimeString('es-AR', { timeZone: MCFootball.ZONE, hour: '2-digit', minute: '2-digit' });
   }
 
   function renderSlip() {
@@ -252,10 +300,10 @@ window.MCSportsbook = (function () {
 
     el.slip.innerHTML = slip.map(function (s) {
       return '<div class="slip-item" data-m="' + s.matchId + '">' +
-               '<div><span class="slip-league">Liga Profesional Argentina</span><strong>' + s.label + '</strong>' +
-                 '<span>' + s.match + '</span></div>' +
+               '<div><span class="slip-league">' + escape(s.league || 'Liga Profesional Argentina') + '</span><strong>' + escape(s.label) + '</strong>' +
+                 '<span>' + escape(s.match) + '</span></div>' +
                '<b>' + s.odds.toFixed(2) + '</b>' +
-               '<button class="slip-remove" aria-label="Quitar ' + s.label + '">×</button>' +
+               '<button class="slip-remove" aria-label="Quitar ' + escape(s.label) + '">×</button>' +
              '</div>';
     }).join('');
 
@@ -285,7 +333,8 @@ window.MCSportsbook = (function () {
         return '<div class="sp-ticket">' +
                  '<div class="sp-ticket-top"><span>Ticket #' + String(t.id).slice(-6) + '</span><em>Pendiente</em></div>' +
                  '<strong>' + (t.selections.length > 1 ? 'Combinada · ' + t.selections.length + ' selecciones' : t.selections[0].label) + '</strong>' +
-                 '<span>Jornada ' + t.round + ' · Cuota ' + t.odds.toFixed(2) + '</span>' +
+                 '<span>' + (t.selections.some(function (s) { return s.source === 'daily'; }) ? 'Futbol' : 'Argentina, fecha ' + t.round) +
+                   ' · Cuota ' + t.odds.toFixed(2) + '</span>' +
                  '<div class="sp-ticket-money"><span>Apuesta <b>' + MC.fmt(t.stake) + '</b></span>' +
                    '<span>Retorno <b>' + MC.fmt(Math.floor(t.stake * t.odds)) + '</b></span></div>' +
                '</div>';
@@ -293,7 +342,12 @@ window.MCSportsbook = (function () {
   }
 
   function renderResults() {
-    var res = MCLeague.results();
+    var seen = {};
+    var res = Object.keys(dailyResults).map(function (id) { return dailyResults[id]; })
+      .concat(MCFootball.status().matches, MCLeague.results()).filter(MCFootball.finished).filter(function (m) {
+        if (seen[m.id]) return false;
+        seen[m.id] = true; return true;
+      }).sort(function (a, b) { return new Date(b.date) - new Date(a.date); });
     el.resultCount.textContent = res.length;
     if (!res.length) {
       el.results.innerHTML = '<div class="sp-empty"><span>⚽</span><strong>Todavía no hay resultados</strong>' +
@@ -303,10 +357,10 @@ window.MCSportsbook = (function () {
     el.results.innerHTML = '<div class="sp-results">' + res.map(function (r) {
         var h = MCTeams.get(r.home), a = MCTeams.get(r.away);
         return '<div class="sp-result">' +
-                 '<small>Final · Fecha ' + r.round + '</small>' +
-                 '<span>' + crest(h) + h.name + '</span>' +
+                 '<small>Final · ' + escape(r.league || 'Liga Argentina') + '</small>' +
+                 '<span>' + crest(h) + escape(h.name) + '</span>' +
                  '<b>' + r.gh + '<em>–</em>' + r.ga + '</b>' +
-                 '<span>' + a.name + crest(a) + '</span>' +
+                 '<span>' + escape(a.name) + crest(a) + '</span>' +
                '</div>';
       }).join('') + '</div>';
   }
@@ -354,12 +408,10 @@ window.MCSportsbook = (function () {
 
   /* ---------------- ciclo de vida ---------------- */
   function load() {
+    dailyResults = {};
     refundLegacyTickets();
     renderAll();
-    MCLeague.refresh(false).then(function () {
-      settleTickets();
-      renderAll();
-    });
+    Promise.all([MCLeague.refresh(false), MCFootball.refresh(false)]).then(updateResults);
   }
 
   function init() {
@@ -426,7 +478,17 @@ window.MCSportsbook = (function () {
     };
 
     MC.registerEngine('sportsbook', { load: load });
+    MCFootball.onChange(function () { if (MC.getCurrentView() === 'sportsbook') renderMatches(); });
   }
 
-  return { init: init };
+  function selectFromHome(id, pick) {
+    var m = MCFootball.find(id);
+    if (!m || !marketOpen(m)) { MC.toast('El mercado de este partido esta cerrado.', 'info'); return; }
+    MC.showView('sports');
+    if (MC.getCurrentView() !== 'sportsbook') return;
+    activeTab = 'matches';
+    toggle(id, pick); renderTabs();
+    el.slip.closest('.sp-slip').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  return { init: init, selectFromHome: selectFromHome };
 })();

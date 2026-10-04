@@ -137,9 +137,9 @@ window.MCCatalog = (function () {
          Hoy el modelo es otro y el margen nominal es 8%. El retorno medido
          es 96,97%, que es el numero que va aca. Si se vuelve a tocar el
          modelo o el margen, hay que volver a medir y actualizar esto. */
-      id: 'sports', engine: 'sportsbook', name: 'Liga Argentina', kind: 'Deportes',
+      id: 'sports', engine: 'sportsbook', name: 'Fútbol', kind: 'Deportes',
       studio: 'Bubba Originals', volatility: 'Alta',
-      tag: 'Retorno medido, no calculado', rtpValue: 0.9697, rtp: 'Retorno 97,0%',
+      tag: 'Argentina y el mundo · Cuotas virtuales', rtpValue: 0.9697, rtp: 'Argentina: 97,0%',
       maxWin: 500, emoji: '⚽', badge: 'new',
       art: 'linear-gradient(135deg,#052e16,#15803d 60%,#86efac)',
       desc: 'Fixture y resultados reales'
