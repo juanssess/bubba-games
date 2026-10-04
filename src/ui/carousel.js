@@ -35,7 +35,7 @@ window.MCCarousel = (function () {
   function bannerJuego(b) {
     var g = MCCatalog.games[b.game];
     var maxWin = 'Hasta x' + g.maxWin.toLocaleString('es-AR');
-    return '<div class="promo promo-game" data-action="game:' + g.id + '">' +
+    return '<div class="promo promo-game" data-scene="' + b.scene + '" data-action="game:' + g.id + '">' +
              '<span class="gb-bg" style="background:' + escena(b.scene) + '"></span>' +
              '<span class="gb-veil"></span>' +
              confeti() +
@@ -148,6 +148,8 @@ window.MCCarousel = (function () {
       p.inert = k !== index;
       p.setAttribute('aria-hidden', String(k !== index));
       p.classList.toggle('is-active', k === index);
+      // La luz ambiente detrás del carrusel toma el color de la escena.
+      if (k === index) document.getElementById('view-lobby').dataset.scene = p.dataset.scene || 'promo';
     });
   }
 

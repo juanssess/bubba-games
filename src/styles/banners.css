@@ -171,3 +171,66 @@
   .quick-row.quick-row{grid-template-columns:1fr;gap:8px;-webkit-mask-image:none;mask-image:none}
   .quick-row .quick{padding:11px 14px}
 }
+
+/* ---------------- luz ambiente detras del carrusel ----------------
+   El banner tenia el gris plano de la pagina alrededor y parecia una
+   foto pegada. Un resplandor con el color de la escena activa lo
+   apoya en el salon; cambia junto con la diapositiva. */
+#view-lobby{position:relative;isolation:isolate}
+#view-lobby::before{
+  content:"";position:absolute;left:-4%;right:-4%;top:30px;height:560px;z-index:-1;
+  pointer-events:none;filter:blur(60px);opacity:.9;
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,var(--amb,#d8b77555) 0%,transparent 100%);
+  transition:background .8s ease;
+}
+#view-lobby[data-scene="wine"]{--amb:#8e1330cc}
+#view-lobby[data-scene="western"]{--amb:#c8452fb3}
+#view-lobby[data-scene="temple"]{--amb:#2f7a4fb3}
+#view-lobby[data-scene="promo"]{--amb:#d8b77555}
+
+/* ---------------- tarjetas de juego ---------------- */
+.gcard:hover{border-color:#d8b77588;box-shadow:0 18px 40px #0009,0 0 24px #d8b77526}
+.gcard-play{background:radial-gradient(circle,#0b070888,#0b070833 70%);backdrop-filter:none}
+.gcard-play span{
+  background:linear-gradient(#ffe08a,#f5c451 50%,#d9a234);color:#3a2400;
+  border-bottom:3px solid #9a6c1c;box-shadow:0 8px 22px #0009;
+  text-transform:uppercase;letter-spacing:.04em;
+  transform:translateY(8px);transition:transform .2s;
+}
+.gcard:hover .gcard-play span,.gcard:focus-visible .gcard-play span{transform:none}
+/* Sin el nombre repetido, la descripcion pasa a ser la linea principal. */
+.illustrated-card + .gcard-body span{font-size:11.5px;color:var(--txt)}
+
+/* ---------------- explora por categoria ---------------- */
+.cxp-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.cxp-tab{
+  font:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--txt-dim);
+  background:var(--bg-2);border:1px solid var(--line);border-radius:99px;
+  padding:9px 16px;transition:.18s;
+}
+.cxp-tab span{font-size:11px;opacity:.7;margin-left:3px}
+.cxp-tab:hover{color:var(--txt);border-color:var(--line-2)}
+.cxp-tab[aria-selected="true"]{color:#2a1a00;background:#f5c451;border-color:#f5c451}
+.cxp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(184px,17vw,240px),1fr));gap:16px}
+.cxp-grid[hidden]{display:none}
+
+/* ---------------- titulos de seccion ----------------
+   Futbol, los rieles y "Tus ultimas jugadas" tenian tres estilos. Ahora
+   comparten la marca dorada a la izquierda y la regla que se apaga. */
+.rail-head h2,.fb-heading h2{display:flex;align-items:center;gap:10px}
+.rail-head h2::before,.fb-heading h2::before{
+  content:"";width:4px;height:1.05em;border-radius:2px;flex:none;
+  background:linear-gradient(#ffe08a,#c8901f);
+}
+.fb-heading h2{font-family:var(--font);font-weight:800;font-size:19px;letter-spacing:-.5px}
+#view-lobby .chip-rule{height:1px;background:linear-gradient(90deg,#d8b77566,transparent)}
+
+@media(max-width:760px){
+  #view-lobby::before{top:20px;height:420px;filter:blur(50px)}
+  .cxp-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-16px;padding-right:16px}
+  .cxp-tab{white-space:nowrap}
+  .cxp-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  #view-lobby::before{transition:none}
+}

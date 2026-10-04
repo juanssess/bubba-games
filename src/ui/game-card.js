@@ -29,7 +29,9 @@ window.MCCard = (function () {
                '<div class="gcard-play"><span>Jugar</span></div>' +
              '</div>' +
              '<div class="gcard-body">' +
-               '<strong>' + g.name + '</strong>' +
+               // Con portada ilustrada el nombre ya está en el arte: repetirlo
+               // abajo era ruido. Sin arte, el nombre sigue acá.
+               (cover ? '' : '<strong>' + g.name + '</strong>') +
                // Solo la descripcion: con el estudio adelante la linea no
                // entraba y se cortaba con puntos suspensivos. El estudio
                // esta en el catalogo y en la ficha del juego, que es donde

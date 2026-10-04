@@ -194,8 +194,6 @@ window.MCCatalog = (function () {
   var RAILS = [
     { id: 'populares', title: 'Populares', sub: 'lo que más se juega acá',
       games: ids(ORIGINALS).concat(ids(take(byBadge('hot'), 10))) },
-    { id: 'crash', title: 'Crash e instantáneos', sub: 'una decisión por ronda',
-      games: ['crash', 'mines'] },
     { id: 'nuevos', title: 'Recién llegados', sub: 'lo último del catálogo',
       games: ids(take(byBadge('new'), 14)) },
     { id: 'jackpots', title: 'Los que más pagan', sub: 'ordenados por premio máximo',
@@ -206,10 +204,6 @@ window.MCCatalog = (function () {
       games: ids(take(byVolatility('Extrema'), 14)) },
     { id: 'suave', title: 'Para jugar tranquilo', sub: 'volatilidad baja',
       games: ids(take(byVolatility('Baja'), 14)) },
-    { id: 'mesa', title: 'Juegos de mesa', sub: 'ruleta y cartas',
-      games: ['roulette', 'blackjack'] },
-    { id: 'deportes', title: 'Deportes', sub: 'partidos reales y cuotas virtuales',
-      games: ['sports'] },
     { id: 'nova', title: 'Nova Play', sub: 'estudio destacado',
       games: ids(take(byStudio('Nova Play'), 14)) },
     { id: 'slots', title: 'Todas las tragamonedas', sub: CATALOG_SIZE + ' títulos en el salón',
@@ -220,6 +214,20 @@ window.MCCatalog = (function () {
     // títulos de sección sin una sola tarjeta abajo.
     .map(function (r) { r.games = visibles(r.games); return r; })
     .filter(function (r) { return r.games.length > 0; });
+
+  /* Crash, mesa y deportes eran rieles de uno o dos juegos que dejaban
+     media fila vacía. Ahora son pestañas de un solo bloque. El id es el
+     mismo que tenía el riel, así el sidebar sigue llevando a cada una. */
+  var CATEGORIES = [
+    { id: 'tragamonedas', tab: 'Tragamonedas', kinds: ['Tragamonedas'] },
+    { id: 'crash',        tab: 'Crash e instantáneos', kinds: ['Crash', 'Instantáneo'] },
+    { id: 'mesa',         tab: 'Mesa', kinds: ['Mesa'] },
+    { id: 'deportes',     tab: 'Deportes', kinds: ['Deportes'] }
+  ].map(function (c) {
+    c.games = ALL.filter(function (g) { return c.kinds.indexOf(g.kind) !== -1; })
+                 .map(function (g) { return g.id; });
+    return c;
+  }).filter(function (c) { return c.games.length > 0; });
 
   /* ---------------- banners ----------------
      Los banners sólo pueden apuntar a juegos visibles: si mandan a
@@ -286,6 +294,7 @@ window.MCCatalog = (function () {
     rails: RAILS,
     promos: PROMOS,
     gameBanners: GAME_BANNERS,
+    categories: CATEGORIES,
     miniBanners: MINI_BANNERS,
     studios: ['Bubba Originals'].concat(MCThemes.STUDIOS),
     size: ALL.length
