@@ -19,11 +19,9 @@ Los atlas preservan transparencia. El cliente recorta el margen transparente una
 
 ## Reconstrucción del proveedor
 
-Desde la raíz del casino ejecutar `node tools/build-illustrated-provider.mjs`. Por defecto lee el proyecto hermano `Juegos Casinos` y sus dependencias instaladas. También acepta esa ruta como argumento.
+Desde la carpeta del casino: `node tools/build-illustrated-provider.mjs`. Antes de compilar corre el portero del proveedor (QA aprobado y vigente, y arte pintado propio de cada juego).
 
-La herramienta aplica únicamente una capa de presentación durante la compilación: reemplaza las tres fábricas de texturas y la escenografía. No escribe en el proyecto hermano ni modifica sus modelos matemáticos o su puente de billetera. Guarda la primera versión anterior del HTML en `backups/provider-before-illustrated.html` y conserva los archivos compilados antiguos para permitir su restauración.
-
-**Para conservar estas ilustraciones en futuras compilaciones, usar esta herramienta.** El comando antiguo del proyecto hermano vuelve a publicar sus dibujos procedurales.
+**Desde la Fase 2 (octubre 2026) el arte de los juegos del proveedor vive en el proveedor**, en `Juegos Casinos/packages/games/<id>/art/`, y el juego lo carga solo. Los atlas de esta carpeta (`provider-atlas.png`, `environments.png`, `kiosco-*`) quedan para el lobby del casino: portadas, banners y MCCinema. Para un juego nuevo, el arte se hace con `npm run art` en el proveedor (ver `docs/fabrica.md` allá); acá solo se suma lo que usa el lobby.
 
 ## Prompts finales (herramienta integrada, sin API/CLI)
 
