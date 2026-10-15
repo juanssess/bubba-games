@@ -6,7 +6,7 @@ import vm from 'node:vm';
 const listeners = new Map(), frames = new Map();
 let nextFrame = 0, reduced = false, now = 0, focused, dialog;
 class Element {
-  constructor() { this.children = new Map(); this.events = new Map(); this.isConnected = true; }
+  constructor() { this.children = new Map(); this.events = new Map(); this.isConnected = true; this.classList = { contains: () => false }; }
   setAttribute() {}
   querySelector(key) { if (!this.children.has(key)) this.children.set(key,new Element()); return this.children.get(key); }
   addEventListener(key,fn) { this.events.set(key,fn); }
@@ -14,6 +14,7 @@ class Element {
   showModal() { this.open = true; }
   close() { this.open = false; }
   remove() { this.isConnected = false; }
+  getBoundingClientRect() { return { height: 100 }; }
 }
 const originalFocus = new Element();
 const context = vm.createContext({
@@ -24,6 +25,7 @@ const context = vm.createContext({
   requestAnimationFrame:fn=>{const id=++nextFrame;frames.set(id,fn);return id;},
   cancelAnimationFrame:id=>frames.delete(id)
 });
+Object.assign(context.document.body, { prepend() {}, setAttribute() {}, removeAttribute() {} });
 vm.runInContext(readFileSync(new URL('../src/ui/cinema.js',import.meta.url),'utf8'),context);
 const cinema=context.window.MCCinema;
 let completed=0;
@@ -36,6 +38,10 @@ const closeClick=dialog.querySelector('button').events.get('click');
 closeClick();closeClick();await first;
 assert.equal(completed,1);
 assert.equal(cinema.active,false);
+const previousDialog = dialog;
+cinema.featureStart({theme:'sebusca'});
+assert.equal(dialog,previousDialog,'Starting a bonus must not create an invasive banner');
+cinema.featureEnd();
 assert.equal(focused,originalFocus);
 assert.equal(listeners.size,0);
 
@@ -50,6 +56,9 @@ assert.equal(intercepted,2,'Continue must not also spin the underlying game');
 assert.equal(frames.size,0);
 
 const interrupted=cinema.show({kind:'summary',total:9000,spins:10});
+dialog.querySelector('button').events.get('click')();
+assert.equal(dialog.querySelector('.cinema-value').textContent,'9.000');
+assert.equal(cinema.active,true,'First click reveals the exact total instead of dismissing it');
 dialog.querySelector('button').events.get('click')();await interrupted;
 assert.equal(frames.size,0,'Closing early cancels the number animation');
 reduced=true;

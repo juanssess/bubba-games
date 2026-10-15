@@ -32,3 +32,36 @@ html:has(.cinema[open]),body:has(.cinema[open]){overflow:hidden}
 @keyframes cinema-emblem{from{transform:scale(.55) rotate(-12deg);opacity:0}to{transform:none;opacity:1}}
 @media(max-height:620px){.cinema{padding:12px}.cinema-panel{padding:12px}.cinema-emblem{width:60px;height:60px;margin-bottom:0}.cinema-brand{margin-bottom:8px}.cinema-value{font-size:62px}.cinema-rule{margin:12px auto 0}.cinema-unit{margin:4px 0 10px}#cinema-detail{margin-bottom:14px}.cinema-hint{margin-top:12px}}
 @media(prefers-reduced-motion:reduce){.cinema *,.cinema[open]{animation:none!important;transition:none!important}.cinema-sparks{display:none}}
+
+/* Theme-led bonus presentation, shared by the four free-spin engines. */
+body[data-bonus-theme] #stage canvas{filter:saturate(1.16)}
+.cinema{--cinema-gold:#f5cf72;--cinema-accent:#f5cf72;background:#071914;color:#fff;width:100%;font-family:Arial,sans-serif}
+.cinema--gold{background:#14171b}
+.cinema--sebusca{--cinema-gold:#f5b598;--cinema-accent:#f5b598;background:#201014}
+.cinema--vendimia{--cinema-gold:#e8c8fa;--cinema-accent:#e8c8fa;background:#1a1329}
+.cinema-atmosphere{opacity:1;background:linear-gradient(#0307065c,#030706c9),url('../../../assets/illustrated/environments.png') var(--scenery) center/300% 100%}
+.cinema-panel{width:min(680px,100%);padding:20px}
+.cinema-panel::before{display:none}
+.cinema-brand,.cinema-eyebrow,.cinema h2,.cinema-value,.cinema-unit,.cinema-continue{letter-spacing:0}
+.cinema-brand{font-size:13px;color:#fff}
+.cinema-emblem{width:120px;height:120px;filter:drop-shadow(0 6px 14px #0008)}
+.cinema h2{font-size:38px;color:#fff;text-shadow:0 3px 16px #000}
+.cinema-rule{height:2px;width:64px;margin:18px auto 8px;background:var(--cinema-accent)}
+.cinema-value{font-size:88px;line-height:1.2;color:var(--cinema-accent);min-height:106px;overflow-wrap:anywhere;text-shadow:0 4px 14px #000}
+.cinema-unit{margin:4px 0 16px}
+#cinema-detail{color:#eee;margin-bottom:20px}
+.cinema-feature{border-top:1px solid #ffffff36;border-bottom:1px solid #ffffff36;padding:14px 0;margin:0 auto 24px;max-width:430px}
+.cinema-feature strong{display:block;font-size:18px}
+.cinema-feature p{font-size:13px;line-height:1.5;color:#e4e6e5;margin:8px 0 0}
+.cinema-receipt{display:none;border-top:1px solid #ffffff36;max-width:350px;margin:0 auto 24px;padding-top:16px;align-items:center;justify-content:space-between;gap:16px;font-size:12px}
+.cinema-receipt strong{font-size:22px;color:var(--cinema-accent)}
+.cinema[data-kind=summary] .cinema-feature{display:none}
+.cinema[data-kind=summary] .cinema-receipt{display:flex}
+.cinema-continue{font-size:13px;width:240px;min-width:0;border:1px solid #fff;border-radius:6px;background:var(--cinema-accent);color:#16191a;box-shadow:0 4px 0 #0006}
+@media(max-width:480px){.cinema{padding:16px}.cinema-panel{padding:12px 0}.cinema h2{font-size:28px}.cinema-value{font-size:60px;min-height:72px}.cinema-emblem{width:90px;height:90px}.cinema-feature strong{font-size:16px}}
+@media(max-height:620px){.cinema{padding:12px}.cinema-panel{padding:8px}.cinema-emblem{width:54px;height:54px;margin-bottom:0}.cinema h2{font-size:26px}.cinema-value{font-size:52px;min-height:63px}.cinema-rule{margin:10px auto 0}.cinema-unit{margin:4px 0 8px}#cinema-detail{margin-bottom:12px}.cinema-feature{padding:8px 0;margin-bottom:14px}.cinema-receipt{margin-bottom:14px;padding-top:10px}}
+
+/* El Kiosco: escena y atlas propios, fuera de environments.png y provider-atlas.png. */
+.cinema--kiosco{--cinema-gold:#ffc6e4;--cinema-accent:#e86aa8;background:radial-gradient(ellipse at 50% 36%,#3a1d36eb,#0a1418f5 75%)}
+.cinema--kiosco .cinema-atmosphere{background:linear-gradient(#05070866,#050708e0),url('../../../assets/illustrated/kiosco-environment.jpg') center/cover}
+.cinema--kiosco .cinema-emblem{background-image:url('../../../assets/illustrated/kiosco-atlas.png');background-size:600% 200%;background-position:20% 0}

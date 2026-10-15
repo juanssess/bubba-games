@@ -581,6 +581,33 @@ window.MCArte = (function () {
     };
   };
 
+  /* ---------- Bowling: pista de madera, tres pinos y bola violeta ---------- */
+  ESCENAS.bowling = function (w, h) {
+    return function (c, t) {
+      fondo(c, w, h, '#101a36', '#173e53');
+      c.strokeStyle = '#77e4f0'; c.lineWidth = 2;
+      c.beginPath(); c.moveTo(0, h * .2); c.lineTo(w, h * .2); c.stroke();
+      c.fillStyle = '#c79b66';
+      c.beginPath(); c.moveTo(w * .3, h * .45); c.lineTo(w * .7, h * .45);
+      c.lineTo(w, h); c.lineTo(0, h); c.closePath(); c.fill();
+      for (var i = 0; i < 3; i++) {
+        var x = w * (.32 + i * .18), y = h * .38, size = h * .27;
+        c.fillStyle = '#edf5f7';
+        c.beginPath(); c.ellipse(x, y + size * .65, size * .18, size * .38, 0, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.ellipse(x, y + size * .14, size * .11, size * .14, 0, 0, Math.PI * 2); c.fill();
+        c.fillRect(x - size * .07, y + size * .16, size * .14, size * .25);
+        c.fillStyle = '#df3454'; c.fillRect(x - size * .085, y + size * .3, size * .17, size * .06);
+      }
+      var yball = h * (.84 - .035 * Math.sin(t * 2));
+      var ball = c.createRadialGradient(w * .46, yball - h * .05, 0, w * .5, yball, h * .14);
+      ball.addColorStop(0, '#bd93ff'); ball.addColorStop(1, '#472175');
+      c.fillStyle = ball; c.beginPath(); c.arc(w * .5, yball, h * .13, 0, Math.PI * 2); c.fill();
+      c.fillStyle = '#201333';
+      [[0,-.05],[.035,-.025],[0,0]].forEach(function (p) { c.beginPath(); c.arc(w * (.5 + p[0]), yball + h * p[1], h * .015, 0, Math.PI * 2); c.fill(); });
+      texto(c, 'BOWLING', w / 2, h * .12, Math.min(w * .1, 20), '#b6f4ff');
+    };
+  };
+
   /* ---------- por defecto: rodillos genéricos ---------- */
   ESCENAS._ = function (w, h, g) {
     return function (c, t) {

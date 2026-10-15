@@ -6,13 +6,14 @@
   var nativeImage = new Image();
   var providerImage = new Image();
   var tableImage = new Image();
+  var kioscoImage = new Image();
   var nativeSprites = [];
   // Trim transparent sprite padding once at load; retain the original atlas on disk.
-  function prepare(image, cols, rows, provider, table) {
+  function prepare(image, cols, rows, provider, table, kiosco) {
     var sheet = document.createElement('canvas');
     sheet.width = image.naturalWidth; sheet.height = image.naturalHeight;
     var context = sheet.getContext('2d');context.drawImage(image,0,0);
-    var bands = table ? [0,1,2] : provider ? [0,253,455,690,897,1145] : [0,314,627,920,1254];
+    var bands = table || kiosco ? [0,1,2] : provider ? [0,253,455,690,897,1145] : [0,314,627,920,1254];
     var css = '';
     for (var i=0;i<cols*rows;i++) {
       var x=Math.round(i%cols*sheet.width/cols), row=Math.floor(i/cols);
@@ -26,17 +27,19 @@
       var canvas=document.createElement('canvas'); canvas.width=256;canvas.height=256;
       var sw=right-left+1,sh=bottom-top+1,scale=224/Math.max(sw,sh);
       canvas.getContext('2d').drawImage(image,x+left,y+top,sw,sh,(256-sw*scale)/2,(256-sh*scale)/2,sw*scale,sh*scale);
-      if(!provider&&!table) nativeSprites[i]=canvas;
-      css += '.illustrated-symbol.art-'+(table?'t':provider?'p':'n')+i+'{background-image:url("'+canvas.toDataURL('image/png')+'");background-size:100% 100%;background-position:center;}';
+      if(!provider&&!table&&!kiosco) nativeSprites[i]=canvas;
+      css += '.illustrated-symbol.art-'+(kiosco?'k':table?'t':provider?'p':'n')+i+'{background-image:url("'+canvas.toDataURL('image/png')+'");background-size:100% 100%;background-position:center;}';
     }
     var style=document.createElement('style'); style.textContent=css;document.head.appendChild(style);
   }
   nativeImage.onload=function(){prepare(nativeImage,4,4,false);};
   providerImage.onload=function(){prepare(providerImage,6,5,true);};
   tableImage.onload=function(){prepare(tableImage,2,2,false,true);};
+  kioscoImage.onload=function(){prepare(kioscoImage,6,2,false,false,true);};
   nativeImage.src = nativeUrl;
   providerImage.src = providerUrl;
   tableImage.src = 'assets/illustrated/tables-atlas.png';
+  kioscoImage.src = 'assets/illustrated/kiosco-atlas.png';
   var names = ['Cereza','Limón','Campana','Trébol de jade','Estrella','Diamante','Corona','Siete',
     'Uva','Tigre comodín','Bolsa de monedas','Esmeralda','Mina','Jet','Fichas','As'];
   var faces = ['🍒','🍋','🔔','🍀','⭐','💎','👑','7','🍇','🐯','💰','emerald','💣','🚀','🎴','🃏'];
@@ -44,6 +47,7 @@
   faces.forEach(function (face, i) { lookup[face] = i; });
   function escape(s) { return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   function sprite(index, provider, label) {
+    if(provider==='kiosco') return '<span class="illustrated-symbol illustrated-kiosco art-k'+index+'" role="img" aria-label="'+escape(label)+'" style="--art-x:'+(index%6*20)+'%;--art-y:'+(Math.floor(index/6)*100)+'%"></span>';
     if(provider==='table') return '<span class="illustrated-symbol illustrated-table art-t'+index+'" role="img" aria-label="'+escape(label)+'" style="--art-x:'+(index%2*100)+'%;--art-y:'+(Math.floor(index/2)*100)+'%"></span>';
     var cols = provider ? 6 : 4, rows = provider ? 5 : 4;
     return '<span class="illustrated-symbol art-' + (provider?'p':'n') + index + (provider ? ' illustrated-provider' : '') + '" role="img" aria-label="' + escape(label || names[index] || 'Símbolo') + '" style="--art-x:' + (index % cols * 100 / (cols - 1)) + '%;--art-y:' + (Math.floor(index / cols) * 100 / (rows - 1)) + '%"></span>';
@@ -62,7 +66,7 @@
   }
   var covers = {
     crash:[13,false,'jet'], mines:[11,false,'vault'], slots777:[7,false,'classic'], slots5:[9,false,'temple'],
-    maverick:[3,true,'temple'], sebusca:[13,true,'western'], vendimia:[24,true,'wine'],
+    maverick:[3,true,'temple'], sebusca:[13,true,'western'], vendimia:[24,true,'wine'], kiosco:[1,'kiosco','kiosco'],
     plantilla:[14,false,'classic'], roulette:[0,'table','table'], blackjack:[15,false,'table'], sports:[1,'table','sports']
   };
   function cover(game) {

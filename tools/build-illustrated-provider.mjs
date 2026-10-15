@@ -10,11 +10,14 @@ const provider = resolve(process.argv[2] || resolve(casino, '../Juegos Casinos')
 const { build } = await import(pathToFileURL(resolve(provider, 'node_modules/vite/dist/node/index.js')).href);
 const target = resolve(casino, 'games/slots');
 const output = resolve(casino, 'tmp/illustrated-provider');
+if (!output.startsWith(casino + '/') && !output.startsWith(casino + '\\')) throw new Error('Build output must stay in the workspace.');
 const replacements = new Set();
 const maps = {
   'symbols.ts': { fn:'createSymbolTextures', indices:[0,1,2,3,4,5,6,7,8,9,10] },
   'symbols-sebusca.ts': { fn:'createSebuscaTextures', indices:[11,12,13,14,15,16,17,18,19,20,21] },
-  'symbols-vendimia.ts': { fn:'createVendimiaTextures', indices:[22,23,24,25,26,29,27,28,29,29,29] }
+  'symbols-vendimia.ts': { fn:'createVendimiaTextures', indices:[22,23,24,25,26,29,27,28,29,29,29] },
+  // El Kiosco tiene su propio atlas: grilla regular de 6x2, en el orden de los simbolos.
+  'symbols-kiosco.ts': { fn:'createKioscoTextures', atlas:'kiosco-atlas.png', cols:6, rows:2, indices:[0,1,2,3,4,5,6,7,8,9,10] }
 };
 function replaceOnce(source, before, after) {
   if (!source.includes(before)) throw new Error('Provider source changed; missing presentation anchor: ' + before);
@@ -25,13 +28,13 @@ await build({
   root:resolve(provider,'apps/client'),
   base:'./',
   cacheDir:resolve(casino,'tmp/illustrated-cache'),
-  build:{outDir:output,emptyOutDir:false},
+  build:{outDir:output,emptyOutDir:true},
   plugins:[{
     name:'bubba-illustrated-presentation', enforce:'pre',
     transformIndexHtml(html) {
       return {html,tags:[
-        {tag:'link',attrs:{rel:'stylesheet',href:'../../src/styles/games/cinema.css?v=1'},injectTo:'head'},
-        {tag:'script',attrs:{src:'../../src/ui/cinema.js?v=1'},injectTo:'head-prepend'}
+        {tag:'link',attrs:{rel:'stylesheet',href:'../../src/styles/games/cinema.css?v=4'},injectTo:'head'},
+        {tag:'script',attrs:{src:'../../src/ui/cinema.js?v=4'},injectTo:'head-prepend'}
       ]};
     },
     transform(source,id) {
@@ -74,15 +77,18 @@ await build({
       if (normalized.includes('/apps/client/src/render/') && maps[basename(id)]) {
         const skin = maps[basename(id)];
         replacements.add(basename(id));
+        // provider-atlas.png tiene filas de alto desparejo; un atlas propio es una grilla regular.
+        const cols = skin.cols || 6;
+        const bands = skin.rows ? Array.from({length:skin.rows+1},(_,i)=>i) : [0,253,455,690,897,1145];
         return `import { Texture } from 'pixi.js';
           export function ${skin.fn}(app) {
-            const atlas = Texture.from('../../assets/illustrated/provider-atlas.png');
+            const atlas = Texture.from('../../assets/illustrated/${skin.atlas || 'provider-atlas.png'}');
             const sheet=document.createElement('canvas');sheet.width=atlas.width;sheet.height=atlas.height;
             const ctx=sheet.getContext('2d');ctx.drawImage(atlas.source.resource,0,0);
-            const bands=[0,253,455,690,897,1145];
+            const bands=${JSON.stringify(bands)}, span=bands[bands.length-1], cols=${cols};
             return new Map(${JSON.stringify(skin.indices)}.map((cell,id) => {
-              const row=Math.floor(cell/6), x=Math.round(cell%6*atlas.width/6),y=Math.round(bands[row]*atlas.height/1145);
-              const w=Math.round(atlas.width/6),h=Math.round((bands[row+1]-bands[row])*atlas.height/1145);
+              const row=Math.floor(cell/cols), x=Math.round(cell%cols*atlas.width/cols),y=Math.round(bands[row]*atlas.height/span);
+              const w=Math.round(atlas.width/cols),h=Math.round((bands[row+1]-bands[row])*atlas.height/span);
               const pixels=ctx.getImageData(x,y,w,h).data;
               let l=w,t=h,r=0,b=0;
               for(let yy=0;yy<h;yy++) for(let xx=0;xx<w;xx++) if(pixels[(yy*w+xx)*4+3]>80){l=Math.min(l,xx);r=Math.max(r,xx);t=Math.min(t,yy);b=Math.max(b,yy);}
@@ -96,6 +102,7 @@ await build({
       if (normalized.endsWith('/apps/client/src/main.ts')) {
         replacements.add('main.ts');
         let code = replaceOnce(source,'import { Application,','import { Assets, Texture, Rectangle, Application,');
+        code = 'import { createMaverickAtmosphere } from ' + JSON.stringify(resolve(casino,'src/ui/maverick-atmosphere.js').replaceAll('\\','/')) + ';\n' + code;
         code = replaceOnce(code,'antialias: false','antialias: true');
         code = replaceOnce(code,'freeCounter.anchor.set(0.5, 1);',`freeCounter.style.fill = 0xffedc4;
   freeCounter.style.stroke = {color:0x100a08,width:4};
@@ -103,16 +110,22 @@ await build({
         code = replaceOnce(code,'cascadaBadge.anchor.set(1, 1);',`cascadaBadge.style.stroke = {color:0x100a08,width:4};
   cascadaBadge.anchor.set(1, 1);`);
         code = replaceOnce(code,'const textures = profile.textures(app);',`await Assets.load([
-          '../../assets/illustrated/provider-atlas.png', '../../assets/illustrated/environments.png'
+          '../../assets/illustrated/provider-atlas.png', '../../assets/illustrated/environments.png',
+          '../../assets/illustrated/kiosco-atlas.png', '../../assets/illustrated/kiosco-environment.jpg'
         ]);
         const textures = profile.textures(app);`);
         code = replaceOnce(code,'const bg = new Graphics();',`const environment = Texture.from('../../assets/illustrated/environments.png');
         const panel = profile.id === 'sebusca' ? 1 : profile.id === 'vendimia' ? 2 : 0;
-        const scenery = new Sprite(new Texture({source:environment.source,
-          frame:new Rectangle(panel*environment.width/3,0,environment.width/3,environment.height)}));
+        // El Kiosco tiene su escena en un archivo propio; los otros comparten environments.png.
+        const scenery = profile.id === 'kiosco'
+          ? new Sprite(Texture.from('../../assets/illustrated/kiosco-environment.jpg'))
+          : new Sprite(new Texture({source:environment.source,
+              frame:new Rectangle(panel*environment.width/3,0,environment.width/3,environment.height)}));
         scenery.alpha = .83;
         app.stage.addChild(scenery);
+        if (profile.id === 'classic20') createMaverickAtmosphere(app,{Container,Sprite,Texture},scenery);
         const bg = new Graphics();`);
+        code = replaceOnce(code,"window.addEventListener('resize', layout);", "window.addEventListener('resize', layout); app.renderer.on('resize',layout);");
         code = replaceOnce(code,'bg.clear().rect(0, 0, w, h).fill(PALETTE.bgBottom);',`const scenicScale = Math.max(w/scenery.texture.width,h/scenery.texture.height);
         scenery.scale.set(scenicScale);
         scenery.position.set((w-scenery.width)/2,(h-scenery.height)/2);
@@ -121,8 +134,10 @@ await build({
         code = replaceOnce(code,'await playStep(step, roundBet);',`if (step.kind === 'free' && (i === 0 || steps[i-1].kind !== 'free' || i === from+1)) {
           await window.MCCinema.show({theme:profile.id,spins:step.freeTotal || 1,
             detail:profile.id === 'sebusca' ? 'Los wilds pegajosos acompañan la función.' :
-              profile.id === 'vendimia' ? 'Cada cascada continúa la cosecha.' : 'La Escalinata decidió tu bonus.'});
+              profile.id === 'vendimia' ? 'Cada cascada continúa la cosecha.' :
+              profile.id === 'kiosco' ? 'Las bombas multiplican cada caída que paga.' : 'La Escalinata decidió tu bonus.'});
           skipRequested = false;
+          window.MCCinema.featureStart({theme:profile.id});
         }
         await playStep(step, roundBet);`);
         code = replaceOnce(code,'hud.hideBanner();\n    setFreeMode(false);',`hud.hideBanner();
@@ -131,16 +146,22 @@ await build({
       await window.MCCinema.show({theme:profile.id,kind:'summary',spins:freeSteps.length,
         total:freeSteps.reduce((sum,s) => sum+s.win,0)});
     }
-    setFreeMode(false);`);
+    window.MCCinema.featureEnd();
+    setFreeMode(false);
+    layout();`);
         // The background brightens during the feature; the board retains its contrast.
         code = replaceOnce(code,'freeMode = free;',`freeMode = free;
     scenery.alpha = free ? 1 : .83;`);
+        code = replaceOnce(code,'scenery.alpha = free ? 1 : .83;',`scenery.alpha = free ? 1 : .83;
+    scenery.tint = free ? (profile.id === 'sebusca' ? 0xffbdaa : profile.id === 'vendimia' ? 0xd9c0ff : profile.id === 'kiosco' ? 0xffc8e6 : 0xa9ffe0) : 0xffffff;`);
+        if (!code.includes('busyState.value = false;')) throw new Error('Missing provider cleanup anchor');
+        code = code.replaceAll('busyState.value = false;', 'window.MCCinema.featureEnd(); setFreeMode(false); layout(); busyState.value = false;');
         return code;
       }
     }
   }]
 });
-if (replacements.size !== 4) throw new Error('The four presentation modules were not all replaced. Nothing published.');
+if (replacements.size !== 5) throw new Error('The five presentation modules were not all replaced. Nothing published.');
 const backup = resolve(casino,'backups/provider-before-illustrated.html');
 mkdirSync(dirname(backup),{recursive:true});
 if (!existsSync(backup)) copyFileSync(resolve(target,'index.html'),backup);

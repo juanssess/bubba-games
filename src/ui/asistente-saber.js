@@ -160,6 +160,19 @@ window.MCAsistenteSaber = (function () {
       consejo: 'Volatilidad media-alta: entre Bubba 777 y Se Busca. Lo bueno está en las ' +
         'cascadas largas de los giros gratis.'
     },
+    kiosco: {
+      alias: ['kiosco', 'el kiosco', 'golosinas', 'bomba', 'bombas', 'chupetin', 'chupetín'],
+      como: 'Grilla de 6×5 que paga en <em>cualquier lado</em>: con <strong>ocho o más</strong> ' +
+        'símbolos iguales en la pantalla cobrás, no hace falta que se toquen. Lo que gana se ' +
+        'va y cae lo de arriba, como en La Vendimia.',
+      paga: function (g) {
+        return 'Cuatro chupetines dan 10 giros gratis. Ahí caen <strong>bombas</strong> de ×2 a ' +
+          '×500 que se quedan hasta el final de la caída y, si hubo premio, lo multiplican por la ' +
+          'suma de todas. Máximo ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Volatilidad alta: casi todo el valor está en las bombas de los giros gratis. ' +
+        'La apuesta ante duplica la frecuencia del bonus, pero cada giro cuesta más.'
+    },
     slots5: {
       alias: ['bubba gold', 'gold', 'tigre', 'slots5'],
       como: 'Tragamonedas de 5 rodillos, 3 filas y 20 líneas. Elegís la apuesta por línea ' +

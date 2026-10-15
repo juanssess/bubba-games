@@ -45,12 +45,13 @@ window.MCCasa = (function () {
     roulette:  'baja el 36 del que se deriva todo pago, así las trece apuestas siguen teniendo el mismo margen',
     blackjack: 'escala la ganancia y deja el empate intacto',
 
-    /* Los tres del iframe. El texto dice dónde se aplica, que es lo
+    /* Los cuatro del iframe. El texto dice dónde se aplica, que es lo
        que los distingue del resto: no en su tabla sino al acreditar,
        porque su matemática está compilada en otro proyecto. */
     maverick:  'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
     sebusca:   'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
-    vendimia:  'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica'
+    vendimia:  'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
+    kiosco:    'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica'
   };
 
   /* Blackjack es el único donde el factor no da el RTP exacto, y el

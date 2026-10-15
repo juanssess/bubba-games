@@ -13,13 +13,13 @@ opcion Animaciones de Ajustes, incluida la del casino padre.
 ## Integracion Del Bundle
 
 El proyecto fuente del proveedor no esta en este repositorio. Por eso,
-`games/slots/assets/index-Dq-D1F78.js` importa la funcion y la llama solo
+`tools/build-illustrated-provider.mjs` integra la funcion en el bundle y la llama solo
 para `classic20`, despues de insertar el sprite del fondo. Maverick tambien
 escucha el evento `resize` del renderer para reencuadrar despues de que
 Pixi actualice sus dimensiones. Los otros juegos conservan su comportamiento.
 
-Al reconstruir o reemplazar el bundle del proveedor, trasladar estos dos
-puntos de integracion al proyecto fuente. No agregar un parametro de version
+Al reconstruir o reemplazar el bundle del proveedor, conservar estos dos
+puntos de integracion en el constructor. No agregar un parametro de version
 solo al script de entrada: los modulos del bundle tienen referencias circulares
 a su URL original y eso ejecutaria dos veces el registro de extensiones Pixi.
 

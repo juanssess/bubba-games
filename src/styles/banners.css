@@ -183,6 +183,7 @@
   background:radial-gradient(ellipse 50% 50% at 50% 50%,var(--amb,#d8b77555) 0%,transparent 100%);
   transition:background .8s ease;
 }
+#view-lobby[data-scene="kiosco"]{--amb:#d0488fb3}
 #view-lobby[data-scene="wine"]{--amb:#8e1330cc}
 #view-lobby[data-scene="western"]{--amb:#c8452fb3}
 #view-lobby[data-scene="temple"]{--amb:#2f7a4fb3}

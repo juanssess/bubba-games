@@ -25,6 +25,7 @@ window.MC = window.MC || {};
     rouletteHistory: [],
     crashHistory: [],
     crashBest: 1,
+    bowlingPending: null,   // tiro cobrado que todavía está mostrando su animación
 
     // Registros que alimentan las estadisticas y el panel de agente.
     // Van declarados aca por una razon concreta: aplicarEstado() reconstruye

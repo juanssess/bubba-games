@@ -28,11 +28,12 @@
 <link rel="stylesheet" href="src/styles/casa.css?v=81">
 <link rel="stylesheet" href="src/styles/asistente.css?v=82">
 <link rel="stylesheet" href="src/styles/games/slots.css?v=81">
-<link rel="stylesheet" href="src/styles/games/slots5.css?v=81">
+<link rel="stylesheet" href="src/styles/games/slots5.css?v=83">
 <link rel="stylesheet" href="src/styles/games/sportsbook.css?v=82">
 <link rel="stylesheet" href="src/styles/football-home.css?v=1">
 <link rel="stylesheet" href="src/styles/games/proveedor.css?v=81">
 <link rel="stylesheet" href="src/styles/games/plantilla.css?v=81">
+<link rel="stylesheet" href="src/styles/games/bowling.css?v=1">
 <link rel="stylesheet" href="src/styles/games/crash.css?v=81">
 <link rel="stylesheet" href="src/styles/games/mines.css?v=81">
 <link rel="stylesheet" href="src/styles/games/roulette.css?v=81">
@@ -40,7 +41,7 @@
 <link rel="stylesheet" href="src/styles/midnight.css?v=82">
 <link rel="stylesheet" href="src/styles/games/studio.css?v=1">
 <link rel="stylesheet" href="src/styles/games/illustrated.css?v=1">
-<link rel="stylesheet" href="src/styles/games/cinema.css?v=1">
+<link rel="stylesheet" href="src/styles/games/cinema.css?v=4">
 <link rel="stylesheet" href="src/styles/games/motion.css?v=1">
 <link rel="stylesheet" href="src/styles/banners.css?v=9">
 
@@ -398,6 +399,58 @@
              El id tiene que ser view-<engine>, donde <engine> es el mismo
              nombre que le pasás a MC.registerEngine() y el que declarás en
              la entrada del catálogo. -->
+        <section class="view" id="view-bowling">
+          <header class="studio-title"><span class="studio-eyebrow">BUBBA ORIGINALS · FICHAS VIRTUALES</span><h3>BUBBA <em>BOWLING</em></h3><p>Tres pinos. Una bola. Un premio escondido.</p></header>
+          <div class="bw-layout">
+            <div class="bw-main">
+              <div class="bw-scene" id="bw-scene">
+                <div class="bw-neon" aria-hidden="true">LUCKY LANES</div>
+                <svg class="bw-lane" viewBox="0 0 800 560" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="bw-room" x2="0" y2="1"><stop stop-color="#0c132a"/><stop offset="1" stop-color="#1a2844"/></linearGradient>
+                    <linearGradient id="bw-wood" x2="0" y2="1"><stop stop-color="#725036"/><stop offset=".45" stop-color="#bd8c56"/><stop offset="1" stop-color="#e9bd7e"/></linearGradient>
+                    <linearGradient id="bw-pin-shine"><stop stop-color="#b4c9d6"/><stop offset=".42" stop-color="#fff"/><stop offset=".7" stop-color="#f1f6f9"/><stop offset="1" stop-color="#9faebf"/></linearGradient>
+                    <radialGradient id="bw-ball-color" cx=".3" cy=".25" r=".8"><stop stop-color="#b592ff"/><stop offset=".35" stop-color="#7543cb"/><stop offset="1" stop-color="#261344"/></radialGradient>
+                    <pattern id="bw-grain" width="27" height="100" patternUnits="userSpaceOnUse"><path d="M1 0V100M24 0V100" stroke="#4e2d19" stroke-opacity=".18"/><path d="M8 5Q15 30 8 80M18 20Q10 50 18 95" fill="none" stroke="#ffe9c0" stroke-opacity=".12"/></pattern>
+                    <clipPath id="bw-floor-clip"><path d="M258 190H542L760 560H40Z"/></clipPath>
+                    <g id="bw-pin-shape"><ellipse cx="32" cy="113" rx="24" ry="5" fill="#000" opacity=".3"/><path d="M32 3C18 3 17 17 23 26C28 34 25 46 18 61C6 81 8 99 14 108Q32 116 50 108C56 99 58 81 46 61C39 46 36 34 41 26C47 17 46 3 32 3Z" fill="url(#bw-pin-shine)"/><path d="M24 32H40M23 40H41" stroke="#e23b58" stroke-width="5"/><path d="M20 70Q14 88 19 100" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/></g>
+                  </defs>
+                  <path fill="url(#bw-room)" d="M0 0H800V560H0Z"/>
+                  <path d="M0 130H800M0 155H800" stroke="#55d8ef" stroke-opacity=".25"/>
+                  <path d="M0 130H800" stroke="#72eaff" stroke-width="3"/>
+                  <path d="M55 0V180M745 0V180" stroke="#8967ec" stroke-width="4" opacity=".6"/>
+                  <path d="M246 180H554L793 560H7Z" fill="#080e19" stroke="#4b6780" stroke-width="2"/>
+                  <path d="M258 190H542L760 560H40Z" fill="url(#bw-wood)"/>
+                  <path d="M258 190H542L760 560H40Z" fill="url(#bw-grain)"/>
+                  <g clip-path="url(#bw-floor-clip)" stroke="#614128" stroke-opacity=".28"><path d="M280 190L100 560M310 190L180 560M340 190L260 560M370 190L330 560M400 190V560M430 190L470 560M460 190L540 560M490 190L620 560M520 190L700 560"/><path d="M0 290H800M0 385H800M0 505H800"/></g>
+                  <path d="M246 190L7 560M554 190L793 560" stroke="#61d8ed" stroke-width="3" opacity=".7"/>
+                  <path d="M140 470H660" stroke="#735136" stroke-width="4" opacity=".65"/>
+                  <g fill="#684329" opacity=".6"><path d="M290 360l-6 12h12ZM345 360l-6 12h12ZM400 360l-6 12h12ZM455 360l-6 12h12ZM510 360l-6 12h12Z"/></g>
+                  <path id="bw-aim" class="bw-aim" d="M400 490Q400 350 400 240"/>
+                  <g id="bw-ball" transform="translate(400 490) scale(1)"><ellipse cy="36" rx="47" ry="11" fill="#261534" opacity=".4"/><circle r="42" fill="url(#bw-ball-color)"/><g id="bw-spin"><path d="M-31 -15Q10 -40 31 6M-28 24Q2 5 28 28" stroke="#ba91f3" stroke-width="5" fill="none" opacity=".33"/><g fill="#1a102c"><circle cx="3" cy="-16" r="5"/><circle cx="15" cy="-9" r="5"/><circle cx="4" cy="-2" r="6"/></g></g><ellipse cx="-15" cy="-23" rx="11" ry="6" fill="#fff" opacity=".2" transform="rotate(-30 -15 -23)"/></g>
+                </svg>
+                <button type="button" class="bw-pin" aria-label="Apuntar al pino 1" aria-pressed="false"><span class="bw-pin-result">?</span><svg viewBox="0 0 64 120" aria-hidden="true"><use href="#bw-pin-shape"/></svg></button>
+                <button type="button" class="bw-pin selected" aria-label="Apuntar al pino 2" aria-pressed="true"><span class="bw-pin-result">?</span><svg viewBox="0 0 64 120" aria-hidden="true"><use href="#bw-pin-shape"/></svg></button>
+                <button type="button" class="bw-pin" aria-label="Apuntar al pino 3" aria-pressed="false"><span class="bw-pin-result">?</span><svg viewBox="0 0 64 120" aria-hidden="true"><use href="#bw-pin-shape"/></svg></button>
+              </div>
+              <div class="bw-score">
+                <div id="bw-msg" class="bw-message" role="status" aria-live="polite">Elegí tu pino y tirá. ¿Dónde está el premio?</div>
+                <div class="bw-choices" role="group" aria-label="Elegí el pino al que apuntar"><button type="button" class="bw-choice" aria-pressed="false">Pino 1</button><button type="button" class="bw-choice selected" aria-pressed="true">Pino 2</button><button type="button" class="bw-choice" aria-pressed="false">Pino 3</button></div>
+              </div>
+              <div class="bw-history"><span class="bw-history-title">TUS ÚLTIMOS TIROS</span><div class="bw-history-results" id="bw-history"></div></div>
+            </div>
+            <aside class="bw-panel">
+              <span class="bw-eyebrow">UN TIRO. UNA CHANCE.</span><h4>Buscá el premio</h4>
+              <div class="bet-control"><button type="button" class="btn btn-ghost" id="bw-down" aria-label="Bajar apuesta">−</button><div class="bet-display"><span>Apuesta en fichas</span><strong id="bw-bet">100</strong></div><button type="button" class="btn btn-ghost" id="bw-up" aria-label="Subir apuesta">+</button></div>
+              <div class="bw-target"><span>Tu objetivo</span><strong id="bw-target">Pino 2</strong></div>
+              <button type="button" class="btn btn-spin" id="bw-throw">TIRAR LA BOLA</button>
+              <div class="bw-payment"><span>Si acertás, cobrás</span><strong id="bw-payout">—</strong><small id="bw-return">—</small></div>
+              <details class="bw-rules"><summary>Cómo se juega</summary><p>Elegí uno de los tres pinos y lanzá. Uno esconde el premio; los otros dos no pagan. El premio se sortea de nuevo en cada tiro: cada pino tiene la misma probabilidad.</p><p>El pago incluye la apuesta. Las fichas se redondean a un entero conservando el pago promedio mostrado. La puntería y la animación no cambian tus chances. Usás fichas virtuales.</p></details>
+              <div class="bw-metrics"><span>Probabilidad</span><strong>1 de 3</strong></div><div class="bw-metrics"><span>Retorno promedio (RTP)</span><strong id="bw-rtp">—</strong></div>
+            </aside>
+          </div>
+        </section>
+
         <section class="view" id="view-plantilla">
           <header class="studio-title"><span class="studio-eyebrow">BUBBA ORIGINALS</span><h3>DOBLE <em>O NADA</em></h3><p>Dos colores. Una decisión.</p></header>
           <div class="pl-layout">
@@ -750,7 +803,7 @@
 <script src="src/core/roles.js?v=81"></script>
 <script src="src/core/rng.js?v=81"></script>
 <script src="src/core/justo.js?v=81"></script>
-<script src="src/core/state.js?v=81"></script>
+<script src="src/core/state.js?v=82"></script>
 <script src="src/core/rtp.js?v=83"></script>
 <script src="src/core/audio.js?v=81"></script>
 <script src="src/core/ui.js?v=81"></script>
@@ -777,11 +830,11 @@
 <script src="src/sports/league.js?v=83"></script>
 
 <!-- 4. Motores de juego -->
-<script src="src/ui/cinema.js?v=1"></script>
+<script src="src/ui/cinema.js?v=4"></script>
 <script src="src/ui/illustrated-art.js?v=1"></script>
 <script src="src/games/slots.js?v=81"></script>
 <script src="src/games/slots5-math.js?v=81"></script>
-<script src="src/games/slots5.js?v=81"></script>
+<script src="src/games/slots5.js?v=83"></script>
 <script src="src/games/roulette.js?v=81"></script>
 <script src="src/games/blackjack.js?v=81"></script>
 <script src="src/games/crash.js?v=81"></script>
@@ -789,17 +842,18 @@
 <script src="src/sports/markets.js?v=1"></script>
 <script src="src/games/sportsbook.js?v=84"></script>
 <script src="src/games/plantilla.js?v=81"></script>
+<script src="src/games/bowling.js?v=1"></script>
 <script src="src/games/proveedor.js?v=81"></script>
 
 <!-- 5. Catálogo (themes → matemática → generador → armado) -->
 <script src="src/catalog/themes.js?v=81"></script>
 <script src="src/catalog/slot-math.js?v=81"></script>
 <script src="src/catalog/generator.js?v=81"></script>
-<script src="src/catalog/catalog.js?v=85"></script>
+<script src="src/catalog/catalog.js?v=86"></script>
 
 <!-- 6. Interfaz del portal -->
 <script src="src/ui/game-card.js?v=82"></script>
-<script src="src/ui/game-art.js?v=81"></script>
+<script src="src/ui/game-art.js?v=82"></script>
 <script src="src/ui/actions.js?v=81"></script>
 <script src="src/ui/carousel.js?v=85"></script>
 <script src="src/ui/rails.js?v=83"></script>
@@ -825,7 +879,7 @@
 <script src="src/ui/asistente.js?v=82"></script>
 
 <!-- 7. Arranque -->
-<script src="src/main.js?v=84"></script>
+<script src="src/main.js?v=85"></script>
 
 <!-- Login con Google y saldo en la nube. Es un módulo (el SDK de Firebase lo
      es) y va último a propósito: si falla, el casino ya arrancó con perfiles

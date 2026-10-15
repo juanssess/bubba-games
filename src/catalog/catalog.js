@@ -43,6 +43,14 @@ window.MCCatalog = (function () {
 
   var ORIGINALS = [
     {
+      id: 'bowling', engine: 'bowling', name: 'Bubba Bowling', kind: 'Instantáneo',
+      studio: 'Bubba Originals', volatility: 'Media',
+      tag: 'Tres pinos · un premio oculto', rtpValue: 0.97, rtp: 'RTP 97,0%',
+      maxWin: 2.91, emoji: '🎳', badge: 'new',
+      art: 'linear-gradient(135deg,#0b152b,#176b87 60%,#83e6ee)',
+      desc: 'Elegí tu pino y tirá la bola'
+    },
+    {
       id: 'crash', engine: 'crash', name: 'Bubba Jet', kind: 'Crash',
       studio: 'Bubba Originals', volatility: 'Extrema',
       tag: 'Ventaja de la casa 3%', rtpValue: 0.97, rtp: 'RTP 97,0%',
@@ -99,6 +107,15 @@ window.MCCatalog = (function () {
       art: 'linear-gradient(135deg,#2b1226,#8e1330 55%,#cfa93c)',
       desc: 'Cinco pegados y explota',
       frameUrl: 'games/slots/index.html?game=vendimia'
+    },
+    {
+      id: 'kiosco', engine: 'proveedor', name: 'El Kiosco', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Alta',
+      tag: '8 iguales en cualquier lado · bombas hasta x500', rtpValue: 0.965, rtp: 'RTP 96,5%',
+      maxWin: 10000, badge: 'new',
+      art: 'linear-gradient(135deg,#0f2a33,#d0488f 55%,#f2b84b)',
+      desc: 'Ocho iguales y explota',
+      frameUrl: 'games/slots/index.html?game=kiosco'
     },
     {
       // PLANTILLA: copiá esta entrada para dar de alta tu juego.
@@ -236,6 +253,7 @@ window.MCCatalog = (function () {
      (la escena de environments.png y el sprite de la portada). Los
      numeros —RTP, premio maximo— salen de la ficha del juego, no de aca. */
   var GAME_BANNERS = [
+    { game: 'kiosco',   scene: 'kiosco',  kicker: 'Recién abierto', side: ['Bombas', 'hasta x500'], chip: 'Paga en cualquier lado' },
     { game: 'vendimia', scene: 'wine',    kicker: 'Ya llegó',   side: ['Exclusivo', 'del salón'], chip: 'Cascadas' },
     { game: 'sebusca',  scene: 'western', kicker: 'El más buscado', side: ['Volatilidad', 'extrema'], chip: 'Wilds pegajosos' },
     { game: 'maverick', scene: 'temple',  kicker: 'Subí la pirámide', side: ['Top', 'del salón'], chip: '20 líneas' }

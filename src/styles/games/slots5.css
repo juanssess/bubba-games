@@ -12,6 +12,10 @@
 
 .g5-layout{display:grid;grid-template-columns:1fr 268px;gap:18px;align-items:start}
 .g5-main{min-width:0}
+.g5-board--bonus{border-color:#6ee7bd!important;background:#072923!important;box-shadow:inset 0 0 50px #04211b,0 0 0 5px #6ee7bd30,0 14px 34px #0008!important}
+.g5-board--bonus .g5-reel{background:linear-gradient(#12463c,#09231f)}
+.g5-board--bonus .es-wild{position:relative;background:#23694b;box-shadow:inset 0 0 0 2px #ffe18d}
+.g5-board--bonus .es-wild::after{content:'×' attr(data-bonus-mult);position:absolute;right:4px;bottom:4px;background:#ffe18d;color:#10291d;padding:2px 5px;border-radius:4px;font:bold 12px Arial,sans-serif}
 
 /* ---------------- tablero ---------------- */
 .g5-board{

@@ -94,7 +94,7 @@ window.MC = window.MC || {};
      No están "fuera de alcance": están ajustados en otro lado, y el
      panel lo dice con todas las letras.
      ============================================================ */
-  var POR_BILLETERA = ['maverick', 'sebusca', 'vendimia'];
+  var POR_BILLETERA = ['maverick', 'sebusca', 'vendimia', 'kiosco'];
 
   /* ============================================================
      LO QUE SE PUBLICA — el retorno que viaja en el código
