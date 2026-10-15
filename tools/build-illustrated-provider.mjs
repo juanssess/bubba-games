@@ -3,10 +3,23 @@
  */
 import { resolve, dirname, basename } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { mkdirSync, copyFileSync, existsSync, cpSync } from 'node:fs';
+import { mkdirSync, copyFileSync, existsSync, cpSync, readFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 
 const casino = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const provider = resolve(process.argv[2] || resolve(casino, '../Juegos Casinos'));
+const providerArg = process.argv.slice(2).find((a) => !a.startsWith('--'));
+const provider = resolve(providerArg || resolve(casino, '../Juegos Casinos'));
+// Sin QA aprobado y vigente, ningún juego del proveedor entra al casino.
+// --sin-qa es solo para pruebas locales: no publicar ese build.
+if (process.argv.includes('--sin-qa')) {
+  console.warn('\n--sin-qa: se compila SIN verificar el QA del proveedor. No publicar este build.\n');
+} else {
+  try {
+    execFileSync(process.execPath, [resolve(provider, 'tools/qa-check.ts')], { stdio: 'inherit', cwd: provider });
+  } catch {
+    process.exit(1);
+  }
+}
 const { build } = await import(pathToFileURL(resolve(provider, 'node_modules/vite/dist/node/index.js')).href);
 const target = resolve(casino, 'games/slots');
 const output = resolve(casino, 'tmp/illustrated-provider');
@@ -99,69 +112,19 @@ await build({
             }));
           }`;
       }
-      if (normalized.endsWith('/apps/client/src/main.ts')) {
-        replacements.add('main.ts');
-        let code = replaceOnce(source,'import { Application,','import { Assets, Texture, Rectangle, Application,');
-        code = 'import { createMaverickAtmosphere } from ' + JSON.stringify(resolve(casino,'src/ui/maverick-atmosphere.js').replaceAll('\\','/')) + ';\n' + code;
-        code = replaceOnce(code,'antialias: false','antialias: true');
-        code = replaceOnce(code,'freeCounter.anchor.set(0.5, 1);',`freeCounter.style.fill = 0xffedc4;
-  freeCounter.style.stroke = {color:0x100a08,width:4};
-  freeCounter.anchor.set(0.5, 1);`);
-        code = replaceOnce(code,'cascadaBadge.anchor.set(1, 1);',`cascadaBadge.style.stroke = {color:0x100a08,width:4};
-  cascadaBadge.anchor.set(1, 1);`);
-        code = replaceOnce(code,'const textures = profile.textures(app);',`await Assets.load([
-          '../../assets/illustrated/provider-atlas.png', '../../assets/illustrated/environments.png',
-          '../../assets/illustrated/kiosco-atlas.png', '../../assets/illustrated/kiosco-environment.jpg'
-        ]);
-        const textures = profile.textures(app);`);
-        code = replaceOnce(code,'const bg = new Graphics();',`const environment = Texture.from('../../assets/illustrated/environments.png');
-        const panel = profile.id === 'sebusca' ? 1 : profile.id === 'vendimia' ? 2 : 0;
-        // El Kiosco tiene su escena en un archivo propio; los otros comparten environments.png.
-        const scenery = profile.id === 'kiosco'
-          ? new Sprite(Texture.from('../../assets/illustrated/kiosco-environment.jpg'))
-          : new Sprite(new Texture({source:environment.source,
-              frame:new Rectangle(panel*environment.width/3,0,environment.width/3,environment.height)}));
-        scenery.alpha = .83;
-        app.stage.addChild(scenery);
-        if (profile.id === 'classic20') createMaverickAtmosphere(app,{Container,Sprite,Texture},scenery);
-        const bg = new Graphics();`);
-        code = replaceOnce(code,"window.addEventListener('resize', layout);", "window.addEventListener('resize', layout); app.renderer.on('resize',layout);");
-        code = replaceOnce(code,'bg.clear().rect(0, 0, w, h).fill(PALETTE.bgBottom);',`const scenicScale = Math.max(w/scenery.texture.width,h/scenery.texture.height);
-        scenery.scale.set(scenicScale);
-        scenery.position.set((w-scenery.width)/2,(h-scenery.height)/2);
-        bg.clear();`);
-        code = replaceOnce(code,'profile.backdrop(bg, w, h);','// Illustrated environment replaces the procedural backdrop.');
-        code = replaceOnce(code,'await playStep(step, roundBet);',`if (step.kind === 'free' && (i === 0 || steps[i-1].kind !== 'free' || i === from+1)) {
-          await window.MCCinema.show({theme:profile.id,spins:step.freeTotal || 1,
-            detail:profile.id === 'sebusca' ? 'Los wilds pegajosos acompañan la función.' :
-              profile.id === 'vendimia' ? 'Cada cascada continúa la cosecha.' :
-              profile.id === 'kiosco' ? 'Las bombas multiplican cada caída que paga.' : 'La Escalinata decidió tu bonus.'});
-          skipRequested = false;
-          window.MCCinema.featureStart({theme:profile.id});
-        }
-        await playStep(step, roundBet);`);
-        code = replaceOnce(code,'hud.hideBanner();\n    setFreeMode(false);',`hud.hideBanner();
-    const freeSteps = steps.filter(s => s.kind === 'free');
-    if (freeSteps.length && from < steps.length-1) {
-      await window.MCCinema.show({theme:profile.id,kind:'summary',spins:freeSteps.length,
-        total:freeSteps.reduce((sum,s) => sum+s.win,0)});
-    }
-    window.MCCinema.featureEnd();
-    setFreeMode(false);
-    layout();`);
-        // The background brightens during the feature; the board retains its contrast.
-        code = replaceOnce(code,'freeMode = free;',`freeMode = free;
-    scenery.alpha = free ? 1 : .83;`);
-        code = replaceOnce(code,'scenery.alpha = free ? 1 : .83;',`scenery.alpha = free ? 1 : .83;
-    scenery.tint = free ? (profile.id === 'sebusca' ? 0xffbdaa : profile.id === 'vendimia' ? 0xd9c0ff : profile.id === 'kiosco' ? 0xffc8e6 : 0xa9ffe0) : 0xffffff;`);
-        if (!code.includes('busyState.value = false;')) throw new Error('Missing provider cleanup anchor');
-        code = code.replaceAll('busyState.value = false;', 'window.MCCinema.featureEnd(); setFreeMode(false); layout(); busyState.value = false;');
-        return code;
+      /* La presentación (fondo pintado, MCCinema, atmósfera de Maverick) es UN
+         archivo con contrato, no parches sobre main.ts: el casino trae el
+         suyo en tools/provider/presentation.ts y reemplaza el módulo entero. */
+      if (normalized.endsWith('/apps/client/src/presentation.ts')) {
+        replacements.add('presentation.ts');
+        const casinoSrc = resolve(casino, 'src').replaceAll('\\', '/');
+        return readFileSync(resolve(casino, 'tools/provider/presentation.ts'), 'utf8')
+          .replaceAll('__CASINO_SRC__', casinoSrc);
       }
     }
   }]
 });
-if (replacements.size !== 5) throw new Error('The five presentation modules were not all replaced. Nothing published.');
+if (replacements.size !== 5) throw new Error('The five presentation modules (4 symbol sets + presentation.ts) were not all replaced. Nothing published.');
 const backup = resolve(casino,'backups/provider-before-illustrated.html');
 mkdirSync(dirname(backup),{recursive:true});
 if (!existsSync(backup)) copyFileSync(resolve(target,'index.html'),backup);

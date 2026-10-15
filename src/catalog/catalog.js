@@ -93,7 +93,7 @@ window.MCCatalog = (function () {
     {
       id: 'sebusca', engine: 'proveedor', name: 'Se Busca', kind: 'Tragamonedas',
       studio: 'Bubba Studios', volatility: 'Extrema',
-      tag: 'Wilds pegajosos · tope 10.000x', rtpValue: 0.9644, rtp: 'RTP 96,4%',
+      tag: 'Wilds pegajosos · tope 10.000x', rtpValue: 0.9662, rtp: 'RTP 96,6%',
       maxWin: 10000, emoji: '🤠', badge: 'hot',
       art: 'linear-gradient(135deg,#2e1a0c,#c8452f 55%,#e8d3a0)',
       desc: 'Multiplicadores que se pegan',
@@ -102,7 +102,7 @@ window.MCCatalog = (function () {
     {
       id: 'vendimia', engine: 'proveedor', name: 'La Vendimia', kind: 'Tragamonedas',
       studio: 'Bubba Studios', volatility: 'Media-alta',
-      tag: 'Racimos · cascadas · el multiplicador sube', rtpValue: 0.9658, rtp: 'RTP 96,6%',
+      tag: 'Racimos · cascadas · el multiplicador sube', rtpValue: 0.9653, rtp: 'RTP 96,5%',
       maxWin: 5000, emoji: '🍇', badge: 'new',
       art: 'linear-gradient(135deg,#2b1226,#8e1330 55%,#cfa93c)',
       desc: 'Cinco pegados y explota',
@@ -111,7 +111,7 @@ window.MCCatalog = (function () {
     {
       id: 'kiosco', engine: 'proveedor', name: 'El Kiosco', kind: 'Tragamonedas',
       studio: 'Bubba Studios', volatility: 'Alta',
-      tag: '8 iguales en cualquier lado · bombas hasta x500', rtpValue: 0.965, rtp: 'RTP 96,5%',
+      tag: '8 iguales en cualquier lado · bombas hasta x500', rtpValue: 0.9652, rtp: 'RTP 96,5%',
       maxWin: 10000, badge: 'new',
       art: 'linear-gradient(135deg,#0f2a33,#d0488f 55%,#f2b84b)',
       desc: 'Ocho iguales y explota',
