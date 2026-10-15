@@ -93,7 +93,7 @@ window.MCCatalog = (function () {
     {
       id: 'sebusca', engine: 'proveedor', name: 'Se Busca', kind: 'Tragamonedas',
       studio: 'Bubba Studios', volatility: 'Extrema',
-      tag: 'Wilds pegajosos · tope 10.000x', rtpValue: 0.9662, rtp: 'RTP 96,6%',
+      tag: 'Wilds pegajosos · tope 10.000x', rtpValue: 0.9659, rtp: 'RTP 96,6%',
       maxWin: 10000, emoji: '🤠', badge: 'hot',
       art: 'linear-gradient(135deg,#2e1a0c,#c8452f 55%,#e8d3a0)',
       desc: 'Multiplicadores que se pegan',
@@ -120,7 +120,7 @@ window.MCCatalog = (function () {
     {
       id: 'feria', engine: 'proveedor', name: 'La Feria', kind: 'Tragamonedas',
       studio: 'Bubba Studios', volatility: 'Alta',
-      tag: 'Hold & Win · llenar la pantalla paga 5.000x', rtpValue: 0.965, rtp: 'RTP 96,5%',
+      tag: 'Hold & Win · llenar la pantalla paga 5.000x', rtpValue: 0.9653, rtp: 'RTP 96,5%',
       maxWin: 5000, badge: 'new',
       art: 'linear-gradient(135deg,#2a1d12,#c9893a 55%,#f2d48b)',
       desc: 'Las monedas se quedan',
