@@ -54,9 +54,10 @@ window.MC = window.MC || {};
   var bus = null;       // ganancia maestra
   var ruido = null;     // buffer de ruido, fabricado una sola vez
   var VOL = 0.85;       // volumen general del casino
+  var providerMuted = false;
 
   function activo() {
-    return !MC.state || MC.state.soundOn !== false;
+    return !providerMuted && (!MC.state || MC.state.soundOn !== false);
   }
 
   /* ---------------- el bus ---------------- */
@@ -82,7 +83,7 @@ window.MC = window.MC || {};
       bus.connect(comp).connect(ac.destination);
     }
     // Los navegadores arrancan el audio suspendido hasta el primer gesto.
-    if (ac.state === 'suspended') ac.resume();
+    if (ac.state === 'suspended') ac.resume().catch(function () {});
     return ac;
   }
 
@@ -355,11 +356,129 @@ window.MC = window.MC || {};
     }
   };
 
+  /* Música original: motivos deterministas por título, sin descargas.
+     El reloj de WebAudio programa sólo 200 ms por adelantado. */
+  var track = null, musicTimer = null, nextBeat = 0, beat = 0;
+  var musicBus = null, bonusMode = false, unlocked = false;
+  var profiles = {
+    oeste: [76, 57, [0, 3, 5, 7, 10], 'triangle'],
+    azteca: [86, 50, [0, 2, 3, 7, 10], 'sine'],
+    oceano: [68, 60, [0, 2, 4, 7, 9], 'sine'],
+    crash: [112, 45, [0, 3, 7, 10, 12], 'triangle'],
+    mines: [78, 62, [0, 2, 3, 7, 9], 'sine'],
+    roulette: [92, 55, [0, 4, 7, 9, 12], 'triangle'],
+    blackjack: [80, 53, [0, 3, 5, 7, 10], 'triangle'],
+    bowling: [110, 57, [0, 4, 5, 7, 9], 'triangle'],
+    sportsbook: [104, 48, [0, 2, 5, 7, 9], 'triangle'],
+    vendimia: [84, 55, [0, 2, 4, 7, 9], 'triangle'],
+    kiosco: [106, 60, [0, 4, 7, 9, 12], 'sine'],
+    feria: [116, 60, [0, 2, 4, 5, 7], 'triangle'],
+    carnaval: [120, 58, [0, 2, 4, 7, 9], 'triangle'],
+    slots: [96, 60, [0, 4, 7, 9, 12], 'sine']
+  };
+  function hash(text) {
+    var h = 0;
+    for (var i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) >>> 0;
+    return h;
+  }
+  function frequency(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
+  function musicEnabled() {
+    return activo() && (!MC.state || !MC.state.ajustes || MC.state.ajustes.musica !== false);
+  }
+  function voice(t, midi, duration, volume, type) {
+    var o = ac.createOscillator(), g = ac.createGain();
+    o.type = type || track.profile[3];
+    o.frequency.value = frequency(midi);
+    env(g, t, volume, 0.018, duration);
+    o.connect(g).connect(musicBus);
+    o.onended = function () { o.disconnect(); g.disconnect(); };
+    o.start(t); o.stop(t + duration + 0.06);
+  }
+  function stopMusic() {
+    clearInterval(musicTimer); musicTimer = null;
+    if (musicBus && ac) {
+      var old = musicBus;
+      old.gain.cancelScheduledValues(ac.currentTime);
+      old.gain.setTargetAtTime(0, ac.currentTime, 0.025);
+      setTimeout(function () { old.disconnect(); }, 350);
+      musicBus = null;
+    }
+  }
+  function scheduleMusic() {
+    if (!track || !musicEnabled() || document.hidden || !unlocked) { stopMusic(); return; }
+    var c = ctx(); if (!c) return;
+    if (!musicBus) {
+      musicBus = c.createGain(); musicBus.gain.value = 0.65;
+      musicBus.connect(bus); nextBeat = c.currentTime + 0.04;
+    }
+    var p = track.profile, step = 60 / (p[0] * (bonusMode ? 1.16 : 1)) / 2;
+    if (nextBeat < c.currentTime) nextBeat = c.currentTime + 0.02;
+    while (nextBeat < c.currentTime + 0.2) {
+      var pos = beat % 16, chord = [0, 3, 4, 0][Math.floor(beat / 16) % 4];
+      var root = p[1] + (track.seed % 5) + p[2][chord];
+      if (pos % 4 === 0) voice(nextBeat, root - 24, step * 2.8, 0.055, 'sine');
+      if (pos % 2 === 0 || bonusMode) {
+        var note = p[2][(pos * 3 + (track.seed >>> (pos % 8))) % p[2].length];
+        voice(nextBeat, root + note, step * 1.25, 0.028);
+        voice(nextBeat, root + note + 12, step * 0.7, 0.008, 'sine');
+      }
+      if (pos === 0) {
+        voice(nextBeat, root - 12, step * 6, 0.014, 'sine');
+        voice(nextBeat, root - 5, step * 6, 0.01, 'sine');
+      }
+      nextBeat += step; beat++;
+    }
+    if (!musicTimer) musicTimer = setInterval(scheduleMusic, 80);
+  }
+  function syncSound() {
+    if (ac && bus) {
+      bus.gain.cancelScheduledValues(ac.currentTime);
+      bus.gain.setTargetAtTime(activo() && !document.hidden ? VOL : 0, ac.currentTime, 0.015);
+    }
+    if (!track || !musicEnabled() || document.hidden) stopMusic();
+    else if (unlocked) scheduleMusic();
+    pintarBoton();
+  }
+  sound.setGame = function (meta) {
+    stopMusic(); bonusMode = false; beat = 0; providerMuted = false;
+    if (!meta) { track = null; syncSound(); return; }
+    var key = {maverick:'azteca', slots5:'azteca', sebusca:'oeste'}[meta.id] || meta.id;
+    var profile = profiles[key] || profiles[meta.theme] || profiles[meta.engine] || profiles.slots;
+    track = {profile:profile, seed:hash(meta.id || meta.name || 'slots')};
+    syncSound();
+  };
+  sound.unlock = function () {
+    unlocked = true;
+    if (activo()) { ctx(); syncSound(); }
+  };
+  sound.sync = syncSound;
+  sound.providerMuted = function (muted) { providerMuted = !!muted; syncSound(); };
+  sound.bonus = function (enabled) { bonusMode = !!enabled; };
+  // Los efectos conservan el material original y suman la firma del juego.
+  ['spin', 'win', 'jackpot', 'gem', 'card'].forEach(function (name) {
+    var original = sound[name];
+    sound[name] = function () {
+      original.apply(sound, arguments);
+      if (!track || !activo() || document.hidden || !ac) return;
+      var p = track.profile, t = ac.currentTime, root = p[1] + track.seed % 5;
+      var notes = name === 'jackpot' ? [0, 2, 4, 2, 4, 4] : name === 'win' ? [0, 2, 4] : [beat % 5];
+      notes.forEach(function (n, i) {
+        parcial(t + i * 0.11, frequency(root + p[2][n] + 12), 0.18, 0.025, p[3]);
+      });
+    };
+  });
+  document.addEventListener('pointerdown', sound.unlock, {passive:true});
+  document.addEventListener('keydown', sound.unlock);
+  document.addEventListener('visibilitychange', syncSound);
+  window.addEventListener('pagehide', stopMusic);
+
   /* ---------------- el interruptor ---------------- */
   function toggleSound() {
     MC.state.soundOn = !MC.state.soundOn;
+    if (!MC.state.ajustes) MC.state.ajustes = {};
+    MC.state.ajustes.sonido = MC.state.soundOn;
     MC.save();
-    pintarBoton();
+    syncSound();
     if (MC.state.soundOn) sound.chip();   // se prueba solo al prenderse
     return MC.state.soundOn;
   }

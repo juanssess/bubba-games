@@ -135,6 +135,8 @@ window.MCProveedor = (function () {
           break;
         }
         MC.addBalance(-d.amount);
+        MC.sound.unlock();
+        MC.sound.spin();
         responder(d.id, true);
         break;
 
@@ -147,6 +149,7 @@ window.MCProveedor = (function () {
           : d.returned;
 
         if (devuelto > 0) MC.addBalance(devuelto);
+        if (devuelto > d.staked) MC.sound.win();
         /* El punto único de entrada: historial, estadísticas, XP y
            misiones. Va lo REALMENTE acreditado: si fuera lo que dijo
            el juego, las estadísticas publicarían un retorno que la

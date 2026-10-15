@@ -2,6 +2,10 @@
 (function () {
   'use strict';
   var active = null;
+  function audio() {
+    if (window.MC && window.MC.sound) return window.MC.sound;
+    try { return window.parent.MC && window.parent.MC.sound; } catch (_) { return null; }
+  }
   var themes = {
     gold: ['BUBBA GOLD', 'EL TESORO DEL TIGRE'],
     classic20: ['MAVERICK', 'LA CÁMARA DEL SOL'],
@@ -37,6 +41,12 @@
   function show(options) {
     // One overlay owns focus; repeated requests share its completion.
     if (active) return active.promise;
+    var sound = audio();
+    // Gold ya dispara su premio desde el motor; el proveedor usa este puente.
+    if (sound && options.theme !== 'gold') {
+      if (options.kind === 'summary') { if (options.total > 0) sound.win(); }
+      else sound.jackpot();
+    }
     var theme = themes[options.theme] ? options.theme : 'gold';
     var end = options.kind === 'summary';
     var previous = document.activeElement;
@@ -151,9 +161,11 @@
   function featureStart(options) {
     var theme = themes[options.theme] ? options.theme : 'gold';
     document.body.setAttribute('data-bonus-theme', theme);
+    var sound = audio(); if (sound && sound.bonus) sound.bonus(true);
   }
   function featureEnd() {
     document.body.removeAttribute('data-bonus-theme');
+    var sound = audio(); if (sound && sound.bonus) sound.bonus(false);
   }
   window.MCCinema = {show:show, reel:reel, reduced:reduced,
     featureStart:featureStart, featureEnd:featureEnd,

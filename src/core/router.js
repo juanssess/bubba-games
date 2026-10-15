@@ -59,6 +59,7 @@ window.MC = window.MC || {};
 
     currentGame = meta ? id : null;
     currentEngine = engine;
+    if (MC.sound && MC.sound.setGame) MC.sound.setGame(meta);
 
     if (meta) {
       document.getElementById('stageTitle').textContent = meta.name;

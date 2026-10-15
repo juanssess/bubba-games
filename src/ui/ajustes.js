@@ -21,6 +21,7 @@ window.MCAjustes = (function () {
 
   var POR_DEFECTO = {
     sonido: true,
+    musica: true,
     animaciones: true,
     confirmarApuestaAlta: true,
     limiteApuesta: 0,        // 0 = sin límite
@@ -56,6 +57,7 @@ window.MCAjustes = (function () {
     // El sonido ya tenía su propio interruptor: se mantiene en sincronía
     // para no terminar con dos verdades sobre lo mismo.
     MC.state.soundOn = a.sonido;
+    if (MC.sound && MC.sound.sync) MC.sound.sync();
 
     document.body.classList.toggle('sin-animaciones', !a.animaciones);
     programarRecordatorio(a.recordatorioMin);
@@ -174,7 +176,8 @@ window.MCAjustes = (function () {
             }).join('') +
           '</select>' +
         '</div>' +
-        interruptor('sonido', 'Sonido', 'Efectos de las mesas y los juegos.', a.sonido) +
+        interruptor('sonido', 'Sonido', 'Música y efectos de las mesas y los juegos.', a.sonido) +
+        interruptor('musica', 'Música de los juegos', 'Cada juego tiene su melodía. Podés apagarla y conservar los efectos.', a.musica) +
         interruptor('animaciones', 'Animaciones', 'Apagalas si el casino te va lento o te marean.', a.animaciones)
       ) +
 
