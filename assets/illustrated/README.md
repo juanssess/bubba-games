@@ -8,8 +8,7 @@ Arte original generado con la herramienta integrada ImageGen a partir de una dir
 - `provider-atlas.png`: 30 ilustraciones, seis columnas por cinco filas. Los índices 0–10 pertenecen a Maverick, 11–21 a Se Busca y 22–29 a La Vendimia. Los identificadores matemáticos se conservan.
 - `environments.png`: templo, pueblo western y bodega, en tres paneles iguales de izquierda a derecha.
 - `tables-atlas.png`: ruleta decorativa, pelota de cuero y fichas roja/negra, en dos columnas por dos filas. La ruleta ilustrada se utiliza solo en la portada; la rueda jugable conserva sus 37 sectores reales.
-- `kiosco-atlas.png`: los 11 símbolos de El Kiosco, grilla regular de seis columnas por dos filas (celdas de 400 px), en el orden de los identificadores matemáticos: bomba (WILD), chupetín (SCATTER), alfajor, bombón, caramelo, chicle, manzana, ciruela, sandía, uva, banana.
-- `kiosco-environment.jpg`: la escena de El Kiosco (vereda de noche, vidriera a la izquierda, persiana y neón de chupetín a la derecha), cuadrada y en archivo propio. La usan el juego, la portada, el banner y MCCinema.
+- `provider/`: el arte de los juegos del proveedor para el lobby (símbolos, escena e `index.js`). Lo escribe la compilación del proveedor; no editar a mano.
 
 ### Cómo se hizo El Kiosco (octubre 2026)
 

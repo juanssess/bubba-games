@@ -118,6 +118,15 @@ window.MCCatalog = (function () {
       frameUrl: 'games/slots/index.html?game=kiosco'
     },
     {
+      id: 'feria', engine: 'proveedor', name: 'La Feria', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Alta',
+      tag: 'Hold & Win · llenar la pantalla paga 5.000x', rtpValue: 0.965, rtp: 'RTP 96,5%',
+      maxWin: 5000, badge: 'new',
+      art: 'linear-gradient(135deg,#2a1d12,#c9893a 55%,#f2d48b)',
+      desc: 'Las monedas se quedan',
+      frameUrl: 'games/slots/index.html?game=feria'
+    },
+    {
       // PLANTILLA: copiá esta entrada para dar de alta tu juego.
       // El campo que manda es `engine`: tiene que coincidir con el
       // nombre que usás en MC.registerEngine() y con el id de la
@@ -253,7 +262,8 @@ window.MCCatalog = (function () {
      (la escena de environments.png y el sprite de la portada). Los
      numeros —RTP, premio maximo— salen de la ficha del juego, no de aca. */
   var GAME_BANNERS = [
-    { game: 'kiosco',   scene: 'kiosco',  kicker: 'Recién abierto', side: ['Bombas', 'hasta x500'], chip: 'Paga en cualquier lado' },
+    { game: 'feria',    scene: 'feria',   kicker: 'Recién abierto', side: ['Hold &', 'Win'], chip: 'Monedas que se quedan' },
+    { game: 'kiosco',   scene: 'kiosco',  kicker: 'Lo nuevo', side: ['Bombas', 'hasta x500'], chip: 'Paga en cualquier lado' },
     { game: 'vendimia', scene: 'wine',    kicker: 'Ya llegó',   side: ['Exclusivo', 'del salón'], chip: 'Cascadas' },
     { game: 'sebusca',  scene: 'western', kicker: 'El más buscado', side: ['Volatilidad', 'extrema'], chip: 'Wilds pegajosos' },
     { game: 'maverick', scene: 'temple',  kicker: 'Subí la pirámide', side: ['Top', 'del salón'], chip: '20 líneas' }

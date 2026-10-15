@@ -61,7 +61,7 @@ body[data-bonus-theme] #stage canvas{filter:saturate(1.16)}
 @media(max-width:480px){.cinema{padding:16px}.cinema-panel{padding:12px 0}.cinema h2{font-size:28px}.cinema-value{font-size:60px;min-height:72px}.cinema-emblem{width:90px;height:90px}.cinema-feature strong{font-size:16px}}
 @media(max-height:620px){.cinema{padding:12px}.cinema-panel{padding:8px}.cinema-emblem{width:54px;height:54px;margin-bottom:0}.cinema h2{font-size:26px}.cinema-value{font-size:52px;min-height:63px}.cinema-rule{margin:10px auto 0}.cinema-unit{margin:4px 0 8px}#cinema-detail{margin-bottom:12px}.cinema-feature{padding:8px 0;margin-bottom:14px}.cinema-receipt{margin-bottom:14px;padding-top:10px}}
 
-/* El Kiosco: escena y atlas propios, fuera de environments.png y provider-atlas.png. */
+/* Juegos del proveedor con arte propio: la escena y el emblema los pone cinema.js
+   desde MCProviderArt; acá solo el color de cada uno. */
 .cinema--kiosco{--cinema-gold:#ffc6e4;--cinema-accent:#e86aa8;background:radial-gradient(ellipse at 50% 36%,#3a1d36eb,#0a1418f5 75%)}
-.cinema--kiosco .cinema-atmosphere{background:linear-gradient(#05070866,#050708e0),url('../../../assets/illustrated/kiosco-environment.jpg') center/cover}
-.cinema--kiosco .cinema-emblem{background-image:url('../../../assets/illustrated/kiosco-atlas.png');background-size:600% 200%;background-position:20% 0}
+.cinema--feria{--cinema-gold:#ffe2a8;--cinema-accent:#d9a441;background:radial-gradient(ellipse at 50% 36%,#4a3018eb,#120c08f5 75%)}

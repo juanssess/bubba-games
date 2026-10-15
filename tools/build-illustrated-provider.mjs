@@ -11,6 +11,7 @@
  *  2. Las hojas de MCCinema en el index.
  *  3. Su presentación (tools/provider/presentation.ts) en lugar de la del
  *     juego suelto: un módulo con contrato, no parches de texto.
+ *  4. El arte de cada juego para el lobby, en assets/illustrated/provider/.
  *
  * No escribe en el proyecto del proveedor ni toca su matemática.
  */
@@ -35,6 +36,10 @@ if (process.argv.includes('--sin-qa')) {
   }
 }
 
+// El arte de los juegos, para el lobby (portadas, banners, MCCinema): lo
+// exporta el proveedor con un índice que lee illustrated-art.js.
+execFileSync(process.execPath, [resolve(provider, 'tools/art-export.ts'), resolve(casino, 'assets/illustrated/provider')], { stdio: 'inherit', cwd: provider });
+
 const { build } = await import(pathToFileURL(resolve(provider, 'node_modules/vite/dist/node/index.js')).href);
 const target = resolve(casino, 'games/slots');
 const output = resolve(casino, 'tmp/illustrated-provider');
@@ -53,7 +58,9 @@ await build({
     transformIndexHtml(html) {
       return { html, tags: [
         { tag: 'link', attrs: { rel: 'stylesheet', href: '../../src/styles/games/cinema.css?v=4' }, injectTo: 'head' },
-        { tag: 'script', attrs: { src: '../../src/ui/cinema.js?v=4' }, injectTo: 'head-prepend' },
+        { tag: 'script', attrs: { src: '../../src/ui/cinema.js?v=5' }, injectTo: 'head-prepend' },
+        // El índice del arte de los juegos: MCCinema lo usa también dentro del juego.
+        { tag: 'script', attrs: { src: '../../assets/illustrated/provider/index.js?v=1' }, injectTo: 'head-prepend' },
       ] };
     },
     transform(source, id) {

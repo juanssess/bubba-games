@@ -17,8 +17,9 @@ window.MCCarousel = (function () {
   var SCENE_POS = { temple: '0%', western: '50%', wine: '100%' };
 
   function escena(scene) {
-    // El Kiosco trae su escena en un archivo propio.
-    if (scene === 'kiosco') return 'url(assets/illustrated/kiosco-environment.jpg) center/cover';
+    // Los juegos del proveedor traen su escena (exportada con su arte).
+    var pa = (window.MCProviderArt || {})[scene];
+    if (pa) return 'url(assets/illustrated/provider/' + pa.scene + ') center/cover';
     return 'url(' + ENV + ') ' + SCENE_POS[scene] + ' center/300% 100%';
   }
 

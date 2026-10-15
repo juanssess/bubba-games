@@ -7,7 +7,8 @@
     classic20: ['MAVERICK', 'LA CÁMARA DEL SOL'],
     sebusca: ['SE BUSCA', 'LA RECOMPENSA'],
     vendimia: ['LA VENDIMIA', 'LA GRAN COSECHA'],
-    kiosco: ['EL KIOSCO', 'LA VUELTA AL KIOSCO']
+    kiosco: ['EL KIOSCO', 'LA VUELTA AL KIOSCO'],
+    feria: ['LA FERIA', 'HOLD & WIN']
   };
   var reduced = function () { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; };
   var features = {
@@ -15,8 +16,24 @@
     classic20: ['La Escalinata', 'El nivel alcanzado define los giros y el multiplicador.'],
     sebusca: ['Wilds pegajosos', 'Los wilds y sus multiplicadores permanecen hasta el final.'],
     vendimia: ['Cascadas acumuladas', 'El multiplicador conserva su progreso entre giros gratis.'],
-    kiosco: ['Bombas multiplicadoras', 'Al final de cada caída que paga, las bombas suman su valor y multiplican el premio.']
+    kiosco: ['Bombas multiplicadoras', 'Al final de cada caída que paga, las bombas suman su valor y multiplican el premio.'],
+    feria: ['Monedas que se quedan', 'Cada moneda nueva vuelve los re-giros a tres. Llenar la pantalla paga el Grand.']
   };
+  /* Cómo se llaman los giros de la función: en un Hold & Win son re-giros. */
+  var spinWords = { feria: ['RE-GIROS', 're-giros'] };
+  /* Arte de los juegos del proveedor, exportado con su compilación: la escena
+     de fondo y el emblema salen de ahí y no de una regla CSS por juego.
+     Maverick, Se Busca y La Vendimia siguen con sus atlas del lobby. */
+  var LEGACY = { classic20: true, sebusca: true, vendimia: true, gold: true };
+  /* La raíz del casino, deducida de dónde se cargó este archivo: MCCinema
+     corre tanto en el lobby como DENTRO de la página del juego (el iframe de
+     games/slots/), y una ruta relativa apuntaría a otro lado en cada uno. */
+  var ROOT = ((document.currentScript && document.currentScript.src) || '').replace(/src\/ui\/cinema\.js.*$/, '');
+  var ART_DIR = ROOT + 'assets/illustrated/provider/';
+  function providerArt(theme) {
+    var all = window.MCProviderArt || {};
+    return !LEGACY[theme] && all[theme] ? all[theme] : null;
+  }
   function show(options) {
     // One overlay owns focus; repeated requests share its completion.
     if (active) return active.promise;
@@ -36,9 +53,21 @@
       '<div class="cinema-rule" aria-hidden="true"></div>' +
       '<strong class="cinema-value" aria-hidden="true"></strong><p class="cinema-unit"></p>' +
       '<p id="cinema-detail"></p><div class="cinema-feature"><strong></strong><p></p></div>' +
-      '<div class="cinema-receipt"><span>GIROS JUGADOS</span><strong></strong></div>' +
+      '<div class="cinema-receipt"><span></span><strong></strong></div>' +
       '<button type="button" class="cinema-continue"></button></section>';
     dialog.setAttribute('data-kind', end ? 'summary' : 'intro');
+    var art = providerArt(theme);
+    if (art) {
+      dialog.querySelector('.cinema-atmosphere').style.background =
+        'linear-gradient(#05070866,#050708e0),url(' + ART_DIR + art.scene + ') center/cover';
+      // El emblema sale directo del atlas: celda `cover` de una grilla regular.
+      var em = dialog.querySelector('.cinema-emblem').style;
+      em.backgroundImage = 'url(' + ART_DIR + art.symbols + ')';
+      em.backgroundSize = (art.cols * 100) + '% ' + (art.rows * 100) + '%';
+      em.backgroundPosition = (art.cover % art.cols) * 100 / (art.cols - 1) + '% ' +
+        Math.floor(art.cover / art.cols) * 100 / Math.max(1, art.rows - 1) + '%';
+    }
+    var words = spinWords[theme] || ['GIROS GRATIS', 'giros gratis'];
     dialog.querySelector('.cinema-brand').textContent = themes[theme][0];
     dialog.querySelector('.cinema-eyebrow').textContent = end ? 'BONUS COMPLETADO' : themes[theme][1];
     dialog.querySelector('h2').textContent = end ? 'TU PREMIO TOTAL' : '¡BONUS ACTIVADO!';
@@ -46,13 +75,14 @@
     var format = function (n) { return Math.round(n).toLocaleString('es-AR'); };
     var number = dialog.querySelector('.cinema-value');
     number.textContent = format(value);
-    dialog.querySelector('.cinema-unit').textContent = end ? 'FICHAS' : 'GIROS GRATIS';
+    dialog.querySelector('.cinema-unit').textContent = end ? 'FICHAS' : words[0];
     dialog.querySelector('#cinema-detail').textContent = end
-      ? format(value) + ' fichas obtenidas en ' + options.spins + ' giros gratis.'
-      : options.spins + ' giros gratis. ' + (options.detail || 'Tu bonus está listo.');
+      ? format(value) + ' fichas obtenidas en ' + options.spins + ' ' + words[1] + '.'
+      : options.spins + ' ' + words[1] + '. ' + (options.detail || 'Tu bonus está listo.');
     var button = dialog.querySelector('button');
     dialog.querySelector('.cinema-feature strong').textContent = features[theme][0];
     dialog.querySelector('.cinema-feature p').textContent = features[theme][1];
+    dialog.querySelector('.cinema-receipt span').textContent = words[0] + ' JUGADOS';
     dialog.querySelector('.cinema-receipt strong').textContent = options.spins;
     button.textContent = end ? 'CONTINUAR' : 'EMPEZAR BONUS';
     var resolve, raf = 0, closed = false, counting = end && value > 0 && !reduced();

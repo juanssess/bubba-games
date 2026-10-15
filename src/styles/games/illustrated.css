@@ -1,7 +1,8 @@
 /* Production bitmap artwork, shared by lobby, reels and payout tables. */
 .illustrated-symbol { display:inline-block; flex:none; width:1.55em; height:1.55em; vertical-align:middle; background-image:url('../../../assets/illustrated/originals-atlas.png'); background-size:400% 400%; background-position:var(--art-x) var(--art-y); background-repeat:no-repeat; filter:drop-shadow(0 4px 3px #0008); }
 .illustrated-provider { background-image:url('../../../assets/illustrated/provider-atlas.png'); background-size:600% 500%; }
-.illustrated-kiosco { background-image:url('../../../assets/illustrated/kiosco-atlas.png'); background-size:600% 200%; }
+/* Arte de los juegos del proveedor: cada sprite trae su imagen (illustrated-art.js). */
+.illustrated-generic { background-image:none; background-size:100% 100%; }
 .illustrated-table { background-image:url('../../../assets/illustrated/tables-atlas.png'); background-size:200% 200%; }
 .g5-cell .illustrated-symbol { width:calc(var(--g5-cell) * .87); height:calc(var(--g5-cell) * .87); }
 .reel-cell .illustrated-symbol { width:1.6em; height:1.6em; }
@@ -34,7 +35,7 @@
 .cover-studio { position:absolute; top:20%; font-size:7px; letter-spacing:2px; color:#e3c798; }
 .cover-western { background-position:center; }
 .cover-wine { background-position:right; }
-.cover-kiosco { background:linear-gradient(#0f2a3344,#07100fcc),url('../../../assets/illustrated/kiosco-environment.jpg') center/cover; }
+.cover-provider { background-size:cover; background-position:center; }
 .cover-classic { background-image:linear-gradient(#4a172a77,#10090fc9),url('../../../assets/illustrated/environments.png'); background-position:center; }
 .cover-table { background:radial-gradient(ellipse at 50% 30%,#34654c,#091f18 75%); }
 .cover-vault { background-image:linear-gradient(#124a4166,#050e12cf),url('../../../assets/illustrated/environments.png'); }

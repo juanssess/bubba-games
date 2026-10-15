@@ -160,6 +160,18 @@ window.MCAsistenteSaber = (function () {
       consejo: 'Volatilidad media-alta: entre Bubba 777 y Se Busca. Lo bueno está en las ' +
         'cascadas largas de los giros gratis.'
     },
+    feria: {
+      alias: ['feria', 'la feria', 'hold and win', 'hold & win', 'monedas', 'san telmo', 'grand'],
+      como: 'Tragamonedas de 5×3 con 20 líneas. Las <em>monedas</em> traen un valor: con <strong>seis o ' +
+        'más</strong> arranca el Hold & Win, las monedas quedan fijas y tenés 3 re-giros. Cada moneda ' +
+        'nueva vuelve los re-giros a tres.',
+      paga: function (g) {
+        return 'Al final se cobra la suma de las monedas. Hay jackpots Mini (20×), Minor (50×) y Major ' +
+          '(200×), y llenar las quince celdas paga el <strong>Grand</strong>: ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Volatilidad alta: el valor está en la función, que sale más o menos 1 de cada 170 giros. ' +
+        'Con la apuesta ante sale el doble de seguido.'
+    },
     kiosco: {
       alias: ['kiosco', 'el kiosco', 'golosinas', 'bomba', 'bombas', 'chupetin', 'chupetín'],
       como: 'Grilla de 6×5 que paga en <em>cualquier lado</em>: con <strong>ocho o más</strong> ' +
