@@ -25,13 +25,10 @@ window.MCSlots5 = (function () {
   var LINE_BETS = [1, 2, 5, 10, 25, 50];
   var betIndex = 2;
 
-  var REEL_MS = [700, 900, 1100, 1300, 1500];   // frenada escalonada
-  /* La función va al doble de velocidad. Con retriggers una función puede
-     pasar de 90 giros: a ritmo del juego base eso son más de tres minutos
-     mirando sin poder tocar nada, que es exactamente al revés de lo que
-     tiene que sentirse ganar. */
-  var REEL_MS_FREE = [340, 430, 520, 610, 700];
-  var REEL_MS_TURBO = [110, 150, 190, 230, 270];
+  var REEL_MS = [1800, 2150, 2500, 2850, 3200]; // frenada visible por rodillo
+  // La función mantiene un ritmo propio, con tiempo para ver los símbolos.
+  var REEL_MS_FREE = [1200, 1450, 1700, 1950, 2200];
+  var REEL_MS_TURBO = [650, 800, 950, 1100, 1250];
   var STOP_AT = 18;                              // símbolos que "pasan" antes de frenar
   var WIN_STEP_MS = 620;                         // cuánto dura cada línea encendida
 

@@ -163,7 +163,7 @@
     updateBetUI();
 
     var result = [MC.pick(reelPool), MC.pick(reelPool), MC.pick(reelPool)];
-    var durations = [1500, 1950, 2400];
+    var durations = [2400, 2950, 3500];
     el.strips.forEach(function (strip, i) { spinReel(strip, result[i], durations[i]); });
 
     setTimeout(function () { finish(result, bet); }, durations[2] + 120);

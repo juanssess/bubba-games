@@ -47,6 +47,8 @@ if (!output.startsWith(casino + '/') && !output.startsWith(casino + '\\')) throw
 
 let replaced = false;
 let audioReplaced = false;
+let themeReplaced = false;
+let holdPaceReplaced = false;
 await build({
   configFile: false,
   root: resolve(provider, 'apps/client'),
@@ -56,12 +58,19 @@ await build({
   plugins: [{
     name: 'bubba-presentation',
     enforce: 'pre',
-    resolveId(id) { if (id === 'bubba-audio-base') return '\0bubba-audio-base'; },
+    resolveId(id) {
+      if (id === 'bubba-audio-base') return '\0bubba-audio-base';
+      if (id === 'bubba-theme-base') return '\0bubba-theme-base';
+      if (id === 'bubba-hold-base') return resolve(provider, 'apps/client/src/play/step-hold.ts') + '?bubba-original';
+    },
     load(id) {
       if (id === '\0bubba-audio-base') return readFileSync(resolve(provider, 'apps/client/src/render/audio.ts'), 'utf8');
+      if (id === '\0bubba-theme-base') return readFileSync(resolve(provider, 'apps/client/src/render/theme.ts'), 'utf8');
+      if (id.endsWith('?bubba-original')) return readFileSync(id.slice(0, -'?bubba-original'.length), 'utf8');
     },
     transformIndexHtml(html) {
       return { html, tags: [
+        { tag: 'script', attrs: { src: '../../src/core/spin-pace.js?v=1' }, injectTo: 'head-prepend' },
         { tag: 'script', attrs: { src: '../../src/core/soundtracks.js?v=1' }, injectTo: 'head-prepend' },
         { tag: 'script', attrs: { src: '../../src/core/audio.js?v=83' }, injectTo: 'head-prepend' },
         { tag: 'script', attrs: { src: '../../src/core/provider-audio.js?v=2' }, injectTo: 'head-prepend' },
@@ -72,6 +81,15 @@ await build({
       ] };
     },
     transform(source, id) {
+      if (id === '\0bubba-theme-base') return transformWithOxc(source, 'bubba-theme-base.ts', {sourcemap:false});
+      if (id.replaceAll('\\', '/').endsWith('/apps/client/src/render/theme.ts')) {
+        themeReplaced = true;
+        return readFileSync(resolve(casino, 'tools/provider/theme.ts'), 'utf8');
+      }
+      if (id.replaceAll('\\', '/').endsWith('/apps/client/src/play/step-hold.ts')) {
+        holdPaceReplaced = true;
+        return readFileSync(resolve(casino, 'tools/provider/hold-pace.ts'), 'utf8');
+      }
       if (id === '\0bubba-audio-base') {
         // Vite transpiles ordinary .ts files; the virtual original needs it explicitly.
         return transformWithOxc(source, 'bubba-audio-base.ts', {sourcemap:false});
@@ -89,6 +107,7 @@ await build({
 });
 if (!replaced) throw new Error('No se reemplazó apps/client/src/presentation.ts: el proveedor cambió de forma. No se publicó nada.');
 if (!audioReplaced) throw new Error('No se conectó el audio del proveedor. No se publicó nada.');
+if (!themeReplaced || !holdPaceReplaced) throw new Error('No se aplicó el ritmo de giro del casino. No se publicó nada.');
 
 const backup = resolve(casino, 'backups/provider-before-illustrated.html');
 mkdirSync(dirname(backup), { recursive: true });
