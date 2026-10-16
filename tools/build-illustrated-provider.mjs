@@ -40,12 +40,13 @@ if (process.argv.includes('--sin-qa')) {
 // exporta el proveedor con un índice que lee illustrated-art.js.
 execFileSync(process.execPath, [resolve(provider, 'tools/art-export.ts'), resolve(casino, 'assets/illustrated/provider')], { stdio: 'inherit', cwd: provider });
 
-const { build } = await import(pathToFileURL(resolve(provider, 'node_modules/vite/dist/node/index.js')).href);
+const { build, transformWithOxc } = await import(pathToFileURL(resolve(provider, 'node_modules/vite/dist/node/index.js')).href);
 const target = resolve(casino, 'games/slots');
 const output = resolve(casino, 'tmp/illustrated-provider');
 if (!output.startsWith(casino + '/') && !output.startsWith(casino + '\\')) throw new Error('Build output must stay in the workspace.');
 
 let replaced = false;
+let audioReplaced = false;
 await build({
   configFile: false,
   root: resolve(provider, 'apps/client'),
@@ -55,9 +56,15 @@ await build({
   plugins: [{
     name: 'bubba-presentation',
     enforce: 'pre',
+    resolveId(id) { if (id === 'bubba-audio-base') return '\0bubba-audio-base'; },
+    load(id) {
+      if (id === '\0bubba-audio-base') return readFileSync(resolve(provider, 'apps/client/src/render/audio.ts'), 'utf8');
+    },
     transformIndexHtml(html) {
       return { html, tags: [
-        { tag: 'script', attrs: { src: '../../src/core/provider-audio.js?v=1' }, injectTo: 'head-prepend' },
+        { tag: 'script', attrs: { src: '../../src/core/soundtracks.js?v=1' }, injectTo: 'head-prepend' },
+        { tag: 'script', attrs: { src: '../../src/core/audio.js?v=83' }, injectTo: 'head-prepend' },
+        { tag: 'script', attrs: { src: '../../src/core/provider-audio.js?v=2' }, injectTo: 'head-prepend' },
         { tag: 'link', attrs: { rel: 'stylesheet', href: '../../src/styles/games/cinema.css?v=4' }, injectTo: 'head' },
         { tag: 'script', attrs: { src: '../../src/ui/cinema.js?v=6' }, injectTo: 'head-prepend' },
         // El índice del arte de los juegos: MCCinema lo usa también dentro del juego.
@@ -65,6 +72,14 @@ await build({
       ] };
     },
     transform(source, id) {
+      if (id === '\0bubba-audio-base') {
+        // Vite transpiles ordinary .ts files; the virtual original needs it explicitly.
+        return transformWithOxc(source, 'bubba-audio-base.ts', {sourcemap:false});
+      }
+      if (id.replaceAll('\\', '/').endsWith('/apps/client/src/render/audio.ts')) {
+        audioReplaced = true;
+        return readFileSync(resolve(casino, 'tools/provider/audio.ts'), 'utf8');
+      }
       if (!id.replaceAll('\\', '/').endsWith('/apps/client/src/presentation.ts')) return null;
       replaced = true;
       const casinoSrc = resolve(casino, 'src').replaceAll('\\', '/');
@@ -73,6 +88,7 @@ await build({
   }],
 });
 if (!replaced) throw new Error('No se reemplazó apps/client/src/presentation.ts: el proveedor cambió de forma. No se publicó nada.');
+if (!audioReplaced) throw new Error('No se conectó el audio del proveedor. No se publicó nada.');
 
 const backup = resolve(casino, 'backups/provider-before-illustrated.html');
 mkdirSync(dirname(backup), { recursive: true });

@@ -133,6 +133,7 @@ window.MCSlots5 = (function () {
     strip.style.transition = 'transform ' + duration + 'ms cubic-bezier(.12,.66,.16,1)';
     strip.style.transform = 'translateY(' + (-STOP_AT * cellHeight()) + 'px)';
     MCCinema.reel(strip, duration);
+    setTimeout(function () { MC.sound.event('reelStop'); }, duration);
   }
 
   /* Enciende el rodillo mientras dura su anticipación: arranca cuando
@@ -224,6 +225,8 @@ window.MCSlots5 = (function () {
   }
 
   function resolver(ev) {
+    MC.sound.motion(false);
+    MC.sound.event('tensionEnd');
     spinning = false;
     apagarAnticipacion();   // por si algún rodillo quedó encendido
 

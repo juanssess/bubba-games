@@ -115,7 +115,7 @@ window.MCBowling = (function () {
     if (!reduced) raf = requestAnimationFrame(animate);
     setTimeout(function () {
       pins[round.selected].classList.add('hit');
-      MC.sound.click();
+      MC.sound.event('impact');
     }, duration);
     // El cierre usa un reloj independiente del dibujo: también cierra en una pestaña oculta.
     setTimeout(function () { finish(round); }, duration + (reduced ? 100 : 650));

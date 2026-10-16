@@ -114,6 +114,7 @@
 
   /* ---------------- lógica ---------------- */
   function spinReel(strip, finalSymbol, duration) {
+    setTimeout(function () { MC.sound.event('reelStop'); }, duration);
     var STOP_AT = 18; // cuántos símbolos "pasan" antes de frenar
     var cells = [];
     for (var i = 0; i < STOP_AT; i++) cells.push(cellHTML(MC.pick(reelPool)));
@@ -169,6 +170,7 @@
   }
 
   function finish(result, bet) {
+    MC.sound.motion(false);
     spinning = false;
     var outcome = evaluate(result, bet);
 

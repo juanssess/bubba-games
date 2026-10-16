@@ -22,6 +22,7 @@
   var crashPoint = 1;
   var startedAt = 0;
   var mult = 1;
+  var lastSoundStep = -1;
   var rafId = null;
   var el = {};
   var ctx2d = null;
@@ -146,6 +147,8 @@
   function tick() {
     var elapsed = Date.now() - startedAt;
     mult = multAt(elapsed);
+    var soundStep = Math.floor(mult * 5);
+    if (soundStep !== lastSoundStep) { lastSoundStep = soundStep; MC.sound.event('motionLevel', mult); }
 
     if (mult >= crashPoint) {
       mult = crashPoint;
@@ -178,6 +181,7 @@
     crashPoint = rollCrashPoint();
     startedAt = Date.now();
     mult = 1;
+    lastSoundStep = -1;
     phase = 'running';
 
     el.mult.className = 'crash-mult';
@@ -209,6 +213,7 @@
   }
 
   function bust() {
+    MC.sound.motion(false);
     phase = 'crashed';
     cancelAnimationFrame(rafId);
 

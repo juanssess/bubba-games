@@ -1,5 +1,15 @@
 /* Generado por Juegos Casinos/tools/art-export.ts al compilar el proveedor. No editar. */
 window.MCProviderArt = {
+  "carnaval": {
+    "title": "El Carnaval",
+    "symbols": "carnaval-symbols.png",
+    "scene": "carnaval-scene.jpg",
+    "cols": 6,
+    "rows": 2,
+    "cover": 1,
+    "detail": "Los multiplicadores se acumulan: cada secuencia que gana con esferas suma al total.",
+    "tint": 16759020
+  },
   "classic20": {
     "title": "Maverick",
     "symbols": "classic20-symbols.png",

@@ -5,6 +5,13 @@
   'use strict';
   var parentMC;
   try { parentMC = window.parent !== window && window.parent.MC; } catch (_) {}
+  if (!parentMC && window.MC && window.MC.sound) {
+    parentMC = window.MC;
+    parentMC.state = {soundOn:true, ajustes:{musica:true}};
+    parentMC.save = function () {};
+    var game = new URLSearchParams(location.search).get('game') || 'classic20';
+    parentMC.sound.setGame({id:game === 'classic20' ? 'maverick' : game, engine:'proveedor'});
+  }
   if (!parentMC || !parentMC.sound) return;
   var outputs = [], lastMuted = null;
   var NativeAudioContext = window.AudioContext || window.webkitAudioContext;

@@ -380,6 +380,7 @@
   }
 
   function settle(n) {
+    MC.sound.motion(false);
     el.wheel.parentElement.classList.remove('motion-spinning');
     var staked = totalStaked();
     var returned = 0;
