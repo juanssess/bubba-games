@@ -16,7 +16,9 @@
     carnaval: ['EL CARNAVAL', 'NOCHE DE COMPARSAS'],
     cataratas: ['LAS CATARATAS', 'LA GARGANTA DEL DIABLO'],
     zonamuerta: ['ZONA MUERTA', 'LA CACERÍA'],
-    lafamilia: ['LA FAMILIA', 'GUERRA DE FAMILIAS']
+    lafamilia: ['LA FAMILIA', 'GUERRA DE FAMILIAS'],
+    dunas: ['LAS DUNAS', 'LA TRAVESÍA'],
+    granpremio: ['EL GRAN PREMIO', 'LA VUELTA FINAL']
   };
   var reduced = function () { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; };
   var features = {
@@ -29,7 +31,9 @@
     carnaval: ['Multiplicadores que se acumulan', 'Cada secuencia que gana con esferas suma al total, y el total no se reinicia en toda la función.'],
     cataratas: ['El multiplicador que no baja', 'Cada cascada que gana suma uno al multiplicador, y no vuelve atrás en toda la función.'],
     zonamuerta: ['Los infectados te persiguen', 'Dos wilds persistentes consumen radios, cambian de posición y aumentan su potencia. Cada grupo ganador usa la potencia de los infectados que lo forman.'],
-    lafamilia: ['Conquistá la ciudad', 'Las balas vencen bandas, dan giros extra y convierten sus símbolos en Jefes. Al derrotar al Don se abre la bóveda: cada Jefe cobra la caja fuerte de su fila.']
+    lafamilia: ['Conquistá la ciudad', 'Las balas vencen bandas, dan giros extra y convierten sus símbolos en Jefes. Al derrotar al Don se abre la bóveda: cada Jefe cobra la caja fuerte de su fila.'],
+    dunas: ['Pilotos que se plantan', 'Cada piloto que cae se queda con su multiplicador hasta el final de la travesía.'],
+    granpremio: ['La marcha que no baja', 'Cada cascada que gana sube una marcha: el multiplicador suma uno y no vuelve atrás en toda la carrera.']
   };
   /* Cómo se llaman los giros de la función: en un Hold & Win son re-giros. */
   var spinWords = { feria: ['RE-GIROS', 're-giros'] };
