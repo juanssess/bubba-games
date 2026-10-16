@@ -67,3 +67,5 @@ body[data-bonus-theme] #stage canvas{filter:saturate(1.16)}
 .cinema--feria{--cinema-gold:#ffe2a8;--cinema-accent:#d9a441;background:radial-gradient(ellipse at 50% 36%,#4a3018eb,#120c08f5 75%)}
 .cinema--carnaval{--cinema-gold:#ffd35c;--cinema-accent:#ff4fb8;background:radial-gradient(ellipse at 50% 36%,#4a1550eb,#12061cf5 75%)}
 .cinema--cataratas{--cinema-gold:#e7c873;--cinema-accent:#3fd6c8;background:radial-gradient(ellipse at 50% 36%,#0f3a32eb,#05140ff5 75%)}
+.cinema--zonamuerta{--cinema-gold:#ffb1a6;--cinema-accent:#ff756e;background:radial-gradient(ellipse at 50% 36%,#5e1523eb,#12090ef5 75%)}
+.cinema--lafamilia{--cinema-gold:#ffe0a6;--cinema-accent:#e1b66d;background:radial-gradient(ellipse at 50% 36%,#492030eb,#120910f5 75%)}

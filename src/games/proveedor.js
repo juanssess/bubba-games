@@ -224,7 +224,7 @@ window.MCProveedor = (function () {
        vez de la suya. `rtp` le pasa el retorno que la casa publica, para
        que pueda aplicarlo en su propia tabla: ver el contrato arriba. */
     var sep = meta.frameUrl.indexOf('?') === -1 ? '?' : '&';
-    el.frame.src = meta.frameUrl + sep + 'wallet=parent&rtp=' + factor() + '&build=85';
+    el.frame.src = meta.frameUrl + sep + 'wallet=parent&rtp=' + factor() + '&build=86';
   }
 
   // Al salir se descarga el iframe. Sin esto el juego sigue corriendo

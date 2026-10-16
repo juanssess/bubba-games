@@ -94,14 +94,14 @@ window.MCProviderArt = {
   "lafamilia": {
     "title": "La Familia",
     "verified": true,
-    "rtpValue": 0.9658706353372226,
+    "rtpValue": 0.9646616036199037,
     "volatility": "alta",
     "symbols": "lafamilia-symbols.png",
     "scene": "lafamilia-scene.jpg",
     "cols": 6,
     "rows": 2,
     "cover": 1,
-    "detail": "Las bolsas quedan en la caja fuerte. Cada bolsa nueva devuelve los tres intentos.",
+    "detail": "Guerra de familias: juntá balas, vencé cuatro bandas y ascendé sus símbolos a jefes. Cada victoria da giros extra; al vencer al Don, los jefes cobran cajas fuertes por fila.",
     "tint": 16766102
   },
   "ruta40": {
@@ -146,14 +146,14 @@ window.MCProviderArt = {
   "zonamuerta": {
     "title": "Zona Muerta",
     "verified": true,
-    "rtpValue": 0.9650132635066252,
+    "rtpValue": 0.9650278345024148,
     "volatility": "media-alta",
     "symbols": "zonamuerta-symbols.png",
     "scene": "zonamuerta-scene.jpg",
     "cols": 6,
     "rows": 2,
     "cover": 1,
-    "detail": "Resistí la última noche: las cascadas suben la defensa y el multiplicador.",
-    "tint": 12774852
+    "detail": "La cacería: dos wilds infectados persiguen radios, se mueven y aumentan su potencia. En el bonus cada grupo paga una vez; potencia ×3.",
+    "tint": 16732774
   }
 };

@@ -14,7 +14,9 @@
     kiosco: ['EL KIOSCO', 'LA VUELTA AL KIOSCO'],
     feria: ['LA FERIA', 'HOLD & WIN'],
     carnaval: ['EL CARNAVAL', 'NOCHE DE COMPARSAS'],
-    cataratas: ['LAS CATARATAS', 'LA GARGANTA DEL DIABLO']
+    cataratas: ['LAS CATARATAS', 'LA GARGANTA DEL DIABLO'],
+    zonamuerta: ['ZONA MUERTA', 'LA CACERÍA'],
+    lafamilia: ['LA FAMILIA', 'GUERRA DE FAMILIAS']
   };
   var reduced = function () { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; };
   var features = {
@@ -25,7 +27,9 @@
     kiosco: ['Bombas multiplicadoras', 'Al final de cada caída que paga, las bombas suman su valor y multiplican el premio.'],
     feria: ['Monedas que se quedan', 'Cada moneda nueva vuelve los re-giros a tres. Llenar la pantalla paga el Grand.'],
     carnaval: ['Multiplicadores que se acumulan', 'Cada secuencia que gana con esferas suma al total, y el total no se reinicia en toda la función.'],
-    cataratas: ['El multiplicador que no baja', 'Cada cascada que gana suma uno al multiplicador, y no vuelve atrás en toda la función.']
+    cataratas: ['El multiplicador que no baja', 'Cada cascada que gana suma uno al multiplicador, y no vuelve atrás en toda la función.'],
+    zonamuerta: ['Los infectados te persiguen', 'Dos wilds persistentes consumen radios, cambian de posición y aumentan su potencia. Cada grupo ganador usa la potencia de los infectados que lo forman.'],
+    lafamilia: ['Conquistá la ciudad', 'Las balas vencen bandas, dan giros extra y convierten sus símbolos en Jefes. Al derrotar al Don se abre la bóveda: cada Jefe cobra la caja fuerte de su fila.']
   };
   /* Cómo se llaman los giros de la función: en un Hold & Win son re-giros. */
   var spinWords = { feria: ['RE-GIROS', 're-giros'] };
