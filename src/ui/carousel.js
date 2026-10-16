@@ -70,7 +70,7 @@ window.MCCarousel = (function () {
   // banner desaparece en vez de romper el carrusel.
   function slides() {
     return MCCatalog.gameBanners
-      .filter(function (b) { return MCCatalog.games[b.game]; })
+      .filter(function (b) { var g = MCCatalog.games[b.game]; return g && !g.hidden; })
       .map(bannerJuego)
       .concat(MCCatalog.promos.map(bannerPromo));
   }
@@ -79,7 +79,7 @@ window.MCCarousel = (function () {
     var row = document.getElementById('miniBanners');
     if (!row) return;
     row.innerHTML = MCCatalog.miniBanners
-      .filter(function (m) { return MCCatalog.games[m.game]; })
+      .filter(function (m) { var g = MCCatalog.games[m.game]; return g && !g.hidden; })
       .map(function (m) {
         var g = MCCatalog.games[m.game];
         // El fondo va en línea y no en una variable CSS: una url() dentro

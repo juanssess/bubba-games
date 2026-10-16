@@ -136,6 +136,44 @@ window.MCCatalog = (function () {
       frameUrl: 'games/slots/index.html?game=carnaval'
     },
     {
+      id: 'cataratas', engine: 'proveedor', name: 'Las Cataratas', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Sin verificar',
+      tag: 'Hasta 117.649 caminos · tope 10.000x', rtpValue: null, rtp: 'RTP pendiente de verificación',
+      maxWin: 10000, badge: 'new',
+      art: 'linear-gradient(135deg,#05140f,#1f8a78 55%,#e7c873)',
+      desc: 'Cada cascada suma al multiplicador',
+      frameUrl: 'games/slots/index.html?game=cataratas'
+    },
+    /* Los originales del proveedor: Crash, Mines y Plinko con arte pintado.
+       Su RTP es el mismo para cualquier estrategia (ver la ficha del juego). */
+    {
+      id: 'ruta40', engine: 'proveedor', name: 'Ruta 40', kind: 'Crash',
+      studio: 'Bubba Studios', volatility: 'Extrema',
+      tag: 'Retirate antes de que se funda el motor · hasta 10.000x', rtpValue: 0.97, rtp: 'RTP 97,0%',
+      maxWin: 10000, badge: 'new',
+      art: 'linear-gradient(135deg,#120a14,#ff9a3c 55%,#f2c46b)',
+      desc: 'El multiplicador sube con cada kilómetro',
+      frameUrl: 'games/slots/index.html?game=ruta40'
+    },
+    {
+      id: 'famatina', engine: 'proveedor', name: 'Famatina', kind: 'Instantáneo',
+      studio: 'Bubba Studios', volatility: 'Alta',
+      tag: 'Oro o dinamita · cobrá cuando quieras', rtpValue: 0.97, rtp: 'RTP 97,0%',
+      maxWin: 10000, badge: 'new',
+      art: 'linear-gradient(135deg,#110906,#e5462e 55%,#f0c060)',
+      desc: 'Destapá rocas, evitá la dinamita',
+      frameUrl: 'games/slots/index.html?game=famatina'
+    },
+    {
+      id: 'kermes', engine: 'proveedor', name: 'La Kermés', kind: 'Instantáneo',
+      studio: 'Bubba Studios', volatility: 'Media',
+      tag: 'La bolita entre los clavos · hasta 1.000x', rtpValue: 0.97, rtp: 'RTP 97,0%',
+      maxWin: 1000, badge: 'new',
+      art: 'linear-gradient(135deg,#080d1a,#e8463c 55%,#f4c86a)',
+      desc: 'Elegí filas y riesgo, y tirá',
+      frameUrl: 'games/slots/index.html?game=kermes'
+    },
+    {
       // PLANTILLA: copiá esta entrada para dar de alta tu juego.
       // El campo que manda es `engine`: tiene que coincidir con el
       // nombre que usás en MC.registerEngine() y con el id de la
@@ -202,6 +240,14 @@ window.MCCatalog = (function () {
   var TODOS = ORIGINALS.concat(GENERATED);
 
   TODOS.forEach(function (g) {
+    // A provider entry can be drafted before its approved build is exported.
+    // Keep it available to history, but never advertise or open a missing game.
+    if (g.engine === 'proveedor') {
+      var match = (g.frameUrl || '').match(/[?&]game=([^&]+)/);
+      var art = window.MCProviderArt || {};
+      g.pending = !match || !art[match[1]] || !Number.isFinite(g.rtpValue) || g.rtpValue <= 0;
+      if (g.pending) g.hidden = true;
+    }
     if (OCULTOS.indexOf(g.id) >= 0) g.hidden = true;
   });
 
@@ -271,7 +317,9 @@ window.MCCatalog = (function () {
      (la escena de environments.png y el sprite de la portada). Los
      numeros —RTP, premio maximo— salen de la ficha del juego, no de aca. */
   var GAME_BANNERS = [
-    { game: 'carnaval', scene: 'carnaval', kicker: 'Recién abierto', side: ['Multiplicadores', 'que se suman'], chip: '8 en cualquier lado' },
+    { game: 'cataratas', scene: 'cataratas', kicker: 'Recién abierto', side: ['117.649', 'caminos'], chip: 'Cascadas' },
+    { game: 'ruta40',   scene: 'ruta40',  kicker: 'Original', side: ['Crash', 'hasta x10.000'], chip: 'Retirate a tiempo' },
+    { game: 'carnaval', scene: 'carnaval', kicker: 'Lo nuevo', side: ['Multiplicadores', 'que se suman'], chip: '8 en cualquier lado' },
     { game: 'feria',    scene: 'feria',   kicker: 'Lo nuevo', side: ['Hold &', 'Win'], chip: 'Monedas que se quedan' },
     { game: 'kiosco',   scene: 'kiosco',  kicker: 'Lo nuevo', side: ['Bombas', 'hasta x500'], chip: 'Paga en cualquier lado' },
     { game: 'vendimia', scene: 'wine',    kicker: 'Ya llegó',   side: ['Exclusivo', 'del salón'], chip: 'Cascadas' },

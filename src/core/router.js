@@ -39,6 +39,10 @@ window.MC = window.MC || {};
 
   function showView(id) {
     var meta = games[id] || null;
+    if (meta && meta.pending) {
+      MC.toast('Este juego todavía está en preparación.', 'info');
+      return;
+    }
     var engine = meta ? meta.engine : id;
 
     var target = document.getElementById('view-' + engine);
