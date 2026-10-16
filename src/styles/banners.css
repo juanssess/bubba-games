@@ -185,6 +185,7 @@
 }
 #view-lobby[data-scene="kiosco"]{--amb:#d0488fb3}
 #view-lobby[data-scene="feria"]{--amb:#c9893ab3}
+#view-lobby[data-scene="carnaval"]{--amb:#ff4fb8b3}
 #view-lobby[data-scene="wine"]{--amb:#8e1330cc}
 #view-lobby[data-scene="western"]{--amb:#c8452fb3}
 #view-lobby[data-scene="temple"]{--amb:#2f7a4fb3}

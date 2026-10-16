@@ -65,3 +65,4 @@ body[data-bonus-theme] #stage canvas{filter:saturate(1.16)}
    desde MCProviderArt; acá solo el color de cada uno. */
 .cinema--kiosco{--cinema-gold:#ffc6e4;--cinema-accent:#e86aa8;background:radial-gradient(ellipse at 50% 36%,#3a1d36eb,#0a1418f5 75%)}
 .cinema--feria{--cinema-gold:#ffe2a8;--cinema-accent:#d9a441;background:radial-gradient(ellipse at 50% 36%,#4a3018eb,#120c08f5 75%)}
+.cinema--carnaval{--cinema-gold:#ffd35c;--cinema-accent:#ff4fb8;background:radial-gradient(ellipse at 50% 36%,#4a1550eb,#12061cf5 75%)}

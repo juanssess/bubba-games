@@ -160,6 +160,18 @@ window.MCAsistenteSaber = (function () {
       consejo: 'Volatilidad media-alta: entre Bubba 777 y Se Busca. Lo bueno está en las ' +
         'cascadas largas de los giros gratis.'
     },
+    carnaval: {
+      alias: ['carnaval', 'el carnaval', 'gualeguaychu', 'gualeguaychú', 'comparsa', 'multiplicadores acumulados', 'esferas'],
+      como: 'Grilla de 6×5 que paga con <strong>ocho o más</strong> iguales en cualquier lado, con cascadas. ' +
+        'Las <em>esferas de purpurina</em> traen un multiplicador: si la secuencia gana, la multiplican.',
+      paga: function (g) {
+        return 'Cuatro coronas dan 15 giros gratis. Ahí los multiplicadores se <strong>acumulan</strong>: ' +
+          'cada secuencia que gana con esferas suma al total, y el total no vuelve a cero en toda la función. ' +
+          'Máximo ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Volatilidad alta: el valor está en una función larga que junte multiplicadores temprano. ' +
+        'La apuesta ante hace que la función salga más seguido.'
+    },
     feria: {
       alias: ['feria', 'la feria', 'hold and win', 'hold & win', 'monedas', 'san telmo', 'grand'],
       como: 'Tragamonedas de 5×3 con 20 líneas. Las <em>monedas</em> traen un valor: con <strong>seis o ' +

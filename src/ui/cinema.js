@@ -12,7 +12,8 @@
     sebusca: ['SE BUSCA', 'LA RECOMPENSA'],
     vendimia: ['LA VENDIMIA', 'LA GRAN COSECHA'],
     kiosco: ['EL KIOSCO', 'LA VUELTA AL KIOSCO'],
-    feria: ['LA FERIA', 'HOLD & WIN']
+    feria: ['LA FERIA', 'HOLD & WIN'],
+    carnaval: ['EL CARNAVAL', 'NOCHE DE COMPARSAS']
   };
   var reduced = function () { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; };
   var features = {
@@ -21,7 +22,8 @@
     sebusca: ['Wilds pegajosos', 'Los wilds y sus multiplicadores permanecen hasta el final.'],
     vendimia: ['Cascadas acumuladas', 'El multiplicador conserva su progreso entre giros gratis.'],
     kiosco: ['Bombas multiplicadoras', 'Al final de cada caída que paga, las bombas suman su valor y multiplican el premio.'],
-    feria: ['Monedas que se quedan', 'Cada moneda nueva vuelve los re-giros a tres. Llenar la pantalla paga el Grand.']
+    feria: ['Monedas que se quedan', 'Cada moneda nueva vuelve los re-giros a tres. Llenar la pantalla paga el Grand.'],
+    carnaval: ['Multiplicadores que se acumulan', 'Cada secuencia que gana con esferas suma al total, y el total no se reinicia en toda la función.']
   };
   /* Cómo se llaman los giros de la función: en un Hold & Win son re-giros. */
   var spinWords = { feria: ['RE-GIROS', 're-giros'] };

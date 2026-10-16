@@ -127,6 +127,15 @@ window.MCCatalog = (function () {
       frameUrl: 'games/slots/index.html?game=feria'
     },
     {
+      id: 'carnaval', engine: 'proveedor', name: 'El Carnaval', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Alta',
+      tag: 'Multiplicadores que se acumulan · tope 10.000x', rtpValue: 0.9649, rtp: 'RTP 96,5%',
+      maxWin: 10000, badge: 'new',
+      art: 'linear-gradient(135deg,#2a0f3d,#ff4fb8 55%,#ffd35c)',
+      desc: 'Los multiplicadores se suman',
+      frameUrl: 'games/slots/index.html?game=carnaval'
+    },
+    {
       // PLANTILLA: copiá esta entrada para dar de alta tu juego.
       // El campo que manda es `engine`: tiene que coincidir con el
       // nombre que usás en MC.registerEngine() y con el id de la
@@ -262,7 +271,8 @@ window.MCCatalog = (function () {
      (la escena de environments.png y el sprite de la portada). Los
      numeros —RTP, premio maximo— salen de la ficha del juego, no de aca. */
   var GAME_BANNERS = [
-    { game: 'feria',    scene: 'feria',   kicker: 'Recién abierto', side: ['Hold &', 'Win'], chip: 'Monedas que se quedan' },
+    { game: 'carnaval', scene: 'carnaval', kicker: 'Recién abierto', side: ['Multiplicadores', 'que se suman'], chip: '8 en cualquier lado' },
+    { game: 'feria',    scene: 'feria',   kicker: 'Lo nuevo', side: ['Hold &', 'Win'], chip: 'Monedas que se quedan' },
     { game: 'kiosco',   scene: 'kiosco',  kicker: 'Lo nuevo', side: ['Bombas', 'hasta x500'], chip: 'Paga en cualquier lado' },
     { game: 'vendimia', scene: 'wine',    kicker: 'Ya llegó',   side: ['Exclusivo', 'del salón'], chip: 'Cascadas' },
     { game: 'sebusca',  scene: 'western', kicker: 'El más buscado', side: ['Volatilidad', 'extrema'], chip: 'Wilds pegajosos' },
