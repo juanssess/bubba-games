@@ -126,7 +126,7 @@
     strip.innerHTML = cells.join('');
     void strip.offsetWidth; // fuerza reflow para que la transición arranque desde 0
 
-    strip.style.transition = 'transform ' + duration + 'ms cubic-bezier(.12,.66,.16,1)';
+    strip.style.transition = 'transform ' + duration + 'ms cubic-bezier(.16,.32,.36,1)';
     strip.style.transform = 'translateY(' + (-STOP_AT * cellHeight()) + 'px)';
     MCCinema.reel(strip, duration);
   }
@@ -163,7 +163,7 @@
     updateBetUI();
 
     var result = [MC.pick(reelPool), MC.pick(reelPool), MC.pick(reelPool)];
-    var durations = [2400, 2950, 3500];
+    var durations = [1200, 1575, 2050];
     el.strips.forEach(function (strip, i) { spinReel(strip, result[i], durations[i]); });
 
     setTimeout(function () { finish(result, bet); }, durations[2] + 120);

@@ -30,11 +30,23 @@ try {
       return page.evaluate(()=>performance.now()-spinStart);
     }
     const normal=await spin(false), turbo=await spin(true), skipped=await spin(false,true);
-    assert.ok(normal>=2500&&normal<6500,game+' normal duration: '+normal);
+    assert.ok(normal>=1400&&normal<3200,game+' fluid normal duration: '+normal);
     assert.ok(turbo<normal*.85,game+' keeps an optional faster mode');
     assert.ok(skipped<normal*.5,game+' still responds to an explicit stop');
     assert.deepEqual(errors,[]);
     console.log(game,JSON.stringify({normal:Math.round(normal),turbo:Math.round(turbo),skipped:Math.round(skipped)}));
+    if(game==='classic20') {
+      await page.evaluate(()=>{
+        const grid=Array(15).fill(2);grid[0]=1;grid[3]=1;
+        __maverick.reelSet.turbo=false;window.anticipationEvents=0;window.anticipationStart=performance.now();
+        void __maverick.reelSet.spinTo(grid,{onAnticipation:()=>{anticipationEvents++;}});
+      });
+      await page.waitForFunction(()=>!__maverick.reelSet.running);
+      const expectation=await page.evaluate(()=>({events:anticipationEvents,duration:performance.now()-anticipationStart}));
+      assert.ok(expectation.events>0,'Two scatters produce a visible anticipation phase');
+      assert.ok(expectation.duration>normal&&expectation.duration<4500,'Anticipation creates a short extra wait: '+expectation.duration);
+      console.log('Anticipation',Math.round(expectation.duration));
+    }
     if(game==='feria') {
       // A deliberate Turbo choice after migration must survive a reload.
       await page.evaluate(()=>localStorage.setItem('turbo.feria','1'));
@@ -55,7 +67,7 @@ try {
       }
       assert.equal(await page.evaluate(()=>window.featureDone),true,'Feria bonus completes with the slower animation');
       const spins=await page.evaluate(()=>reSpins);
-      assert.ok(spins.length>0&&spins.every(ms=>ms>=1200),'Feria re-spins have visible movement: '+spins);
+      assert.ok(spins.length>0&&spins.every(ms=>ms>=850),'Feria re-spins have visible movement: '+spins);
       assert.deepEqual(errors,[]);
       console.log('Feria re-spins',spins.map(Math.round).join(', '));
     }
@@ -67,8 +79,9 @@ try {
     await page.evaluate(game=>{MC.closeModal();MC.showView(game);},game);
     await page.locator(button).click();
     const transitions=await page.locator(strip).evaluateAll(els=>els.map(el=>parseFloat(getComputedStyle(el).transitionDuration)));
-    assert.ok(transitions.length>=3&&Math.max(...transitions)>=3,'House reels turn for at least three seconds: '+game+' '+transitions);
+    assert.ok(transitions.length>=3&&Math.max(...transitions)>=1.8&&Math.max(...transitions)<3.5,'House reels stay fluid with a short final wait: '+game+' '+transitions);
+    assert.ok(transitions.at(-1)-transitions.at(-2)>=.25,'The final reel has a distinct stopping interval');
     await page.close();
   }
-  console.log('PASS: slower base spins, optional Turbo, stop control, saved preferences, Feria bonus and both house slots.');
+  console.log('PASS: fluid base spins, staggered stops, optional Turbo, stop control, saved preferences, Feria bonus and both house slots.');
 } finally {await browser.close();await new Promise(r=>server.close(r));}

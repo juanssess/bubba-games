@@ -5,5 +5,5 @@ import type { SpinStep } from '@casino/protocol';
 import type { PlayContext } from './context.ts';
 
 export function playHoldStep(ctx: PlayContext, step: SpinStep, bet: number, prior: number): Promise<void> {
-  return baseHoldStep({...ctx, tf: () => ctx.tf() * 1.8}, step, bet, prior);
+  return baseHoldStep({...ctx, tf: () => ctx.tf() * 1.3}, step, bet, prior);
 }

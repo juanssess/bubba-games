@@ -25,10 +25,10 @@ window.MCSlots5 = (function () {
   var LINE_BETS = [1, 2, 5, 10, 25, 50];
   var betIndex = 2;
 
-  var REEL_MS = [1800, 2150, 2500, 2850, 3200]; // frenada visible por rodillo
+  var REEL_MS = [950, 1175, 1400, 1650, 1950]; // el último rodillo se hace esperar un poco
   // La función mantiene un ritmo propio, con tiempo para ver los símbolos.
-  var REEL_MS_FREE = [1200, 1450, 1700, 1950, 2200];
-  var REEL_MS_TURBO = [650, 800, 950, 1100, 1250];
+  var REEL_MS_FREE = [650, 825, 1000, 1200, 1450];
+  var REEL_MS_TURBO = [350, 450, 550, 650, 800];
   var STOP_AT = 18;                              // símbolos que "pasan" antes de frenar
   var WIN_STEP_MS = 620;                         // cuánto dura cada línea encendida
 
@@ -36,13 +36,11 @@ window.MCSlots5 = (function () {
      número que decide si el juego "se siente" o no: sin esto, que
      caigan dos bolsas y que caigan tres se ven exactamente igual.
 
-     Con dos bolsas, TODOS los rodillos que faltan siguen vivos, así que
-     todos anticipan. Pero no pueden durar lo mismo: a 1,7s cada uno el
-     giro se iba a más de seis segundos y la tensión se volvía tedio.
-     El primero es el dramático; los siguientes sostienen sin estirar. */
-  var ANTICIPA_1 = 1500;
-  var ANTICIPA_N = 800;
-  var ANTICIPA_TOPE = 3200;   // techo del estirón total
+     Con dos bolsas, los rodillos que faltan sostienen la expectativa con
+     una demora breve. La mayor pausa va en el primero; los demás acompañan. */
+  var ANTICIPA_1 = 600;
+  var ANTICIPA_N = 350;
+  var ANTICIPA_TOPE = 1300;
 
   /* Los escalones del premio y el conteo viven en MCPremio: los usan
      los ocho juegos y tienen que verse igual en todos. */
@@ -127,7 +125,7 @@ window.MCSlots5 = (function () {
     strip.innerHTML = cells.join('');
     void strip.offsetWidth;   // reflow: que la transición arranque desde 0
 
-    strip.style.transition = 'transform ' + duration + 'ms cubic-bezier(.12,.66,.16,1)';
+    strip.style.transition = 'transform ' + duration + 'ms cubic-bezier(.16,.32,.36,1)';
     strip.style.transform = 'translateY(' + (-STOP_AT * cellHeight()) + 'px)';
     MCCinema.reel(strip, duration);
     setTimeout(function () { MC.sound.event('reelStop'); }, duration);
