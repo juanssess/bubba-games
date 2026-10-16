@@ -252,7 +252,7 @@ window.MCCatalog = (function () {
       desc: 'Fixture y resultados reales'
     },
     {
-      id: 'roulette', engine: 'roulette', name: 'Ruleta Europea', kind: 'Mesa',
+      id: 'roulette', engine: 'roulette', name: 'La Cúpula · Ruleta', kind: 'Mesa',
       studio: 'Bubba Originals', volatility: 'Media',
       tag: 'Pleno paga 35:1', rtpValue: 0.973, rtp: 'RTP 97,3%',
       maxWin: 36, emoji: '🎡', badge: '',
@@ -260,12 +260,20 @@ window.MCCatalog = (function () {
       desc: 'Un solo cero'
     },
     {
-      id: 'blackjack', engine: 'blackjack', name: 'Blackjack Clásico', kind: 'Mesa',
+      id: 'blackjack', engine: 'blackjack', name: 'Salón 21 · Blackjack', kind: 'Mesa',
       studio: 'Bubba Originals', volatility: 'Baja',
       tag: 'Blackjack paga 3:2', rtpValue: 0.99, rtp: 'RTP ~99%',
       maxWin: 3, emoji: '🃏', badge: 'new',
       art: 'linear-gradient(135deg,#0b2340,#1b4f8f 60%,#5fa8f5)',
       desc: 'Zapato de 6 mazos'
+    },
+    {
+      id: 'truco', engine: 'truco', name: 'El Patio · Truco Argentino', kind: 'Mesa',
+      studio: 'Bubba Originals', volatility: 'Habilidad',
+      tag: 'Mano a mano · sin flor', rtpValue: null, rtp: 'Por puntos · sin apuesta',
+      maxWin: 0, emoji: '🧉', badge: 'new',
+      art: 'linear-gradient(135deg,#314f49,#806040)',
+      desc: 'Contra Don Ramón · a 15 o 30'
     }
   ];
 

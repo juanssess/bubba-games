@@ -67,13 +67,16 @@
     var seen = presentedCards.get(card);
     var motion = seen === undefined ? ' motion-deal' : seen && !hidden ? ' motion-turn' : '';
     presentedCards.set(card, hidden);
-    if (hidden) { d.className = 'card back' + motion; return d; }
+    if (hidden) { d.className = 'card back' + motion; d.setAttribute('aria-label', 'Carta boca abajo'); return d; }
     d.className = 'card' + (card.red ? ' red' : '');
     d.className += motion;
+    d.setAttribute('aria-label', card.rank + ' ' + card.suit);
+    var count=card.rank==='A'?1:parseInt(card.rank,10);
+    var center=Number.isFinite(count)?'<div class="bj-pips pips-'+count+'">'+Array.from({length:count},function(){return '<i>'+card.suit+'</i>';}).join('')+'</div>':'<div class="bj-court"><small>'+card.suit+'</small>'+card.rank+'<small>'+card.suit+'</small></div>';
     d.innerHTML =
       '<div class="c-corner-t"><div class="c-rank">' + card.rank + '</div>' +
       '<div class="c-suit-sm">' + card.suit + '</div></div>' +
-      '<div class="c-suit-big">' + card.suit + '</div>' +
+      center +
       '<div class="c-corner-b"><div class="c-rank">' + card.rank + '</div>' +
       '<div class="c-suit-sm">' + card.suit + '</div></div>';
     return d;
@@ -110,7 +113,7 @@
       el.playerHands.appendChild(box);
     });
 
-    var main = hands[activeHand];
+    var main = hands[activeHand] || (hands.length===1 ? hands[0] : null);
     el.playerScore.textContent = main ? scoreOf(main.cards) : '';
 
     updateControls();
@@ -424,6 +427,7 @@
        corría al repartir: entrar a la mesa con el retorno bajado dejaba
        el de fábrica en pantalla hasta la primera mano. */
     MC.onEnter('blackjack', render);
+    MC.guard('blackjack', function () { return phase !== 'idle' && phase !== 'done'; });
   }
 
   window.MCBlackjack = { init: init, refresh: function () { render(); } };

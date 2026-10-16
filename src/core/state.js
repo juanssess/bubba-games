@@ -23,6 +23,7 @@ window.MC = window.MC || {};
     stats: { plays: 0, best: 0, net: 0, wagered: 0 },
     history: [],            // últimas jugadas reales del usuario
     rouletteHistory: [],
+    trucoMatch: null,       // partida por puntos, sin flor; se retoma por perfil
     crashHistory: [],
     crashBest: 1,
     bowlingPending: null,   // tiro cobrado que todavía está mostrando su animación

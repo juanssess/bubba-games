@@ -44,6 +44,7 @@
 <link rel="stylesheet" href="src/styles/games/cinema.css?v=7">
 <link rel="stylesheet" href="src/styles/games/motion.css?v=1">
 <link rel="stylesheet" href="src/styles/banners.css?v=11">
+<link rel="stylesheet" href="src/styles/games/table-rooms.css?v=1">
 
 <!-- El tema va en el HEAD y no con el resto: si se aplicara despues, quien
      tiene el tema claro veria el fondo negro un instante y despues el
@@ -686,16 +687,16 @@
         </section>
 
         <!-- ---------- RULETA ---------- -->
-        <section class="view" id="view-roulette">
-          <header class="studio-title"><span class="studio-eyebrow">BUBBA ORIGINALS · COLLECTION PRIVÉE</span><h3>RULETA <em>EUROPEA</em></h3><p>La mesa clásica de un solo cero</p></header>
+        <section class="view table-room room-roulette" id="view-roulette">
+          <header class="studio-title"><span class="studio-eyebrow">BUBBA ORIGINALS · COLLECTION PRIVÉE</span><h3>LA <em>CÚPULA</em></h3><p>Ruleta europea · un solo cero · una vuelta lo cambia todo</p></header>
           <div class="roulette-layout">
             <div class="wheel-side">
               <div class="wheel-wrap">
-                <div class="wheel-pointer"></div>
+                <div class="wheel-pointer"></div><div class="roulette-ball-track" aria-hidden="true"><i></i></div>
                 <div class="wheel" id="wheel"></div>
                 <div class="wheel-hub"><span id="wheelResult">–</span></div>
               </div>
-              <div class="history-strip" id="rouletteHistory"></div>
+              <p class="table-caption" id="rouletteStatus" role="status">La próxima vuelta es tuya.</p><div class="history-strip" id="rouletteHistory" aria-label="Últimos resultados"></div><span class="table-footnote">Elegí una ficha y tocá el paño.</span>
             </div>
 
             <div class="table-side">
@@ -721,14 +722,14 @@
         </section>
 
         <!-- ---------- BLACKJACK ---------- -->
-        <section class="view" id="view-blackjack">
-          <header class="studio-title"><span class="studio-eyebrow">BUBBA ORIGINALS · COLLECTION PRIVÉE</span><h3>BLACK<em>JACK</em></h3><p><span id="bjSubtitulo">Blackjack paga 3:2</span> · El crupier se planta en 17</p></header>
-          <div class="felt mesa">
+        <section class="view table-room room-blackjack" id="view-blackjack">
+          <header class="studio-title"><span class="studio-eyebrow">BUBBA ORIGINALS · COLLECTION PRIVÉE</span><h3>SALÓN <em>21</em></h3><p><span id="bjSubtitulo">Blackjack paga 3:2</span> · El crupier se planta en 17</p></header>
+          <div class="felt mesa"><div class="bj-monogram" aria-hidden="true">21<span>LE SALON</span></div><div class="bj-shoe" aria-hidden="true"><span>6</span> MAZOS</div>
             <div class="bj-row">
               <div class="bj-label">Crupier <span id="dealerScore" class="score"></span></div>
-              <div class="hand" id="dealerHand"></div>
+              <div class="hand" id="dealerHand"></div><span class="bj-table-rule">EL CRUPIER SE PLANTA EN 17</span>
             </div>
-            <div class="bj-banner" id="bjBanner">Elegí tu apuesta para repartir</div>
+            <div class="bj-banner" id="bjBanner" role="status">Elegí tu apuesta para repartir</div>
             <div class="bj-row">
               <div class="bj-label">Vos <span id="playerScore" class="score"></span></div>
               <div class="hands-wrap" id="playerHands"></div>
@@ -737,9 +738,9 @@
 
           <div class="bj-controls">
             <div class="bet-control" id="bjBetControl">
-              <button class="btn btn-ghost" id="bjBetDown">−</button>
+              <button class="btn btn-ghost" id="bjBetDown" aria-label="Bajar apuesta">−</button>
               <div class="bet-display"><span>Apuesta</span><strong id="bjBet">100</strong></div>
-              <button class="btn btn-ghost" id="bjBetUp">+</button>
+              <button class="btn btn-ghost" id="bjBetUp" aria-label="Subir apuesta">+</button>
             </div>
             <button class="btn btn-spin" id="bjDeal">REPARTIR</button>
             <div class="bj-actions" id="bjActions">
@@ -748,6 +749,22 @@
               <button class="btn btn-ghost" id="bjDouble">Doblar</button>
               <button class="btn btn-ghost" id="bjSplit">Dividir</button>
             </div>
+          </div>
+        </section>
+
+        <section class="view table-room room-truco" id="view-truco">
+          <header class="studio-title"><span class="studio-eyebrow">BUBBA ORIGINALS · UNA MESA BIEN NUESTRA</span><h3>EL <em>PATIO</em></h3><p>Truco argentino · mano a mano · sin flor</p></header>
+          <div class="tc-lights" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="tc-layout">
+            <div class="tc-main">
+              <div class="tc-opponent"><svg class="tc-portrait" viewBox="0 0 100 110" role="img" aria-label="Don Ramón, tu rival"><path d="M8 110q0-35 30-38h24q30 3 30 38" fill="#3d6861"/><path d="m35 76 15 28 15-28" fill="#efdab8"/><path d="m38 78 12 6 12-6-4 18H42Z" fill="#a14e39"/><ellipse cx="50" cy="46" rx="25" ry="31" fill="#c49771"/><path d="M24 43q-4-36 26-36t26 36l-9-16-36 2Z" fill="#57483c"/><path d="M16 26h68L72 16l-6-13H36l-6 13Z" fill="#70664c"/><path d="M18 23h64" stroke="#362f26" stroke-width="5"/><path class="tc-eyes" d="M34 44h8m16 0h8" stroke="#302e27" stroke-width="3"/><path d="m47 46-4 12h10m-18 9q15-11 30 0-16 8-30 0" fill="#514335"/><path d="M40 72q10 5 20-1" fill="none" stroke="#795b42" stroke-width="2"/></svg><div><span>TU RIVAL</span><strong>Don Ramón</strong><p id="tcSpeech">Las cartas se juegan. La mano se conversa.</p></div><span class="tc-rival-badge">LOCAL<br>DEL PATIO</span></div>
+              <div id="tcSetup" class="tc-welcome"><span class="tc-welcome-mark">1 <i>♠</i> 7</span><h4>¿Sale un truquito?</h4><p>Baraja española, un rival con carácter y la última palabra siempre en la mesa.</p><div><button class="btn btn-spin" data-target="15">A 15 puntos</button><button class="btn btn-ghost" data-target="30">A 30 puntos</button></div><small>Partida por puntos · sin apuesta de fichas<br>Se guarda automáticamente. Podés volver cuando quieras.</small></div>
+              <div id="tcGame" hidden>
+                <div class="tc-felt"><span id="tcMeta" class="tc-meta"></span><div id="tcBot" class="tc-hand tc-bot"></div><div id="tcTable" class="tc-table"></div><div id="tcTricks" class="tc-tricks"></div><div id="tcHand" class="tc-hand tc-player"></div><span id="tcEnvido" class="tc-envido"></span></div>
+                <div id="tcMessage" class="tc-message" role="status"></div><div id="tcActions" class="tc-actions"></div><button id="tcNext" class="btn btn-spin tc-next" hidden>Siguiente mano</button>
+              </div>
+            </div>
+            <aside class="tc-notebook"><span class="tc-notebook-label">EL ANOTADOR</span><h4>Los tantos claros.</h4><div id="tcScore" class="tc-score"></div><details open><summary>Lo que pasó en la mesa</summary><p id="tcLog" class="tc-log">Ramón te está esperando.</p></details><details><summary>Cómo se juega</summary><p>Dos de tres bazas. El ancho de espadas manda, seguido por el de bastos, el siete de espadas y el siete de oros. Después: 3, 2, ases falsos, 12, 11, 10, sietes falsos, 6, 5 y 4.</p><p>Envido: dos cartas del mismo palo suman 20; las figuras valen 0. Con tres del mismo palo se toman las mejores dos, sin flor. Empatados gana el mano. Envido vale 2, real 3; los cantos se suman. Falta vale lo que le queda al que va adelante para llegar a 15 o 30.</p><p>Truco, retruco y vale cuatro llevan la mano a 2, 3 y 4 tantos. Rechazar entrega el valor anterior. El último que aceptó puede volver a subir. Podés cantar envido antes de tu primera carta y antes de aceptar truco.</p><p>Si la primera es parda, decide la siguiente; si empatan la segunda o tercera, vale la primera. Tres pardas: mano. Irse al mazo antes de jugar, sin cantos, entrega 2 tantos; en otro caso, el valor de la mano.</p><p>Partida por puntos, sin fichas. El rival usa sus cartas y las cartas jugadas. Tu mano sigue oculta hasta el cierre.</p></details></aside>
           </div>
         </section>
 
@@ -803,9 +820,9 @@
 <script src="src/core/roles.js?v=81"></script>
 <script src="src/core/rng.js?v=81"></script>
 <script src="src/core/justo.js?v=81"></script>
-<script src="src/core/state.js?v=82"></script>
+<script src="src/core/state.js?v=83"></script>
 <script src="src/core/rtp.js?v=85"></script>
-<script src="src/core/soundtracks.js?v=3"></script>
+<script src="src/core/soundtracks.js?v=4"></script>
 <script src="src/core/noir-survival-soundtracks.js?v=1"></script>
 <script src="src/core/audio.js?v=83"></script>
 <script src="src/core/ui.js?v=81"></script>
@@ -834,12 +851,14 @@
 <!-- 4. Motores de juego -->
 <script src="src/ui/cinema.js?v=9"></script>
 <script src="assets/illustrated/provider/index.js?v=5"></script>
-<script src="src/ui/illustrated-art.js?v=2"></script>
+<script src="src/ui/illustrated-art.js?v=3"></script>
 <script src="src/games/slots.js?v=84"></script>
 <script src="src/games/slots5-math.js?v=81"></script>
 <script src="src/games/slots5.js?v=86"></script>
-<script src="src/games/roulette.js?v=82"></script>
-<script src="src/games/blackjack.js?v=81"></script>
+<script src="src/games/roulette.js?v=83"></script>
+<script src="src/games/blackjack.js?v=82"></script>
+<script src="src/games/truco-rules.js?v=1"></script>
+<script src="src/games/truco.js?v=1"></script>
 <script src="src/games/crash.js?v=82"></script>
 <script src="src/games/mines.js?v=81"></script>
 <script src="src/sports/markets.js?v=1"></script>
@@ -852,7 +871,7 @@
 <script src="src/catalog/themes.js?v=81"></script>
 <script src="src/catalog/slot-math.js?v=81"></script>
 <script src="src/catalog/generator.js?v=81"></script>
-<script src="src/catalog/catalog.js?v=92"></script>
+<script src="src/catalog/catalog.js?v=93"></script>
 
 <!-- 6. Interfaz del portal -->
 <script src="src/ui/game-card.js?v=82"></script>
@@ -882,7 +901,7 @@
 <script src="src/ui/asistente.js?v=82"></script>
 
 <!-- 7. Arranque -->
-<script src="src/main.js?v=85"></script>
+<script src="src/main.js?v=86"></script>
 
 <!-- Login con Google y saldo en la nube. Es un módulo (el SDK de Firebase lo
      es) y va último a propósito: si falla, el casino ya arrancó con perfiles

@@ -39,7 +39,8 @@
 
   /* ---------------- construcción de la mesa ---------------- */
   function cell(id, label, className, style) {
-    var d = document.createElement('div');
+    var d = document.createElement('button');
+    d.type = 'button';
     d.className = 'bet-cell ' + (className || '');
     d.dataset.cell = id;
     d.textContent = label;
@@ -51,6 +52,8 @@
       if (!spinning) marcarCubiertos(cubre(apuestaDe(id)), false);
     });
     d.addEventListener('mouseleave', limpiarPreview);
+    d.addEventListener('focus', function () { if(!spinning) marcarCubiertos(cubre(apuestaDe(id)),false); });
+    d.addEventListener('blur', limpiarPreview);
     return d;
   }
 
@@ -89,7 +92,10 @@
   function buildChipRack() {
     el.rack.innerHTML = '';
     CHIPS.forEach(function (v) {
-      var c = document.createElement('div');
+      var c = document.createElement('button');
+      c.type = 'button';
+      c.setAttribute('aria-label', 'Ficha de ' + v);
+      c.setAttribute('aria-pressed', String(v === chipValue));
       c.className = 'chip chip-' + v + (v === chipValue ? ' active' : '');
       c.textContent = v >= 1000 ? (v / 1000) + 'K' : v;
       c.onclick = function () {
@@ -225,7 +231,7 @@
      Volver a armar seis apuestas ficha por ficha después de cada giro
      es el mayor fastidio de una ruleta. */
   function repetirApuestas() {
-    if (spinning || !lastBets.length) return;
+    if (spinning || bets.length || !lastBets.length) return;
     var costo = lastBets.reduce(function (s, b) { return s + b.amount; }, 0);
     if (!MC.canBet(costo)) { MC.toast('No te alcanza para repetir esa ronda.', 'lose'); return; }
 
@@ -258,6 +264,8 @@
     });
     el.staked.textContent = MC.fmt(totalStaked());
     el.spin.disabled = spinning || bets.length === 0;
+    el.repeat.disabled = spinning || bets.length > 0 || !lastBets.length;
+    el.table.querySelectorAll('.bet-cell').forEach(function(c) { c.disabled=spinning; });
   }
 
   /* ---------------- resolución ---------------- */
@@ -374,9 +382,13 @@
     wheelAngle = wheelAngle + turns * 360 + (((target - wheelAngle) % 360) + 360) % 360;
     el.wheel.style.transform = 'rotate(' + wheelAngle + 'deg)';
     el.wheel.parentElement.classList.add('motion-spinning');
+    el.ball.style.transform = 'rotate(' + (-360 * (10 + Math.ceil(wheelAngle / 360))) + 'deg)';
+    el.status.textContent = 'No va más…';
+    el.repeat.disabled = true;
+    el.table.querySelectorAll('.bet-cell').forEach(function(c) { c.disabled=true; });
     el.result.textContent = '';
 
-    setTimeout(function () { settle(number); }, 5400);
+    setTimeout(function () { settle(number); }, 4950);
   }
 
   function settle(n) {
@@ -390,7 +402,7 @@
       var mult = payoutFor(b, n);
       if (mult > 0) {
         returned += b.amount * (mult + 1); // premio + devolución de la ficha
-        winningCells[b.cellId] = true;
+        winningCells[b.chipCell] = true;
       }
     });
 
@@ -409,6 +421,7 @@
     });
 
     var v = MC.veredicto(staked, returned);
+    el.status.textContent = 'Salió el ' + n + ' · ' + v.texto;
 
     if (returned > 0) {
       MC.addBalance(returned);
@@ -460,6 +473,8 @@
     el.clear = document.getElementById('rouletteClear');
     el.repeat = document.getElementById('rouletteRepeat');
     el.modes = document.getElementById('rouletteModes');
+    el.ball = document.querySelector('#view-roulette .roulette-ball-track');
+    el.status = document.getElementById('rouletteStatus');
 
     buildModes();
     /* Y de nuevo cada vez que se entra a la mesa: los pagos de estos
@@ -469,6 +484,21 @@
     MC.onEnter('roulette', buildModes);
 
     buildTable();
+    var mobile=window.matchMedia('(max-width:560px)');
+    function arrange() {
+      if(!mobile.matches) { buildTable(); renderBets(); return; }
+      el.table.querySelectorAll('.bet-cell').forEach(function(c) {
+        var id=c.dataset.cell, col, row;
+        if(id==='n-0') { col='1';row='1 / 13'; }
+        else if(id.indexOf('n-')===0) {var n=Number(id.slice(2));col=String((n-1)%3+2);row=String(Math.ceil(n/3));}
+        else if(id.indexOf('col-')===0) {col=String(Number(id.slice(4))+1);row='13';}
+        else if(id.indexOf('dozen-')===0) {col=String(Number(id.slice(6))+1);row='14';}
+        else {var k=['low','even','red','black','odd','high'].indexOf(id);col=String(k%3+2);row=String(15+Math.floor(k/3));}
+        c.style.gridColumn=col;c.style.gridRow=row;
+      });
+    }
+    mobile.addEventListener('change',arrange);
+    arrange();
     buildChipRack();
     buildWheel();
     renderHistory();
@@ -478,6 +508,7 @@
     el.undo.onclick = undoBet;
     el.clear.onclick = clearBets;
     el.repeat.onclick = repetirApuestas;
+    MC.guard('roulette',function() { return spinning || bets.length>0; });
   }
 
   /* cubre y pagoDe salen expuestos para poder verificar la matemática

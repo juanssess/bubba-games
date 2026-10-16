@@ -83,6 +83,8 @@
     plantilla:[14,false,'classic'], roulette:[0,'table','table'], blackjack:[15,false,'table'], sports:[1,'table','sports']
   };
   function cover(game) {
+    var rooms={blackjack:['SALÓN','21','♠'],roulette:['LA','CÚPULA','◉'],truco:['EL','PATIO','1']};
+    if(rooms[game.id]) { var room=rooms[game.id];return '<div class="illustrated-cover table-cover table-cover-'+game.id+'"><span class="cover-studio">BUBBA ORIGINALS · MESAS</span><span class="table-cover-emblem">'+room[2]+'</span><strong class="table-cover-title"><small>'+room[0]+'</small>'+room[1]+'</strong><span class="table-cover-line">'+(game.id==='truco'?'TRUCO ARGENTINO · SIN FLOR':game.id==='blackjack'?'BLACKJACK · COLLECTION PRIVÉE':'RULETA EUROPEA · UN SOLO CERO')+'</span></div>'; }
     var c = covers[game.id];
     var pid = !c && providerIdOf(game);
     if (pid) {
@@ -97,6 +99,7 @@
     return '<div class="illustrated-cover cover-' + c[2] + '"><span class="cover-studio">' + escape(game.studio) + '</span>' + art + '<strong class="cover-title">' + escape(game.name) + '</strong></div>';
   }
   function icon(game) {
+    if(game && game.id==='truco') return '<span class="table-truco-icon" aria-label="Truco">1 ◆</span>';
     var c=game && covers[game.id];
     var pid = !c && providerIdOf(game);
     if (pid) return sprite(providerArt[pid].cover, pid, game.name);
