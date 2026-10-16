@@ -137,28 +137,46 @@ window.MCCatalog = (function () {
     },
     {
       id: 'zonamuerta', engine: 'proveedor', name: 'Zona Muerta', kind: 'Tragamonedas',
-      studio: 'Bubba Studios', volatility: 'Sin verificar',
-      tag: 'Cascadas · infectados que persiguen radios', rtpValue: null, rtp: 'RTP pendiente de verificación',
+      studio: 'Bubba Studios', volatility: 'Media-alta',
+      tag: 'Cascadas · infectados que persiguen radios', rtpValue: 0.9650, rtp: 'RTP 96,5%',
       maxWin: 5000, badge: 'new', art: 'linear-gradient(135deg,#061418,#244e40 60%,#c5aa69)',
       desc: 'La cacería: los infectados se mueven y acumulan potencia',
       frameUrl: 'games/slots/index.html?game=zonamuerta'
     },
     {
       id: 'lafamilia', engine: 'proveedor', name: 'La Familia', kind: 'Tragamonedas',
-      studio: 'Bubba Studios', volatility: 'Sin verificar',
-      tag: '20 líneas · guerra de bandas · bóveda final', rtpValue: null, rtp: 'RTP pendiente de verificación',
+      studio: 'Bubba Studios', volatility: 'Alta',
+      tag: '20 líneas · guerra de bandas · bóveda final', rtpValue: 0.9647, rtp: 'RTP 96,5%',
       maxWin: 5000, badge: 'new', art: 'linear-gradient(135deg,#170b12,#632a35 60%,#d7b06a)',
       desc: 'Vencé cuatro bandas y abrí la bóveda del Don',
       frameUrl: 'games/slots/index.html?game=lafamilia'
     },
     {
       id: 'cataratas', engine: 'proveedor', name: 'Las Cataratas', kind: 'Tragamonedas',
-      studio: 'Bubba Studios', volatility: 'Sin verificar',
-      tag: 'Hasta 117.649 caminos · tope 10.000x', rtpValue: null, rtp: 'RTP pendiente de verificación',
+      studio: 'Bubba Studios', volatility: 'Muy alta',
+      tag: 'Hasta 117.649 caminos · tope 10.000x', rtpValue: 0.9647, rtp: 'RTP 96,5%',
       maxWin: 10000, badge: 'new',
       art: 'linear-gradient(135deg,#05140f,#1f8a78 55%,#e7c873)',
       desc: 'Cada cascada suma al multiplicador',
       frameUrl: 'games/slots/index.html?game=cataratas'
+    },
+    {
+      id: 'dunas', engine: 'proveedor', name: 'Las Dunas', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Media-alta',
+      tag: '15 líneas · pilotos pegajosos · tope 5.000x', rtpValue: 0.9659, rtp: 'RTP 96,6%',
+      maxWin: 5000, badge: 'new',
+      art: 'linear-gradient(135deg,#140a08,#e8803c 55%,#ffd2a0)',
+      desc: 'Los pilotos se plantan hasta el final',
+      frameUrl: 'games/slots/index.html?game=dunas'
+    },
+    {
+      id: 'granpremio', engine: 'proveedor', name: 'El Gran Premio', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Alta',
+      tag: 'Hasta 117.649 caminos · la marcha no baja · tope 5.000x', rtpValue: 0.9664, rtp: 'RTP 96,6%',
+      maxWin: 5000, badge: 'new',
+      art: 'linear-gradient(135deg,#100c08,#d9963c 55%,#ffe1a8)',
+      desc: 'Cada cascada sube una marcha',
+      frameUrl: 'games/slots/index.html?game=granpremio'
     },
     /* Los originales del proveedor: Crash, Mines y Plinko con arte pintado.
        Su RTP es el mismo para cualquier estrategia (ver la ficha del juego). */
@@ -339,6 +357,8 @@ window.MCCatalog = (function () {
      (la escena de environments.png y el sprite de la portada). Los
      numeros —RTP, premio maximo— salen de la ficha del juego, no de aca. */
   var GAME_BANNERS = [
+    { game: 'granpremio', scene: 'granpremio', kicker: 'Recién abierto', side: ['La marcha', 'no baja'], chip: '117.649 caminos' },
+    { game: 'dunas',    scene: 'dunas',   kicker: 'Recién abierto', side: ['Pilotos', 'pegajosos'], chip: 'La travesía' },
     { game: 'zonamuerta', scene: 'zonamuerta', kicker: 'Alerta roja', side: ['La', 'cacería'], chip: 'Infectados que evolucionan' },
     { game: 'lafamilia', scene: 'lafamilia', kicker: 'Un asunto de familia', side: ['Guerra de', 'familias'], chip: 'Cuatro bandas y la bóveda' },
     { game: 'cataratas', scene: 'cataratas', kicker: 'Recién abierto', side: ['117.649', 'caminos'], chip: 'Cascadas' },

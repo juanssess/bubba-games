@@ -4,7 +4,7 @@
   'use strict';
   try {
     if (localStorage.getItem('bubba.spin-pace.v1')) return;
-    ['classic20','sebusca','vendimia','kiosco','feria','carnaval','cataratas'].forEach(function (id) {
+    ['classic20','sebusca','vendimia','kiosco','feria','carnaval','cataratas','dunas','granpremio'].forEach(function (id) {
       localStorage.setItem('turbo.' + id, '0');
     });
     localStorage.setItem('bubba.spin-pace.v1', '1');

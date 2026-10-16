@@ -57,6 +57,8 @@ window.MCCasa = (function () {
     cataratas: 'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
     ruta40:    'se aplica al acreditar: el juego corre aparte y muestra sus multiplicadores de fábrica',
     famatina:  'se aplica al acreditar: el juego corre aparte y muestra sus multiplicadores de fábrica',
+    dunas:     'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
+    granpremio: 'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
     kermes:    'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica'
   };
 

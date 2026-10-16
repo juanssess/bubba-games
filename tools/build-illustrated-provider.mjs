@@ -86,8 +86,8 @@ await build({
     },
     transformIndexHtml(html) {
       return { html: html.replace(/\r\n?/g, '\n'), tags: [
-        { tag: 'script', attrs: { src: '../../src/core/spin-pace.js?v=2' }, injectTo: 'head-prepend' },
-        { tag: 'script', attrs: { src: '../../src/core/soundtracks.js?v=2' }, injectTo: 'head-prepend' },
+        { tag: 'script', attrs: { src: '../../src/core/spin-pace.js?v=3' }, injectTo: 'head-prepend' },
+        { tag: 'script', attrs: { src: '../../src/core/soundtracks.js?v=3' }, injectTo: 'head-prepend' },
         { tag: 'script', attrs: { src: '../../src/core/noir-survival-soundtracks.js?v=1' }, injectTo: 'head-prepend' },
         { tag: 'script', attrs: { src: '../../src/core/audio.js?v=83' }, injectTo: 'head-prepend' },
         { tag: 'script', attrs: { src: '../../src/core/provider-audio.js?v=2' }, injectTo: 'head-prepend' },

@@ -184,6 +184,25 @@ window.MCAsistenteSaber = (function () {
       consejo: 'Volatilidad alta: las columnas altas y las cascadas largas de la función son las que pagan. ' +
         'La apuesta ante pone un medallón más por columna.'
     },
+    dunas: {
+      alias: ['dunas', 'las dunas', 'moto', 'motos', 'piloto', 'pilotos', 'travesia', 'travesía'],
+      como: 'Tragamonedas de 15 líneas con <em>pilotos</em> como comodines. En los giros gratis cada piloto que ' +
+        'cae <strong>se planta</strong> con su multiplicador hasta el final de la travesía.',
+      paga: function (g) {
+        return 'Los multiplicadores de los pilotos de una misma línea se multiplican entre sí. Máximo ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Volatilidad media-alta: más pareja que Se Busca, con la misma idea de comodines que se quedan.'
+    },
+    granpremio: {
+      alias: ['gran premio', 'el gran premio', 'granpremio', 'autos', 'carrera', 'marcha'],
+      como: 'Seis columnas que cambian de alto en cada jugada, de 2 a 7 símbolos: hasta 117.649 caminos. Paga un ' +
+        'símbolo en columnas <strong>seguidas desde la izquierda</strong>, y lo que gana se va en cascada.',
+      paga: function (g) {
+        return 'En los giros gratis <strong>cada cascada sube una marcha</strong>: el multiplicador suma uno y no ' +
+          'vuelve atrás en toda la carrera. Máximo ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Volatilidad alta: las funciones largas, con muchas cascadas, son las que pagan.'
+    },
     ruta40: {
       alias: ['ruta 40', 'ruta40', 'camion', 'camión', 'rally', 'motor'],
       como: 'Un crash: el camión sale por la Ruta 40 y el multiplicador sube con cada kilómetro hasta que ' +
