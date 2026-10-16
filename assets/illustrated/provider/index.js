@@ -39,6 +39,19 @@ window.MCProviderArt = {
     "detail": "La Escalinata decidió tu bonus.",
     "tint": 11141088
   },
+  "dunas": {
+    "title": "Las Dunas",
+    "verified": true,
+    "rtpValue": 0.9659018995760058,
+    "volatility": "media-alta",
+    "symbols": "dunas-symbols.png",
+    "scene": "dunas-scene.jpg",
+    "cols": 6,
+    "rows": 2,
+    "cover": 1,
+    "detail": "Los pilotos que caen se plantan hasta el final de la travesía.",
+    "tint": 16763034
+  },
   "famatina": {
     "title": "Famatina",
     "verified": true,
@@ -64,6 +77,19 @@ window.MCProviderArt = {
     "cover": 1,
     "detail": "Las monedas se quedan: cada una nueva vuelve los re-giros a tres.",
     "tint": 16769704
+  },
+  "granpremio": {
+    "title": "El Gran Premio",
+    "verified": true,
+    "rtpValue": 0.9664008658795401,
+    "volatility": "alta",
+    "symbols": "granpremio-symbols.png",
+    "scene": "granpremio-scene.jpg",
+    "cols": 6,
+    "rows": 2,
+    "cover": 1,
+    "detail": "Cada cascada sube la marcha: suma uno al multiplicador, y el multiplicador no vuelve atrás en toda la función.",
+    "tint": 16763274
   },
   "kermes": {
     "title": "La Kermés",
