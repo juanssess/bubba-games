@@ -2,6 +2,10 @@
  * Compila el proveedor (Juegos Casinos) para el casino.
  *
  *   node tools/build-illustrated-provider.mjs [ruta-a-Juegos-Casinos] [--sin-qa]
+ *   node tools/build-illustrated-provider.mjs --games=published,zonamuerta,lafamilia
+ *
+ * --games valida y compila solo esa selección; published conserva los títulos
+ * ya exportados. Permite trabajar con otros juegos aún en desarrollo.
  *
  * Desde la Fase 2 el arte pintado de cada juego viaja en su propio paquete y
  * el cliente lo carga solo; los ajustes visuales que antes se parcheaban acá
@@ -23,6 +27,16 @@ import { execFileSync } from 'node:child_process';
 const casino = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const providerArg = process.argv.slice(2).find((a) => !a.startsWith('--'));
 const provider = resolve(providerArg || resolve(casino, '../Juegos Casinos'));
+// Explicit selection keeps other authors' unfinished games out of this build.
+// "published" retains every title already exported to the live catalogue.
+const gamesFlag = process.argv.find((a) => a.startsWith('--games='));
+const artIndexPath = resolve(casino, 'assets/illustrated/provider/index.js');
+const beforeArt = readFileSync(artIndexPath, 'utf8');
+const beforeClient = readFileSync(resolve(casino, 'games/slots/index.html'), 'utf8');
+const published = JSON.parse(beforeArt.match(/window\.MCProviderArt = ([\s\S]*);\s*$/)[1]);
+const selected = gamesFlag ? [...new Set(gamesFlag.slice(8).split(',').flatMap((id) => id === 'published' ? Object.keys(published) : [id]))] : null;
+if (selected && (!selected.length || selected.some((id) => !/^[a-z][a-z0-9]{2,23}$/.test(id)))) throw new Error('Invalid --games selection.');
+const artOutput = selected ? resolve(casino, 'tmp/illustrated-art-selected') : resolve(casino, 'assets/illustrated/provider');
 
 // Sin QA aprobado y vigente, ningún juego del proveedor entra al casino.
 // --sin-qa es solo para pruebas locales: no publicar ese build.
@@ -30,7 +44,7 @@ if (process.argv.includes('--sin-qa')) {
   console.warn('\n--sin-qa: se compila SIN verificar el QA del proveedor. No publicar este build.\n');
 } else {
   try {
-    execFileSync(process.execPath, [resolve(provider, 'tools/qa-check.ts')], { stdio: 'inherit', cwd: provider });
+    execFileSync(process.execPath, [resolve(provider, 'tools/qa-check.ts'), ...(selected || [])], { stdio: 'inherit', cwd: provider });
   } catch {
     process.exit(1);
   }
@@ -38,17 +52,19 @@ if (process.argv.includes('--sin-qa')) {
 
 // El arte de los juegos, para el lobby (portadas, banners, MCCinema): lo
 // exporta el proveedor con un índice que lee illustrated-art.js.
-execFileSync(process.execPath, [resolve(provider, 'tools/art-export.ts'), resolve(casino, 'assets/illustrated/provider')], { stdio: 'inherit', cwd: provider });
+execFileSync(process.execPath, [resolve(provider, 'tools/art-export.ts'), artOutput, ...(selected ? ['--only=' + selected.join(',')] : [])], { stdio: 'inherit', cwd: provider });
 
 const { build, transformWithOxc } = await import(pathToFileURL(resolve(provider, 'node_modules/vite/dist/node/index.js')).href);
 const target = resolve(casino, 'games/slots');
-const output = resolve(casino, 'tmp/illustrated-provider');
+const output = resolve(casino, selected ? 'tmp/illustrated-provider-selected' : 'tmp/illustrated-provider');
 if (!output.startsWith(casino + '/') && !output.startsWith(casino + '\\')) throw new Error('Build output must stay in the workspace.');
 
 let replaced = false;
 let audioReplaced = false;
 let themeReplaced = false;
 let holdPaceReplaced = false;
+let selectedGamesReplaced = false;
+let selectedArtReplaced = false;
 await build({
   configFile: false,
   root: resolve(provider, 'apps/client'),
@@ -72,15 +88,35 @@ await build({
       return { html, tags: [
         { tag: 'script', attrs: { src: '../../src/core/spin-pace.js?v=2' }, injectTo: 'head-prepend' },
         { tag: 'script', attrs: { src: '../../src/core/soundtracks.js?v=2' }, injectTo: 'head-prepend' },
+        { tag: 'script', attrs: { src: '../../src/core/noir-survival-soundtracks.js?v=1' }, injectTo: 'head-prepend' },
         { tag: 'script', attrs: { src: '../../src/core/audio.js?v=83' }, injectTo: 'head-prepend' },
         { tag: 'script', attrs: { src: '../../src/core/provider-audio.js?v=2' }, injectTo: 'head-prepend' },
         { tag: 'link', attrs: { rel: 'stylesheet', href: '../../src/styles/games/cinema.css?v=5' }, injectTo: 'head' },
         { tag: 'script', attrs: { src: '../../src/ui/cinema.js?v=7' }, injectTo: 'head-prepend' },
         // El índice del arte de los juegos: MCCinema lo usa también dentro del juego.
-        { tag: 'script', attrs: { src: '../../assets/illustrated/provider/index.js?v=3' }, injectTo: 'head-prepend' },
+        { tag: 'script', attrs: { src: '../../assets/illustrated/provider/index.js?v=4' }, injectTo: 'head-prepend' },
       ] };
     },
     transform(source, id) {
+      const cleanId = id.replaceAll('\\', '/');
+      if (selected && cleanId.endsWith('/apps/client/src/games.ts')) {
+        if (source.split("'../../../packages/games/*/src/manifest.ts'").length !== 2 || source.split("'./skins/*.ts'").length !== 2) {
+          throw new Error('Cambió el descubrimiento de juegos; no se puede garantizar la selección.');
+        }
+        selectedGamesReplaced = true;
+        return source
+          .replace("'../../../packages/games/*/src/manifest.ts'", JSON.stringify(selected.map((game) => `../../../packages/games/${game}/src/manifest.ts`)))
+          .replace("'./skins/*.ts'", JSON.stringify(selected.map((game) => `./skins/${game}.ts`)));
+      }
+      if (selected && cleanId.endsWith('/apps/client/src/render/painted.ts')) {
+        if (source.split("'../../../../packages/games/*/art/art.json'").length !== 2 || source.split("'../../../../packages/games/*/art/*.{png,jpg}'").length !== 2) {
+          throw new Error('Cambió el descubrimiento de arte; no se puede garantizar la selección.');
+        }
+        selectedArtReplaced = true;
+        return source
+          .replace("'../../../../packages/games/*/art/art.json'", JSON.stringify(selected.map((game) => `../../../../packages/games/${game}/art/art.json`)))
+          .replace("'../../../../packages/games/*/art/*.{png,jpg}'", JSON.stringify(selected.map((game) => `../../../../packages/games/${game}/art/*.{png,jpg}`)));
+      }
       if (id === '\0bubba-theme-base') return transformWithOxc(source, 'bubba-theme-base.ts', {sourcemap:false});
       if (id.replaceAll('\\', '/').endsWith('/apps/client/src/render/theme.ts')) {
         themeReplaced = true;
@@ -108,6 +144,13 @@ await build({
 if (!replaced) throw new Error('No se reemplazó apps/client/src/presentation.ts: el proveedor cambió de forma. No se publicó nada.');
 if (!audioReplaced) throw new Error('No se conectó el audio del proveedor. No se publicó nada.');
 if (!themeReplaced || !holdPaceReplaced) throw new Error('No se aplicó el ritmo de giro del casino. No se publicó nada.');
+if (selected) {
+  if (!selectedGamesReplaced || !selectedArtReplaced) throw new Error('No se aplicó la selección de juegos y arte. No se publicó nada.');
+  if (readFileSync(artIndexPath, 'utf8') !== beforeArt || readFileSync(resolve(target, 'index.html'), 'utf8') !== beforeClient) {
+    throw new Error('Otro trabajo publicó juegos durante la compilación. Volvé a compilar para conservar esos cambios.');
+  }
+  cpSync(artOutput, resolve(casino, 'assets/illustrated/provider'), { recursive: true });
+}
 
 const backup = resolve(casino, 'backups/provider-before-illustrated.html');
 mkdirSync(dirname(backup), { recursive: true });

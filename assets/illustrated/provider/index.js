@@ -91,6 +91,19 @@ window.MCProviderArt = {
     "detail": "Las bombas multiplican cada caída que paga.",
     "tint": 16763110
   },
+  "lafamilia": {
+    "title": "La Familia",
+    "verified": true,
+    "rtpValue": 0.9658706353372226,
+    "volatility": "alta",
+    "symbols": "lafamilia-symbols.png",
+    "scene": "lafamilia-scene.jpg",
+    "cols": 6,
+    "rows": 2,
+    "cover": 1,
+    "detail": "Las bolsas quedan en la caja fuerte. Cada bolsa nueva devuelve los tres intentos.",
+    "tint": 16766102
+  },
   "ruta40": {
     "title": "Ruta 40",
     "verified": true,
@@ -129,5 +142,18 @@ window.MCProviderArt = {
     "cover": 1,
     "detail": "Cada cascada continúa la cosecha.",
     "tint": 14270719
+  },
+  "zonamuerta": {
+    "title": "Zona Muerta",
+    "verified": true,
+    "rtpValue": 0.9650132635066252,
+    "volatility": "media-alta",
+    "symbols": "zonamuerta-symbols.png",
+    "scene": "zonamuerta-scene.jpg",
+    "cols": 6,
+    "rows": 2,
+    "cover": 1,
+    "detail": "Resistí la última noche: las cascadas suben la defensa y el multiplicador.",
+    "tint": 12774852
   }
 };

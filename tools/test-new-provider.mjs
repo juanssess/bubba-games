@@ -19,7 +19,7 @@ try {
   await page.waitForFunction(()=>window.MCCatalog&&document.querySelectorAll('.gcard').length>0);
   await page.evaluate(()=>{MC.closeModal();MC.addBalance(1000000);});
   const manifest=await page.evaluate(()=>Object.values(MCProviderArt));
-  assert.equal(manifest.length,10,'All ten provider games were exported');
+  assert.ok(manifest.length>=10,'The published provider catalogue keeps all ten original games');
   assert.ok(manifest.every(m=>m.verified===true&&Number.isFinite(m.rtpValue)),'Export contains approved measured metadata');
   for(const id of ['cataratas','ruta40','famatina','kermes']) {
     const game=await page.evaluate(id=>({pending:MC.getGame(id).pending,rtp:MC.getGame(id).rtpValue,published:MCProviderArt[id].rtpValue}),id);

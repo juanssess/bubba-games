@@ -136,6 +136,22 @@ window.MCCatalog = (function () {
       frameUrl: 'games/slots/index.html?game=carnaval'
     },
     {
+      id: 'zonamuerta', engine: 'proveedor', name: 'Zona Muerta', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Sin verificar',
+      tag: 'Cascadas · la última noche · tres refugios', rtpValue: null, rtp: 'RTP pendiente de verificación',
+      maxWin: 5000, badge: 'new', art: 'linear-gradient(135deg,#061418,#244e40 60%,#c5aa69)',
+      desc: 'Reforzá la defensa con cada cascada',
+      frameUrl: 'games/slots/index.html?game=zonamuerta'
+    },
+    {
+      id: 'lafamilia', engine: 'proveedor', name: 'La Familia', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Sin verificar',
+      tag: '20 líneas · el golpe al banco · bolsas que se quedan', rtpValue: null, rtp: 'RTP pendiente de verificación',
+      maxWin: 5000, badge: 'new', art: 'linear-gradient(135deg,#170b12,#632a35 60%,#d7b06a)',
+      desc: 'Llená la caja fuerte y completá el golpe',
+      frameUrl: 'games/slots/index.html?game=lafamilia'
+    },
+    {
       id: 'cataratas', engine: 'proveedor', name: 'Las Cataratas', kind: 'Tragamonedas',
       studio: 'Bubba Studios', volatility: 'Sin verificar',
       tag: 'Hasta 117.649 caminos · tope 10.000x', rtpValue: null, rtp: 'RTP pendiente de verificación',
@@ -323,6 +339,8 @@ window.MCCatalog = (function () {
      (la escena de environments.png y el sprite de la portada). Los
      numeros —RTP, premio maximo— salen de la ficha del juego, no de aca. */
   var GAME_BANNERS = [
+    { game: 'zonamuerta', scene: 'zonamuerta', kicker: 'La última noche', side: ['Tres', 'refugios'], chip: 'Cascadas de supervivencia' },
+    { game: 'lafamilia', scene: 'lafamilia', kicker: 'Un asunto de familia', side: ['El golpe', 'al banco'], chip: 'Llená la caja fuerte' },
     { game: 'cataratas', scene: 'cataratas', kicker: 'Recién abierto', side: ['117.649', 'caminos'], chip: 'Cascadas' },
     { game: 'ruta40',   scene: 'ruta40',  kicker: 'Original', side: ['Crash', 'hasta x10.000'], chip: 'Retirate a tiempo' },
     { game: 'carnaval', scene: 'carnaval', kicker: 'Lo nuevo', side: ['Multiplicadores', 'que se suman'], chip: '8 en cualquier lado' },
