@@ -172,6 +172,53 @@ window.MCAsistenteSaber = (function () {
       consejo: 'Volatilidad alta: el valor está en una función larga que junte multiplicadores temprano. ' +
         'La apuesta ante hace que la función salga más seguido.'
     },
+    cataratas: {
+      alias: ['cataratas', 'las cataratas', 'iguazu', 'iguazú', 'caminos', 'megaways', 'garganta del diablo'],
+      como: 'Seis columnas que cambian de alto en cada jugada: cada una muestra de 2 a 7 símbolos, y paga un ' +
+        'símbolo que aparece en columnas <strong>seguidas desde la izquierda</strong>, por cada camino que forme. ' +
+        'Con todas en siete son 117.649 caminos. Lo que gana se va y cae lo de arriba.',
+      paga: function (g) {
+        return 'Cuatro medallones dan 12 giros gratis. Ahí <strong>cada cascada que gana suma uno al ' +
+          'multiplicador</strong>, y el multiplicador no vuelve atrás en toda la función. Máximo ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Volatilidad alta: las columnas altas y las cascadas largas de la función son las que pagan. ' +
+        'La apuesta ante pone un medallón más por columna.'
+    },
+    ruta40: {
+      alias: ['ruta 40', 'ruta40', 'camion', 'camión', 'rally', 'motor'],
+      como: 'Un crash: el camión sale por la Ruta 40 y el multiplicador sube con cada kilómetro hasta que ' +
+        'el motor se funde. Te retirás cuando quieras —o dejás un <em>retiro automático</em>— y cobrás ' +
+        'el multiplicador de ese momento. Si el motor se funde antes, perdés la apuesta.',
+      paga: function (g) {
+        return 'Devuelve el 97 % para <strong>cualquier</strong> retiro: retirarse en ×2 gana la mitad de las ' +
+          'veces que retirarse en ×1, pero paga el doble. El máximo es ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Ninguna estrategia cambia el retorno: elegí el retiro por cómo querés que se mueva tu saldo, ' +
+        'bajo para jugadas largas, alto para buscar el golpe.'
+    },
+    famatina: {
+      alias: ['famatina', 'mina de oro', 'dinamita', 'pepita', 'pepitas'],
+      como: 'Un tablero de 5×5 rocas en la mina de Famatina. Elegís cuántas cargas de <em>dinamita</em> hay ' +
+        '(de 1 a 24) y destapás rocas: cada <strong>pepita de oro</strong> sube el multiplicador, y podés ' +
+        'cobrar cuando quieras. La dinamita se lleva la apuesta.',
+      paga: function (g) {
+        return 'Devuelve el 97 % para cualquier cantidad de cargas y cualquier momento de cobro. Con más cargas ' +
+          'cada pepita sube más. Máximo ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Pocas cargas y cobrar seguido es lo más parejo; muchas cargas, lo más explosivo. ' +
+        'El retorno es el mismo: cambia el viaje.'
+    },
+    kermes: {
+      alias: ['kermes', 'kermés', 'la kermes', 'la kermés', 'plinko', 'bolita', 'clavos'],
+      como: 'La bolita de la kermés: cae entre clavos y termina en un casillero de abajo, que paga lo que ' +
+        'dice. Elegís cuántas filas (8, 12 o 16) y el <em>riesgo</em>: con bajo casi todo devuelve algo, ' +
+        'con alto el centro paga poco y las puntas mucho.',
+      paga: function (g) {
+        return 'Todas las tablas devuelven el 97 %. Con 16 filas y riesgo alto las puntas pagan ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Riesgo bajo para que el saldo dure, alto para buscar las puntas. Se pueden tirar varias ' +
+        'bolitas seguidas sin esperar.'
+    },
     feria: {
       alias: ['feria', 'la feria', 'hold and win', 'hold & win', 'monedas', 'san telmo', 'grand'],
       como: 'Tragamonedas de 5×3 con 20 líneas. Las <em>monedas</em> traen un valor: con <strong>seis o ' +

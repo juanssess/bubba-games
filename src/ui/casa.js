@@ -53,7 +53,11 @@ window.MCCasa = (function () {
     vendimia:  'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
     kiosco:    'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
     feria:     'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
-    carnaval:  'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica'
+    carnaval:  'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
+    cataratas: 'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica',
+    ruta40:    'se aplica al acreditar: el juego corre aparte y muestra sus multiplicadores de fábrica',
+    famatina:  'se aplica al acreditar: el juego corre aparte y muestra sus multiplicadores de fábrica',
+    kermes:    'se aplica al acreditar: el juego corre aparte y muestra su tabla de fábrica'
   };
 
   /* Blackjack es el único donde el factor no da el RTP exacto, y el
