@@ -245,7 +245,13 @@ window.MCCatalog = (function () {
     if (g.engine === 'proveedor') {
       var match = (g.frameUrl || '').match(/[?&]game=([^&]+)/);
       var art = window.MCProviderArt || {};
-      g.pending = !match || !art[match[1]] || !Number.isFinite(g.rtpValue) || g.rtpValue <= 0;
+      var published = match && art[match[1]];
+      if (published && published.verified === true && Number.isFinite(published.rtpValue)) {
+        g.rtpValue = published.rtpValue;
+        g.rtp = 'RTP ' + (g.rtpValue * 100).toFixed(1).replace('.', ',') + '%';
+        g.volatility = published.volatility || g.volatility;
+      }
+      g.pending = !published || published.verified === false || !Number.isFinite(g.rtpValue) || g.rtpValue <= 0;
       if (g.pending) g.hidden = true;
     }
     if (OCULTOS.indexOf(g.id) >= 0) g.hidden = true;

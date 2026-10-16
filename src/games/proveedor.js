@@ -135,6 +135,9 @@ window.MCProveedor = (function () {
           break;
         }
         MC.addBalance(-d.amount);
+        // Lock navigation as soon as a debit is accepted, including the time
+        // before an interactive game finishes setting up its pending round.
+        jugando = true;
         MC.sound.unlock();
         if (!el.frame.contentWindow.MCThemedAudio) MC.sound.spin();
         responder(d.id, true);
@@ -221,7 +224,7 @@ window.MCProveedor = (function () {
        vez de la suya. `rtp` le pasa el retorno que la casa publica, para
        que pueda aplicarlo en su propia tabla: ver el contrato arriba. */
     var sep = meta.frameUrl.indexOf('?') === -1 ? '?' : '&';
-    el.frame.src = meta.frameUrl + sep + 'wallet=parent&rtp=' + factor();
+    el.frame.src = meta.frameUrl + sep + 'wallet=parent&rtp=' + factor() + '&build=84';
   }
 
   // Al salir se descarga el iframe. Sin esto el juego sigue corriendo

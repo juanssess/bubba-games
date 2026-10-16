@@ -2,6 +2,9 @@
 window.MCProviderArt = {
   "carnaval": {
     "title": "El Carnaval",
+    "verified": true,
+    "rtpValue": 0.9648857938243761,
+    "volatility": "alta",
     "symbols": "carnaval-symbols.png",
     "scene": "carnaval-scene.jpg",
     "cols": 6,
@@ -10,8 +13,24 @@ window.MCProviderArt = {
     "detail": "Los multiplicadores se acumulan: cada secuencia que gana con esferas suma al total.",
     "tint": 16759020
   },
+  "cataratas": {
+    "title": "Las Cataratas",
+    "verified": true,
+    "rtpValue": 0.9647256666721331,
+    "volatility": "muy alta",
+    "symbols": "cataratas-symbols.png",
+    "scene": "cataratas-scene.jpg",
+    "cols": 6,
+    "rows": 2,
+    "cover": 1,
+    "detail": "Cada cascada suma uno al multiplicador, y el multiplicador no vuelve atrás en toda la función.",
+    "tint": 11075568
+  },
   "classic20": {
     "title": "Maverick",
+    "verified": true,
+    "rtpValue": 0.9666453531052618,
+    "volatility": "media-alta",
     "symbols": "classic20-symbols.png",
     "scene": "classic20-scene.jpg",
     "cols": 6,
@@ -20,8 +39,24 @@ window.MCProviderArt = {
     "detail": "La Escalinata decidió tu bonus.",
     "tint": 11141088
   },
+  "famatina": {
+    "title": "Famatina",
+    "verified": true,
+    "rtpValue": 0.9699999999999999,
+    "volatility": "baja",
+    "symbols": "famatina-symbols.png",
+    "scene": "famatina-scene.jpg",
+    "cols": 6,
+    "rows": 1,
+    "cover": 1,
+    "detail": "Cada pepita sube el multiplicador. Una carga de dinamita se lleva la apuesta.",
+    "tint": 16767120
+  },
   "feria": {
     "title": "La Feria",
+    "verified": true,
+    "rtpValue": 0.965289465625,
+    "volatility": "alta",
     "symbols": "feria-symbols.png",
     "scene": "feria-scene.jpg",
     "cols": 6,
@@ -30,8 +65,24 @@ window.MCProviderArt = {
     "detail": "Las monedas se quedan: cada una nueva vuelve los re-giros a tres.",
     "tint": 16769704
   },
+  "kermes": {
+    "title": "La Kermés",
+    "verified": true,
+    "rtpValue": 0.9696875,
+    "volatility": "baja",
+    "symbols": "kermes-symbols.png",
+    "scene": "kermes-scene.jpg",
+    "cols": 6,
+    "rows": 1,
+    "cover": 1,
+    "detail": "La bolita cae entre los clavos. Con riesgo alto, las puntas pagan hasta 1.000×.",
+    "tint": 16773296
+  },
   "kiosco": {
     "title": "El Kiosco",
+    "verified": true,
+    "rtpValue": 0.9652048536770739,
+    "volatility": "alta",
     "symbols": "kiosco-symbols.png",
     "scene": "kiosco-scene.jpg",
     "cols": 6,
@@ -40,8 +91,24 @@ window.MCProviderArt = {
     "detail": "Las bombas multiplican cada caída que paga.",
     "tint": 16763110
   },
+  "ruta40": {
+    "title": "Ruta 40",
+    "verified": true,
+    "rtpValue": 0.9699910879135132,
+    "volatility": "baja",
+    "symbols": "ruta40-symbols.png",
+    "scene": "ruta40-scene.jpg",
+    "cols": 6,
+    "rows": 1,
+    "cover": 1,
+    "detail": "El multiplicador sube con cada kilómetro. Retirate antes de que se funda el motor.",
+    "tint": 16763024
+  },
   "sebusca": {
     "title": "Se Busca",
+    "verified": true,
+    "rtpValue": 0.9659237039876013,
+    "volatility": "muy alta",
     "symbols": "sebusca-symbols.png",
     "scene": "sebusca-scene.jpg",
     "cols": 6,
@@ -52,6 +119,9 @@ window.MCProviderArt = {
   },
   "vendimia": {
     "title": "La Vendimia",
+    "verified": true,
+    "rtpValue": 0.9650488860104178,
+    "volatility": "media-alta",
     "symbols": "vendimia-symbols.png",
     "scene": "vendimia-scene.jpg",
     "cols": 6,
