@@ -70,4 +70,6 @@ body[data-bonus-theme] #stage canvas{filter:saturate(1.16)}
 .cinema--zonamuerta{--cinema-gold:#ffb1a6;--cinema-accent:#ff756e;background:radial-gradient(ellipse at 50% 36%,#5e1523eb,#12090ef5 75%)}
 .cinema--lafamilia{--cinema-gold:#ffe0a6;--cinema-accent:#e1b66d;background:radial-gradient(ellipse at 50% 36%,#492030eb,#120910f5 75%)}
 .cinema--dunas{--cinema-gold:#ffd2a0;--cinema-accent:#e8803c;background:radial-gradient(ellipse at 50% 36%,#4a2416eb,#140a08f5 75%)}
+.cinema--glaciar{--cinema-gold:#e6f4ff;--cinema-accent:#7fc8f0;background:radial-gradient(ellipse at 50% 36%,#163450eb,#06101cf5 75%)}
+.cinema--milonga{--cinema-gold:#f2c14e;--cinema-accent:#c8303c;background:radial-gradient(ellipse at 50% 36%,#4a1018eb,#0e0406f5 75%)}
 .cinema--granpremio{--cinema-gold:#ffe1a8;--cinema-accent:#d9963c;background:radial-gradient(ellipse at 50% 36%,#3e2a18eb,#100c08f5 75%)}

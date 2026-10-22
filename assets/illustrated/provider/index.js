@@ -78,6 +78,19 @@ window.MCProviderArt = {
     "detail": "Las monedas se quedan: cada una nueva vuelve los re-giros a tres.",
     "tint": 16769704
   },
+  "glaciar": {
+    "title": "El Glaciar",
+    "verified": true,
+    "rtpValue": 0.9633776397477354,
+    "volatility": "media-alta",
+    "symbols": "glaciar-symbols.png",
+    "scene": "glaciar-scene.jpg",
+    "cols": 6,
+    "rows": 2,
+    "cover": 1,
+    "detail": "Las monedas de hielo se quedan: cada una nueva vuelve los re-giros a tres.",
+    "tint": 13167871
+  },
   "granpremio": {
     "title": "El Gran Premio",
     "verified": true,
@@ -129,6 +142,19 @@ window.MCProviderArt = {
     "cover": 1,
     "detail": "Guerra de familias: juntá balas, vencé cuatro bandas y ascendé sus símbolos a jefes. Cada victoria da giros extra; al vencer al Don, los jefes cobran cajas fuertes por fila.",
     "tint": 16766102
+  },
+  "milonga": {
+    "title": "La Milonga",
+    "verified": true,
+    "rtpValue": 0.9645779430399074,
+    "volatility": "alta",
+    "symbols": "milonga-symbols.png",
+    "scene": "milonga-scene.jpg",
+    "cols": 6,
+    "rows": 2,
+    "cover": 1,
+    "detail": "Cada cascada sube la escalera, de ×1 a ×100, y en la función no vuelve atrás.",
+    "tint": 16761520
   },
   "ruta40": {
     "title": "Ruta 40",

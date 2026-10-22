@@ -178,6 +178,24 @@ window.MCCatalog = (function () {
       desc: 'Cada cascada sube una marcha',
       frameUrl: 'games/slots/index.html?game=granpremio'
     },
+    {
+      id: 'glaciar', engine: 'proveedor', name: 'El Glaciar', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Media-alta',
+      tag: 'Hold & Win · monedas de hielo · Grand 2.500x', rtpValue: 0.9634, rtp: 'RTP 96,3%',
+      maxWin: 2500, badge: 'new',
+      art: 'linear-gradient(135deg,#06101c,#2f5878 55%,#cfe6f5)',
+      desc: 'Las monedas de hielo se quedan',
+      frameUrl: 'games/slots/index.html?game=glaciar'
+    },
+    {
+      id: 'milonga', engine: 'proveedor', name: 'La Milonga', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Alta',
+      tag: 'Racimos · escalera hasta x100 · tope 10.000x', rtpValue: 0.9646, rtp: 'RTP 96,5%',
+      maxWin: 10000, badge: 'new',
+      art: 'linear-gradient(135deg,#0e0406,#5a1a22 55%,#e0b768)',
+      desc: 'Cada cascada sube la escalera',
+      frameUrl: 'games/slots/index.html?game=milonga'
+    },
     /* Los originales del proveedor: Crash, Mines y Plinko con arte pintado.
        Su RTP es el mismo para cualquier estrategia (ver la ficha del juego). */
     {
@@ -365,6 +383,8 @@ window.MCCatalog = (function () {
      (la escena de environments.png y el sprite de la portada). Los
      numeros —RTP, premio maximo— salen de la ficha del juego, no de aca. */
   var GAME_BANNERS = [
+    { game: 'milonga',  scene: 'milonga', kicker: 'Recién abierto', side: ['Escalera', 'hasta x100'], chip: 'Racimos de tango' },
+    { game: 'glaciar',  scene: 'glaciar', kicker: 'Recién abierto', side: ['Hold &', 'Win'], chip: 'Monedas de hielo' },
     { game: 'granpremio', scene: 'granpremio', kicker: 'Recién abierto', side: ['La marcha', 'no baja'], chip: '117.649 caminos' },
     { game: 'dunas',    scene: 'dunas',   kicker: 'Recién abierto', side: ['Pilotos', 'pegajosos'], chip: 'La travesía' },
     { game: 'zonamuerta', scene: 'zonamuerta', kicker: 'Alerta roja', side: ['La', 'cacería'], chip: 'Infectados que evolucionan' },

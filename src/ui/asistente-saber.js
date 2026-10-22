@@ -184,6 +184,25 @@ window.MCAsistenteSaber = (function () {
       consejo: 'Volatilidad alta: las columnas altas y las cascadas largas de la función son las que pagan. ' +
         'La apuesta ante pone un medallón más por columna.'
     },
+    glaciar: {
+      alias: ['glaciar', 'el glaciar', 'perito moreno', 'hielo', 'monedas de hielo'],
+      como: 'El Hold & Win de La Feria en el Perito Moreno: 20 líneas, y con <strong>seis o más monedas de hielo</strong> ' +
+        'arranca la función. Las monedas quedan fijas y cada una nueva vuelve los re-giros a tres.',
+      paga: function (g) {
+        return 'Al final se cobra la suma de las monedas. Jackpots Mini (15×), Minor (40×) y Major (150×), y llenar la ' +
+          'pantalla paga el <strong>Grand</strong>: ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Es la versión pareja del Hold & Win: la función sale más seguido que en La Feria (1 de cada ~110) y paga más parejo.'
+    },
+    milonga: {
+      alias: ['milonga', 'la milonga', 'tango', 'san telmo', 'bandoneon'],
+      como: 'Grilla de 6×5 con <em>racimos</em>: cinco o más iguales pegados cobran, se van y cae lo de arriba. ' +
+        'Cada cascada de la misma jugada sube la escalera: ×1, ×2, ×4, ×8, ×15… hasta ×100.',
+      paga: function (g) {
+        return 'Cuatro discos dan 8 giros gratis, y ahí la escalera <strong>no vuelve atrás</strong>. Máximo ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Volatilidad alta: es La Vendimia con la escalera más empinada. Las funciones largas son las que pagan.'
+    },
     dunas: {
       alias: ['dunas', 'las dunas', 'moto', 'motos', 'piloto', 'pilotos', 'travesia', 'travesía'],
       como: 'Tragamonedas de 15 líneas con <em>pilotos</em> como comodines. En los giros gratis cada piloto que ' +

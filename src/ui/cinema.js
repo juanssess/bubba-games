@@ -18,7 +18,9 @@
     zonamuerta: ['ZONA MUERTA', 'LA CACERÍA'],
     lafamilia: ['LA FAMILIA', 'GUERRA DE FAMILIAS'],
     dunas: ['LAS DUNAS', 'LA TRAVESÍA'],
-    granpremio: ['EL GRAN PREMIO', 'LA VUELTA FINAL']
+    granpremio: ['EL GRAN PREMIO', 'LA VUELTA FINAL'],
+    glaciar: ['EL GLACIAR', 'HOLD & WIN'],
+    milonga: ['LA MILONGA', 'LA TANDA']
   };
   var reduced = function () { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; };
   var features = {
@@ -33,10 +35,12 @@
     zonamuerta: ['Los infectados te persiguen', 'Dos wilds persistentes consumen radios, cambian de posición y aumentan su potencia. Cada grupo ganador usa la potencia de los infectados que lo forman.'],
     lafamilia: ['Conquistá la ciudad', 'Las balas vencen bandas, dan giros extra y convierten sus símbolos en Jefes. Al derrotar al Don se abre la bóveda: cada Jefe cobra la caja fuerte de su fila.'],
     dunas: ['Pilotos que se plantan', 'Cada piloto que cae se queda con su multiplicador hasta el final de la travesía.'],
+    glaciar: ['Monedas de hielo', 'Las monedas se quedan: cada una nueva vuelve los re-giros a tres. Llenar la pantalla paga el Grand.'],
+    milonga: ['La escalera de la milonga', 'Cada cascada sube la escalera, de ×1 a ×100, y en la función no vuelve atrás.'],
     granpremio: ['La marcha que no baja', 'Cada cascada que gana sube una marcha: el multiplicador suma uno y no vuelve atrás en toda la carrera.']
   };
   /* Cómo se llaman los giros de la función: en un Hold & Win son re-giros. */
-  var spinWords = { feria: ['RE-GIROS', 're-giros'] };
+  var spinWords = { feria: ['RE-GIROS', 're-giros'], glaciar: ['RE-GIROS', 're-giros'] };
   /* Arte de los juegos del proveedor, exportado con su compilación: la escena
      de fondo y el emblema salen de ahí y no de una regla CSS por juego.
      Maverick, Se Busca y La Vendimia siguen con sus atlas del lobby. */

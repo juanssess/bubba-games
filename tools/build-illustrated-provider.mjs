@@ -86,13 +86,13 @@ await build({
     },
     transformIndexHtml(html) {
       return { html: html.replace(/\r\n?/g, '\n'), tags: [
-        { tag: 'script', attrs: { src: '../../src/core/spin-pace.js?v=3' }, injectTo: 'head-prepend' },
-        { tag: 'script', attrs: { src: '../../src/core/soundtracks.js?v=3' }, injectTo: 'head-prepend' },
+        { tag: 'script', attrs: { src: '../../src/core/spin-pace.js?v=4' }, injectTo: 'head-prepend' },
+        { tag: 'script', attrs: { src: '../../src/core/soundtracks.js?v=5' }, injectTo: 'head-prepend' },
         { tag: 'script', attrs: { src: '../../src/core/noir-survival-soundtracks.js?v=1' }, injectTo: 'head-prepend' },
         { tag: 'script', attrs: { src: '../../src/core/audio.js?v=83' }, injectTo: 'head-prepend' },
         { tag: 'script', attrs: { src: '../../src/core/provider-audio.js?v=2' }, injectTo: 'head-prepend' },
-        { tag: 'link', attrs: { rel: 'stylesheet', href: '../../src/styles/games/cinema.css?v=7' }, injectTo: 'head' },
-        { tag: 'script', attrs: { src: '../../src/ui/cinema.js?v=9' }, injectTo: 'head-prepend' },
+        { tag: 'link', attrs: { rel: 'stylesheet', href: '../../src/styles/games/cinema.css?v=8' }, injectTo: 'head' },
+        { tag: 'script', attrs: { src: '../../src/ui/cinema.js?v=10' }, injectTo: 'head-prepend' },
         // El índice del arte de los juegos: MCCinema lo usa también dentro del juego.
         { tag: 'script', attrs: { src: '../../assets/illustrated/provider/index.js?v=5' }, injectTo: 'head-prepend' },
       ] };
