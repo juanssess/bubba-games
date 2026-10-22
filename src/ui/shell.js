@@ -25,6 +25,7 @@ window.MCShell = (function () {
       scrim.classList.remove('show');
       sidebar.inert = true;
       document.getElementById('menuToggle').setAttribute('aria-expanded', 'false');
+      if (sidebar.contains(document.activeElement)) document.getElementById('menuToggle').focus();
     }
 
     document.getElementById('menuToggle').onclick = function () {
@@ -32,56 +33,33 @@ window.MCShell = (function () {
       scrim.classList.toggle('show');
       sidebar.inert = !sidebar.classList.contains('open');
       this.setAttribute('aria-expanded', String(sidebar.classList.contains('open')));
+      if (sidebar.classList.contains('open')) document.getElementById('sidebarClose').focus();
     };
     scrim.onclick = closeMobile;
+    document.getElementById('sidebarClose').onclick = closeMobile;
+    sidebar.querySelector('.sb-nav').addEventListener('click', function (event) {
+      if (event.target.closest('.sb-item')) closeMobile();
+    });
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape' && sidebar.classList.contains('open')) {
         closeMobile();
         document.getElementById('menuToggle').focus();
       }
-    });
-
-    document.querySelector('.sb-brand').onclick = function () {
-      MC.sound.click();
-      MC.showView('lobby');
-      closeMobile();
-    };
-
-    document.getElementById('sbCount').textContent = MCCatalog.size;
-
-    // Los ítems con data-rail vuelven al lobby y bajan hasta ese riel.
-    document.querySelectorAll('[data-rail]').forEach(function (btn) {
-      // Si todos los juegos de ese riel están ocultos, el riel no existe:
-      // se esconde el botón en vez de dejarlo llevando a la nada.
-      if (!document.getElementById('rail-' + btn.dataset.rail)) {
-        btn.style.display = 'none';
-        return;
+      if (event.key === 'Tab' && sidebar.classList.contains('open')) {
+        var buttons = Array.from(sidebar.querySelectorAll('button, a[href], [tabindex="0"]')).filter(function (el) {
+          return !el.disabled && el.getClientRects().length;
+        });
+        var first = buttons[0];
+        var last = buttons[buttons.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
       }
-      btn.onclick = function () {
-        MC.sound.click();
-        markActive(btn);
-        MC.showView('lobby');
-        closeMobile();
-        MCRails.scrollTo(btn.dataset.rail);
-      };
     });
-
-    document.getElementById('sbCatalog').onclick = function () {
-      markActive(document.getElementById('sbCatalog'));
-      MCActions.run('catalog');
-      closeMobile();
-    };
-    document.getElementById('sbSports').onclick = function () {
-      markActive(document.getElementById('sbSports'));
-      MCActions.run('game:sports');
-      closeMobile();
-    };
+    document.getElementById('sbAccount').onclick = function () { MCCuenta.abrirCuenta(); };
     document.getElementById('sbMissions').onclick = function () {
-      markActive(document.getElementById('sbMissions'));
       MCActions.run('missions');
       closeMobile();
     };
-    document.getElementById('sbCajero').onclick = function () { MC.showView('cajero'); closeMobile(); };
     document.getElementById('sbJackpot').onclick = function () {
       var pozo = MCBote.pozo();
       MC.modal('Bote Bubba',
@@ -120,11 +98,19 @@ window.MCShell = (function () {
     document.getElementById('sbAjustes').onclick = function () { MCAjustes.open(); closeMobile(); };
     document.getElementById('sbStats').onclick = function () { MCEstadisticas.open(); closeMobile(); };
     document.getElementById('sbHelp').onclick = function () { MCModals.openHelp(); closeMobile(); };
+    document.addEventListener('mc:viewchange', function () {
+      var items = { missions:'sbMissions', vip:'sbVip', ranking:'sbRanking', torneo:'sbTorneo', stats:'sbStats', agente:'sbAgente', casa:'sbCasa', ajustes:'sbAjustes' };
+      markActive(document.getElementById(items[MC.getCurrentView()]));
+      closeMobile();
+    });
   }
 
   function markActive(btn) {
-    document.querySelectorAll('.sb-item').forEach(function (b) { b.classList.remove('active'); });
-    btn.classList.add('active');
+    document.querySelectorAll('.sb-item').forEach(function (b) {
+      b.classList.toggle('active', b === btn);
+      if (b === btn) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
   }
 
   /* ---------------- barra superior ---------------- */
