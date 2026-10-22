@@ -107,5 +107,7 @@
     return sprite(c[0],c[1],game.name);
   }
   window.MCStudioSymbols = { render:render };
-  window.MCIllustrated = { render:render, draw:draw, cover:cover, icon:icon };
+  /** Una pieza cualquiera del atlas de un juego del proveedor (el trío de los banners). */
+  function piece(pid, index, label) { return providerArt[pid] ? sprite(index, pid, label) : ''; }
+  window.MCIllustrated = { render:render, draw:draw, cover:cover, icon:icon, piece:piece };
 })();

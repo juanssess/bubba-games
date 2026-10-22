@@ -11,7 +11,14 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 1,
     "detail": "Los multiplicadores se acumulan: cada secuencia que gana con esferas suma al total.",
-    "tint": 16759020
+    "tint": 16759020,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 16732088,
+    "gold": 15909198
   },
   "cataratas": {
     "title": "Las Cataratas",
@@ -24,7 +31,14 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 1,
     "detail": "Cada cascada suma uno al multiplicador, y el multiplicador no vuelve atrás en toda la función.",
-    "tint": 11075568
+    "tint": 11075568,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 4183752,
+    "gold": 15190131
   },
   "classic20": {
     "title": "Maverick",
@@ -37,7 +51,14 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 1,
     "detail": "La Escalinata decidió tu bonus.",
-    "tint": 11141088
+    "tint": 11141088,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 4186320,
+    "gold": 11568448
   },
   "dunas": {
     "title": "Las Dunas",
@@ -50,7 +71,14 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 1,
     "detail": "Los pilotos que caen se plantan hasta el final de la travesía.",
-    "tint": 16763034
+    "tint": 16763034,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 15921906,
+    "gold": 14916170
   },
   "famatina": {
     "title": "Famatina",
@@ -63,7 +91,14 @@ window.MCProviderArt = {
     "rows": 1,
     "cover": 1,
     "detail": "Cada pepita sube el multiplicador. Una carga de dinamita se lleva la apuesta.",
-    "tint": 16767120
+    "tint": 16767120,
+    "hero": [
+      1,
+      3,
+      2
+    ],
+    "accent": 15025710,
+    "gold": 15777888
   },
   "feria": {
     "title": "La Feria",
@@ -76,7 +111,14 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 1,
     "detail": "Las monedas se quedan: cada una nueva vuelve los re-giros a tres.",
-    "tint": 16769704
+    "tint": 16769704,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 16763210,
+    "gold": 13214826
   },
   "glaciar": {
     "title": "El Glaciar",
@@ -89,7 +131,14 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 1,
     "detail": "Las monedas de hielo se quedan: cada una nueva vuelve los re-giros a tres.",
-    "tint": 13167871
+    "tint": 13167871,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 16763210,
+    "gold": 13625077
   },
   "granpremio": {
     "title": "El Gran Premio",
@@ -102,7 +151,14 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 1,
     "detail": "Cada cascada sube la marcha: suma uno al multiplicador, y el multiplicador no vuelve atrás en toda la función.",
-    "tint": 16763274
+    "tint": 16763274,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 15221818,
+    "gold": 15317090
   },
   "kermes": {
     "title": "La Kermés",
@@ -115,7 +171,14 @@ window.MCProviderArt = {
     "rows": 1,
     "cover": 1,
     "detail": "La bolita cae entre los clavos. Con riesgo alto, las puntas pagan hasta 1.000×.",
-    "tint": 16773296
+    "tint": 16773296,
+    "hero": [
+      1,
+      2,
+      0
+    ],
+    "accent": 15222332,
+    "gold": 16042090
   },
   "kiosco": {
     "title": "El Kiosco",
@@ -128,7 +191,14 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 9,
     "detail": "Las bombas multiplican cada caída que paga.",
-    "tint": 16763110
+    "tint": 16763110,
+    "hero": [
+      0,
+      9,
+      10
+    ],
+    "accent": 16736162,
+    "gold": 16757713
   },
   "lafamilia": {
     "title": "La Familia",
@@ -141,7 +211,14 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 1,
     "detail": "Guerra de familias: juntá balas, vencé cuatro bandas y ascendé sus símbolos a jefes. Cada victoria da giros extra; al vencer al Don, los jefes cobran cajas fuertes por fila.",
-    "tint": 16766102
+    "tint": 16766102,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 16042624,
+    "gold": 14003813
   },
   "milonga": {
     "title": "La Milonga",
@@ -154,7 +231,14 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 1,
     "detail": "Cada cascada sube la escalera, de ×1 a ×100, y en la función no vuelve atrás.",
-    "tint": 16761520
+    "tint": 16761520,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 15909198,
+    "gold": 14727016
   },
   "ruta40": {
     "title": "Ruta 40",
@@ -167,7 +251,14 @@ window.MCProviderArt = {
     "rows": 1,
     "cover": 1,
     "detail": "El multiplicador sube con cada kilómetro. Retirate antes de que se funda el motor.",
-    "tint": 16763024
+    "tint": 16763024,
+    "hero": [
+      1,
+      3,
+      2
+    ],
+    "accent": 16751164,
+    "gold": 15909995
   },
   "sebusca": {
     "title": "Se Busca",
@@ -180,7 +271,14 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 1,
     "detail": "Los wilds pegajosos acompañan la función.",
-    "tint": 16760234
+    "tint": 16760234,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 14241579,
+    "gold": 11106620
   },
   "vendimia": {
     "title": "La Vendimia",
@@ -193,7 +291,14 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 1,
     "detail": "Cada cascada continúa la cosecha.",
-    "tint": 14270719
+    "tint": 14270719,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 9425231,
+    "gold": 14263361
   },
   "zonamuerta": {
     "title": "Zona Muerta",
@@ -206,6 +311,13 @@ window.MCProviderArt = {
     "rows": 2,
     "cover": 1,
     "detail": "La cacería: dos wilds infectados persiguen radios, se mueven y aumentan su potencia. En el bonus cada grupo paga una vez; potencia ×3.",
-    "tint": 16732774
+    "tint": 16732774,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 9564091,
+    "gold": 12826491
   }
 };

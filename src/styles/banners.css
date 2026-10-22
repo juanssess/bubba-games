@@ -243,3 +243,62 @@
 @media(prefers-reduced-motion:reduce){
   #view-lobby::before{transition:none}
 }
+
+/* ---------------- banners de juegos con arte propio ----------------
+   El trío en abanico, los rayos y el título toman los colores del juego
+   (--acc: el acento, --oro: el dorado del mueble), que vienen del índice
+   de arte del proveedor. */
+.promo-game{--acc:#f5c451;--oro:#f5c451}
+.promo-game.gb-pro > .gb-veil{
+  background:
+    radial-gradient(ellipse 42% 75% at 56% 50%,#0b050ad9 0%,#0b050a8c 55%,#0b050a00 100%),
+    linear-gradient(90deg,#0b050a00 0%,#0b050a33 30%,#0b050a80 70%,#0b050acc 100%);
+}
+.gb-trio{position:relative;animation:none;width:clamp(190px,22vw,300px)}
+.gb-trio::before{inset:0;background:radial-gradient(color-mix(in srgb,var(--acc) 55%,transparent),transparent 68%)}
+.gb-rays{
+  position:absolute;inset:-35%;border-radius:50%;opacity:.5;mix-blend-mode:screen;pointer-events:none;
+  background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--acc) 45%,transparent) 0deg 7deg,transparent 7deg 20deg);
+  -webkit-mask:radial-gradient(circle,#000 18%,transparent 64%);mask:radial-gradient(circle,#000 18%,transparent 64%);
+  animation:gb-spin 26s linear infinite;
+}
+@keyframes gb-spin{to{transform:rotate(360deg)}}
+.gb-h{position:absolute;display:block}
+.gb-h .illustrated-symbol{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 16px 20px #000b)}
+.gb-h0{inset:8% 16% 14% 16%;z-index:3;animation:gb-float 4s ease-in-out infinite}
+.gb-h1{left:-10%;top:34%;width:50%;height:50%;z-index:2;animation:gb-float-l 4.6s ease-in-out -1.3s infinite}
+.gb-h2{right:-10%;top:30%;width:48%;height:48%;z-index:1;animation:gb-float-r 5.2s ease-in-out -2.4s infinite}
+.gb-h1 .illustrated-symbol,.gb-h2 .illustrated-symbol{filter:drop-shadow(0 12px 16px #000b) brightness(.92)}
+@keyframes gb-float-l{0%,100%{transform:translateY(0) rotate(-16deg)}50%{transform:translateY(-9px) rotate(-10deg)}}
+@keyframes gb-float-r{0%,100%{transform:translateY(-4px) rotate(13deg)}50%{transform:translateY(7px) rotate(18deg)}}
+
+/* El título con el dorado del juego, y un destello que lo cruza cada tanto. */
+.promo-game.gb-pro h3.gb-title{
+  color:transparent;text-shadow:none;
+  background:
+    linear-gradient(105deg,transparent 42%,#fff 50%,transparent 58%) -150% 0/250% 100% no-repeat,
+    linear-gradient(180deg,#fffaf0 0%,var(--oro) 46%,color-mix(in srgb,var(--oro) 55%,#5a3a10) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 3px 0 color-mix(in srgb,var(--oro) 40%,#2a1600)) drop-shadow(0 10px 22px #000c);
+  animation:gb-title-shine 5s ease-in-out infinite;
+}
+@keyframes gb-title-shine{0%,55%{background-position:-150% 0,0 0}85%,100%{background-position:250% 0,0 0}}
+.promo-game.gb-pro .gb-side b{color:var(--oro)}
+.promo-game.gb-pro .gb-chips span{border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+
+/* Chispas que suben del color del juego. */
+.gb-sp{
+  position:absolute;bottom:-10px;z-index:1;border-radius:50%;pointer-events:none;
+  background:var(--acc);box-shadow:0 0 8px 2px color-mix(in srgb,var(--acc) 70%,transparent);
+  opacity:0;animation:gb-rise 5s linear infinite;
+}
+@keyframes gb-rise{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translateY(-330px) translateX(18px);opacity:0}}
+
+@media(max-width:760px){
+  .gb-trio{width:170px;margin-top:6px}
+  .promo-game.gb-pro > .gb-veil{background:linear-gradient(#0b050a44,#0b050ae0 55%)}
+}
+@media(prefers-reduced-motion:reduce){
+  .gb-rays,.gb-h,.gb-sp,.promo-game.gb-pro h3.gb-title{animation:none}
+  .gb-sp{display:none}
+}

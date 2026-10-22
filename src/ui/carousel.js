@@ -19,7 +19,7 @@ window.MCCarousel = (function () {
   function escena(scene) {
     // Los juegos del proveedor traen su escena (exportada con su arte).
     var pa = (window.MCProviderArt || {})[scene];
-    if (pa) return 'url(assets/illustrated/provider/' + pa.scene + ') center/cover';
+    if (pa) return 'url(assets/illustrated/provider/' + pa.scene + ') center 58%/cover';
     return 'url(' + ENV + ') ' + SCENE_POS[scene] + ' center/300% 100%';
   }
 
@@ -35,14 +35,49 @@ window.MCCarousel = (function () {
     return out;
   }
 
+  // Chispas que suben, del color del juego: mas finas que el papel picado.
+  function chispas() {
+    var out = '';
+    for (var i = 0; i < 14; i++) {
+      out += '<span class="gb-sp" style="left:' + (4 + (i * 37) % 92) + '%;width:' + (3 + i % 3 * 2) + 'px;height:' + (3 + i % 3 * 2) +
+             'px;animation-delay:' + ((i * 0.61) % 5).toFixed(2) + 's;animation-duration:' + (4 + i % 4) + 's"></span>';
+    }
+    return out;
+  }
+
+  function hex(n) { return '#' + ('000000' + Number(n).toString(16)).slice(-6); }
+
+  /** El arte del proveedor detras de una entrada del catalogo, si tiene. */
+  function arteDe(g) {
+    var m = g.frameUrl && /[?&]game=([a-z0-9]+)/.exec(g.frameUrl);
+    var pa = m && (window.MCProviderArt || {})[m[1]];
+    return pa ? { id: m[1], art: pa } : null;
+  }
+
+  /* El emblema: con arte del proveedor, un TRIO en abanico (el simbolo mas
+     caro al frente, el scatter y el wild a los costados) con rayos de luz
+     del color del juego girando detras. Sin arte propio, el sprite de siempre. */
+  function emblema(g) {
+    var p = arteDe(g);
+    var hero = p && p.art.hero;
+    if (!hero || hero.length < 2) return '<div class="gb-sym">' + MCIllustrated.icon(g) + '</div>';
+    return '<div class="gb-sym gb-trio"><span class="gb-rays"></span>' +
+      hero.map(function (idx, k) {
+        return '<span class="gb-h gb-h' + k + '">' + MCIllustrated.piece(p.id, idx, g.name) + '</span>';
+      }).join('') + '</div>';
+  }
+
   function bannerJuego(b) {
     var g = MCCatalog.games[b.game];
     var maxWin = 'Hasta x' + g.maxWin.toLocaleString('es-AR');
-    return '<div class="promo promo-game" data-scene="' + b.scene + '" data-action="game:' + g.id + '">' +
+    var p = arteDe(g);
+    var colores = p && p.art.accent !== undefined
+      ? ' style="--acc:' + hex(p.art.accent) + ';--oro:' + hex(p.art.gold) + '"' : '';
+    return '<div class="promo promo-game' + (p ? ' gb-pro' : '') + '" data-scene="' + b.scene + '" data-action="game:' + g.id + '"' + colores + '>' +
              '<span class="gb-bg" style="background:' + escena(b.scene) + '"></span>' +
              '<span class="gb-veil"></span>' +
-             confeti() +
-             '<div class="gb-sym">' + MCIllustrated.icon(g) + '</div>' +
+             (p ? chispas() : confeti()) +
+             emblema(g) +
              '<div class="gb-mid">' +
                (g.badge === 'new' ? '<span class="gb-pill">Nuevo</span>' : '') +
                '<span class="gb-kicker">' + b.kicker + '</span>' +
