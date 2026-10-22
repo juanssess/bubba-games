@@ -63,6 +63,7 @@ window.MC = window.MC || {};
 
     currentGame = meta ? id : null;
     currentEngine = engine;
+    document.dispatchEvent(new CustomEvent('mc:viewchange'));
     if (MC.sound && MC.sound.setGame) MC.sound.setGame(meta);
 
     if (meta) {

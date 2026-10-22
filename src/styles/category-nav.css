@@ -1,0 +1,69 @@
+/* Accesos de categoría: barra horizontal y menú de cuenta desplegable. */
+.main-col { margin-left:0; }
+.sidebar { transform:translateX(-100%); transition:transform .25s ease; }
+.sidebar.open { transform:none; box-shadow:12px 0 60px #0009; }
+.sb-scrim.show { display:block; position:fixed; inset:0; z-index:45; background:#080310aa; }
+.topbar {
+  display:flex; flex-wrap:wrap; gap:14px; min-height:80px; padding:12px 24px;
+  background:radial-gradient(ellipse at 5% 0,#8e252b66,transparent 28%),
+    radial-gradient(ellipse at 85% 0,#68279955,transparent 40%),#150722;
+  border-top:2px solid #b76b37; border-bottom:1px solid #7e399d66; color:#f5edf9;
+  box-shadow:0 6px 24px #09021144;
+}
+.top-brand { display:flex; align-items:center; gap:9px; flex:none; padding:0; border:0; background:none; color:#fff; cursor:pointer; }
+.top-brand img { border-radius:50%; object-fit:cover; border:1px solid #bd87d5; }
+.top-brand > span { font-size:21px; font-weight:900; line-height:1; letter-spacing:1px; }
+.top-brand small { display:block; margin-top:5px; font-size:9px; letter-spacing:5px; color:#d6a4ed; }
+.category-nav { display:flex; align-items:center; gap:5px; flex:1; min-width:0; overflow-x:auto; scrollbar-width:thin; scrollbar-color:#753594 transparent; }
+.category-link { position:relative; flex:1 0 auto; min-height:42px; padding:10px 14px; border:1px solid transparent; border-radius:24px; background:none; color:#dfd3e8; font:inherit; font-size:12px; font-weight:800; line-height:1.2; text-transform:uppercase; cursor:pointer; transition:background .18s,border-color .18s; }
+.category-link:hover { color:#fff; background:#79379833; }
+.category-link.active { color:#fff; background:linear-gradient(180deg,#6c288b,#39114f); border-color:#ae57cb; box-shadow:inset 0 1px 0 #e2a2fc33,0 0 12px #932bb022; }
+.category-link-new { padding-right:18px; color:#ffd978; }
+.category-link-new span { display:block; width:max-content; margin:3px auto 0; padding:2px 5px; border-radius:3px; background:#8a40b4; color:#fff; font-size:7px; letter-spacing:.5px; }
+.topbar .top-actions { flex:none; gap:8px; }
+.topbar .wallet { border:1px solid #9249b2; border-radius:24px; background:#2a103d; color:#fff; }
+.topbar .wallet-txt span { color:#ccaddc; }
+.topbar .icon-btn,.topbar .userbox { border:1px solid #86459e; background:#281039; color:#eee2f5; border-radius:50%; }
+.topbar .userbox { width:42px; height:42px; justify-content:center; padding:0; }
+.topbar .userbox-name { display:none; }
+.topbar #registerBtn { color:#ead8f3; padding:10px; }
+.topbar #depositBtn { border-radius:24px; }
+.topbar #menuToggle { display:grid; place-items:center; width:34px; height:34px; flex:none; }
+.topbar .header-search { order:4; flex:0 1 300px; max-width:300px; margin-left:auto; }
+.topbar .header-search input { padding-top:8px; padding-bottom:8px; background:#251331; color:#f5edf9; border:1px solid #6b3c7e; }
+.topbar .header-search input::placeholder { color:#bfa6cd; }
+.topbar .search-ico { border-color:#bfa6cd; }
+.topbar .search-ico::after { background:#bfa6cd; }
+.rail { scroll-margin-top:155px; }
+.topbar :focus-visible { outline:2px solid #e9b8ff; outline-offset:3px; }
+@media(min-width:1600px) {
+  .topbar { flex-wrap:nowrap; gap:12px; }
+  .topbar .header-search { order:0; flex:0 1 155px; margin:0; }
+  .category-link { padding-inline:16px; }
+}
+@media(max-width:1200px) {
+  .category-nav { order:5; flex-basis:100%; padding:4px 0; }
+  .topbar .header-search { order:0; flex:1; margin:0 0 0 auto; }
+  .topbar .top-actions { margin-left:auto; }
+  .category-link { min-height:40px; }
+  .rail { scroll-margin-top:180px; }
+}
+@media(max-width:700px) {
+  .topbar { gap:9px; padding:10px 12px 6px; }
+  .top-brand { gap:6px; }
+  .top-brand img { width:34px; height:34px; }
+  .top-brand > span { font-size:16px; }
+  .top-brand small { font-size:7px; letter-spacing:3px; }
+  .topbar .top-actions { flex:1; gap:6px; }
+  .topbar #registerBtn,.topbar #soundBtn { display:none; }
+  .topbar #depositBtn { padding:9px 10px; font-size:10px; }
+  .topbar .wallet { padding:8px 10px; }
+  .topbar .wallet-txt strong { font-size:12px; }
+  .topbar .wallet-txt span { display:none; }
+  .topbar .userbox { width:34px; height:34px; }
+  .topbar .header-search { order:4; flex-basis:100%; max-width:none; }
+  .category-nav { gap:4px; }
+  .category-link { flex:0 0 auto; padding:9px 13px; font-size:10px; }
+  .rail { scroll-margin-top:195px; }
+}
+@media(prefers-reduced-motion:reduce) { .sidebar,.category-link { transition:none; } }

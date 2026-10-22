@@ -9,6 +9,7 @@ window.MCShell = (function () {
   function init() {
     wireSidebar();
     wireTopbar();
+    wireCategories();
     document.querySelectorAll('button[data-nav="lobby"], button[data-view="lobby"]').forEach(function (button) {
       button.onclick = function () { MC.sound.click(); MC.showView('lobby'); };
     });
@@ -22,13 +23,23 @@ window.MCShell = (function () {
     function closeMobile() {
       sidebar.classList.remove('open');
       scrim.classList.remove('show');
+      sidebar.inert = true;
+      document.getElementById('menuToggle').setAttribute('aria-expanded', 'false');
     }
 
     document.getElementById('menuToggle').onclick = function () {
       sidebar.classList.toggle('open');
       scrim.classList.toggle('show');
+      sidebar.inert = !sidebar.classList.contains('open');
+      this.setAttribute('aria-expanded', String(sidebar.classList.contains('open')));
     };
     scrim.onclick = closeMobile;
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && sidebar.classList.contains('open')) {
+        closeMobile();
+        document.getElementById('menuToggle').focus();
+      }
+    });
 
     document.querySelector('.sb-brand').onclick = function () {
       MC.sound.click();
@@ -117,6 +128,42 @@ window.MCShell = (function () {
   }
 
   /* ---------------- barra superior ---------------- */
+  function wireCategories() {
+    var nav = document.querySelector('.category-nav');
+    function select(category) {
+      nav.querySelectorAll('[data-category]').forEach(function (button) {
+        var active = button.dataset.category === category;
+        button.classList.toggle('active', active);
+        if (active) button.setAttribute('aria-current', 'page');
+        else button.removeAttribute('aria-current');
+      });
+    }
+    nav.addEventListener('click', function (event) {
+      var button = event.target.closest('[data-category]');
+      if (!button) return;
+      var category = button.dataset.category;
+      MC.sound.click();
+      if (category === 'casino') MC.showView('catalog');
+      else if (category === 'deportes') MC.showView('sports');
+      else {
+        MC.showView('lobby');
+        if (MC.getCurrentView() !== 'lobby') return;
+        if (category !== 'inicio') MCRails.scrollTo(category);
+      }
+      if (MC.getCurrentView() === (category === 'casino' ? 'catalog' : category === 'deportes' ? 'sportsbook' : 'lobby')) {
+        select(category);
+      }
+    });
+    document.addEventListener('mc:viewchange', function () {
+      var game = MC.getGame(MC.getCurrentGame());
+      var kinds = { Deportes:'deportes', Mesa:'mesa', Tragamonedas:'tragamonedas', Crash:'crash', Instantáneo:'crash' };
+      select(game ? kinds[game.kind] : MC.getCurrentView() === 'lobby' ? 'inicio' : MC.getCurrentView() === 'catalog' ? 'casino' : null);
+    });
+    document.addEventListener('mc:railchange', function (event) {
+      select(event.detail);
+    });
+  }
+
   function wireTopbar() {
     var soundBtn = document.getElementById('soundBtn');
     // El icono lo dibuja audio.js: es el que sabe si el sonido esta prendido

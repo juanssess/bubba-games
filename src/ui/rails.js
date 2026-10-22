@@ -78,6 +78,7 @@ window.MCRails = (function () {
   }
 
   function elegir(tab) {
+    document.dispatchEvent(new CustomEvent('mc:railchange', { detail: tab.dataset.cat }));
     var block = tab.closest('.cxp-block');
     block.querySelectorAll('.cxp-tab').forEach(function (t) {
       t.setAttribute('aria-selected', String(t === tab));
@@ -90,6 +91,7 @@ window.MCRails = (function () {
   // Lleva el lobby hasta un riel concreto (lo usa el sidebar). Si es una
   // pestaña de categoría, la abre y baja hasta el bloque.
   function scrollTo(railId) {
+    document.dispatchEvent(new CustomEvent('mc:railchange', { detail: railId }));
     var target = document.getElementById('rail-' + railId);
     if (target && target.classList.contains('cxp-tab')) {
       elegir(target);

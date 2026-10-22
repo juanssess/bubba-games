@@ -45,6 +45,7 @@
 <link rel="stylesheet" href="src/styles/games/motion.css?v=1">
 <link rel="stylesheet" href="src/styles/banners.css?v=11">
 <link rel="stylesheet" href="src/styles/games/table-rooms.css?v=1">
+<link rel="stylesheet" href="src/styles/category-nav.css?v=1">
 
 <!-- El tema va en el HEAD y no con el resto: si se aplicara despues, quien
      tiene el tema claro veria el fondo negro un instante y despues el
@@ -55,7 +56,7 @@
 <body>
 
 <!-- ============================ SIDEBAR ============================ -->
-<aside class="sidebar" id="sidebar">
+<aside class="sidebar" id="sidebar" inert>
   <div class="sb-brand" data-nav="lobby">
     <img class="sb-mark sb-logo-image" src="assets/bubba-games-logo.jpg?v=81" alt="Tigre de Bubba Games">
     <span class="sb-brand-text">BUBBA<small>G A M E S</small></span>
@@ -102,9 +103,24 @@
 <div class="main-col">
 
   <header class="topbar">
-    <button class="icon-btn only-mobile" id="menuToggle" aria-label="Menú">☰</button>
+    <button class="icon-btn" id="menuToggle" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false">☰</button>
 
-    <div class="search">
+    <button class="top-brand" data-nav="lobby" aria-label="Bubba Games · Inicio">
+      <img src="assets/bubba-games-logo.jpg?v=81" alt="" width="44" height="44">
+      <span>BUBBA<small>GAMES</small></span>
+    </button>
+
+    <nav class="category-nav" aria-label="Categorías de juegos">
+      <button class="category-link active" data-category="inicio" aria-current="page">Inicio</button>
+      <button class="category-link" data-category="deportes">Deportes</button>
+      <button class="category-link" data-category="casino">Casino</button>
+      <button class="category-link" data-category="tragamonedas">Tragamonedas</button>
+      <button class="category-link" data-category="mesa">Juegos de<br>mesa</button>
+      <button class="category-link" data-category="crash">Crash e<br>instantáneos</button>
+      <button class="category-link category-link-new" data-category="nuevos">Novedades<span>Nuevo</span></button>
+    </nav>
+
+    <div class="search header-search">
       <span class="search-ico">🔍</span>
       <input type="text" id="searchInput" placeholder="Buscar juego..." autocomplete="off"
         role="combobox" aria-autocomplete="list" aria-expanded="false"
@@ -827,7 +843,7 @@
 <script src="src/core/audio.js?v=83"></script>
 <script src="src/core/ui.js?v=81"></script>
 <script src="src/core/wallet.js?v=81"></script>
-<script src="src/core/router.js?v=83"></script>
+<script src="src/core/router.js?v=84"></script>
 
 <!-- 2. Progresión (rango VIP y misiones diarias) -->
 <script src="src/progress/levels.js?v=81"></script>
@@ -878,14 +894,14 @@
 <script src="src/ui/game-art.js?v=82"></script>
 <script src="src/ui/actions.js?v=81"></script>
 <script src="src/ui/carousel.js?v=87"></script>
-<script src="src/ui/rails.js?v=83"></script>
+<script src="src/ui/rails.js?v=84"></script>
 <script src="src/ui/football-home.js?v=3"></script>
 <script src="src/ui/catalog-view.js?v=81"></script>
 <script src="src/ui/search.js?v=81"></script>
 <script src="src/ui/premio.js?v=81"></script>
 <script src="src/ui/portal.js?v=81"></script>
 <script src="src/ui/casa.js?v=83"></script>
-<script src="src/ui/shell.js?v=81"></script>
+<script src="src/ui/shell.js?v=82"></script>
 <script src="src/ui/modals.js?v=81"></script>
 <script src="src/ui/missions-view.js?v=81"></script>
 <script src="src/ui/cuenta.js?v=81"></script>
