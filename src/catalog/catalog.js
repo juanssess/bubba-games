@@ -382,20 +382,15 @@ window.MCCatalog = (function () {
   /* Banners de juego: van primero en el carrusel y usan el arte real
      (la escena de environments.png y el sprite de la portada). Los
      numeros —RTP, premio maximo— salen de la ficha del juego, no de aca. */
+  /* Solo los DESTACADOS: con un banner por juego el carrusel tenía catorce
+     y nadie llegaba a ver el décimo. Cinco, mezclando lo último con los
+     fuertes del salón; el resto de los juegos sigue en el catálogo. Para
+     destacar otro, se cambia una línea de acá. */
   var GAME_BANNERS = [
     { game: 'milonga',  scene: 'milonga', kicker: 'Recién abierto', side: ['Escalera', 'hasta x100'], chip: 'Racimos de tango' },
-    { game: 'glaciar',  scene: 'glaciar', kicker: 'Recién abierto', side: ['Hold &', 'Win'], chip: 'Monedas de hielo' },
-    { game: 'granpremio', scene: 'granpremio', kicker: 'Recién abierto', side: ['La marcha', 'no baja'], chip: '117.649 caminos' },
-    { game: 'dunas',    scene: 'dunas',   kicker: 'Recién abierto', side: ['Pilotos', 'pegajosos'], chip: 'La travesía' },
     { game: 'zonamuerta', scene: 'zonamuerta', kicker: 'Alerta roja', side: ['La', 'cacería'], chip: 'Infectados que evolucionan' },
-    { game: 'lafamilia', scene: 'lafamilia', kicker: 'Un asunto de familia', side: ['Guerra de', 'familias'], chip: 'Cuatro bandas y la bóveda' },
-    { game: 'cataratas', scene: 'cataratas', kicker: 'Recién abierto', side: ['117.649', 'caminos'], chip: 'Cascadas' },
-    { game: 'ruta40',   scene: 'ruta40',  kicker: 'Original', side: ['Crash', 'hasta x10.000'], chip: 'Retirate a tiempo' },
-    { game: 'carnaval', scene: 'carnaval', kicker: 'Lo nuevo', side: ['Multiplicadores', 'que se suman'], chip: '8 en cualquier lado' },
-    { game: 'feria',    scene: 'feria',   kicker: 'Lo nuevo', side: ['Hold &', 'Win'], chip: 'Monedas que se quedan' },
-    { game: 'kiosco',   scene: 'kiosco',  kicker: 'Lo nuevo', side: ['Bombas', 'hasta x500'], chip: 'Paga en cualquier lado' },
-    { game: 'vendimia', scene: 'wine',    kicker: 'Ya llegó',   side: ['Exclusivo', 'del salón'], chip: 'Cascadas' },
-    { game: 'sebusca',  scene: 'western', kicker: 'El más buscado', side: ['Volatilidad', 'extrema'], chip: 'Wilds pegajosos' },
+    { game: 'cataratas', scene: 'cataratas', kicker: 'El más grande', side: ['117.649', 'caminos'], chip: 'Cascadas' },
+    { game: 'carnaval', scene: 'carnaval', kicker: 'Noche de comparsas', side: ['Multiplicadores', 'que se suman'], chip: '8 en cualquier lado' },
     { game: 'maverick', scene: 'temple',  kicker: 'Subí la pirámide', side: ['Top', 'del salón'], chip: '20 líneas' }
   ];
 
