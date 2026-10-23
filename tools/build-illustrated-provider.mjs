@@ -63,6 +63,10 @@ let replaced = false;
 let audioReplaced = false;
 let themeReplaced = false;
 let holdPaceReplaced = false;
+let hudReplaced = false;
+let originalUiReplaced = false;
+let reelsReplaced = false;
+let clusterReplaced = false;
 let selectedGamesReplaced = false;
 let selectedArtReplaced = false;
 await build({
@@ -122,6 +126,22 @@ await build({
         themeReplaced = true;
         return readFileSync(resolve(casino, 'tools/provider/theme.ts'), 'utf8');
       }
+      if (cleanId.endsWith('/apps/client/src/render/hud.ts')) {
+        hudReplaced = true;
+        return readFileSync(resolve(casino, 'tools/provider/hud.ts'), 'utf8');
+      }
+      if (cleanId.endsWith('/apps/client/src/render/reels.ts')) {
+        reelsReplaced = true;
+        return readFileSync(resolve(casino, 'tools/provider/reels.ts'), 'utf8');
+      }
+      if (cleanId.endsWith('/apps/client/src/render/cluster-board.ts')) {
+        clusterReplaced = true;
+        return readFileSync(resolve(casino, 'tools/provider/cluster-board.ts'), 'utf8');
+      }
+      if (cleanId.endsWith('/apps/client/src/originals/ui.ts')) {
+        originalUiReplaced = true;
+        return readFileSync(resolve(casino, 'tools/provider/original-ui.ts'), 'utf8');
+      }
       if (id.replaceAll('\\', '/').endsWith('/apps/client/src/play/step-hold.ts')) {
         holdPaceReplaced = true;
         return readFileSync(resolve(casino, 'tools/provider/hold-pace.ts'), 'utf8');
@@ -144,6 +164,9 @@ await build({
 if (!replaced) throw new Error('No se reemplazó apps/client/src/presentation.ts: el proveedor cambió de forma. No se publicó nada.');
 if (!audioReplaced) throw new Error('No se conectó el audio del proveedor. No se publicó nada.');
 if (!themeReplaced || !holdPaceReplaced) throw new Error('No se aplicó el ritmo de giro del casino. No se publicó nada.');
+if ((!selected || selected.some(id => !['ruta40','famatina','kermes'].includes(id))) && !hudReplaced) throw new Error('No se aplicó la identidad de los controles. No se publicó nada.');
+if ((!selected || selected.some(id => !['ruta40','famatina','kermes'].includes(id))) && (!reelsReplaced || !clusterReplaced)) throw new Error('No se aplicó la frenada de los rodillos. No se publicó nada.');
+if ((!selected || selected.some(id => ['ruta40','famatina','kermes'].includes(id))) && !originalUiReplaced) throw new Error('No se aplicaron los controles de los originales. No se publicó nada.');
 if (selected) {
   if (!selectedGamesReplaced || !selectedArtReplaced) throw new Error('No se aplicó la selección de juegos y arte. No se publicó nada.');
   if (readFileSync(artIndexPath, 'utf8') !== beforeArt || readFileSync(resolve(target, 'index.html'), 'utf8') !== beforeClient) {

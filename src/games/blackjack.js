@@ -65,11 +65,13 @@
   function cardEl(card, hidden) {
     var d = document.createElement('div');
     var seen = presentedCards.get(card);
-    var motion = seen === undefined ? ' motion-deal' : seen && !hidden ? ' motion-turn' : '';
-    presentedCards.set(card, hidden);
-    if (hidden) { d.className = 'card back' + motion; d.setAttribute('aria-label', 'Carta boca abajo'); return d; }
+    if (seen && seen.hidden === hidden) return seen.node;
+    var turn = seen && seen.hidden && !hidden;
+    if (seen) { d = seen.node; d.replaceChildren(); }
+    presentedCards.set(card, { hidden: hidden, node: d });
+    if (window.MCMotion) MCMotion.deal(d, turn);
+    if (hidden) { d.className = 'card back'; d.setAttribute('aria-label', 'Carta boca abajo'); return d; }
     d.className = 'card' + (card.red ? ' red' : '');
-    d.className += motion;
     d.setAttribute('aria-label', card.rank + ' ' + card.suit);
     var count=card.rank==='A'?1:parseInt(card.rank,10);
     var center=Number.isFinite(count)?'<div class="bj-pips pips-'+count+'">'+Array.from({length:count},function(){return '<i>'+card.suit+'</i>';}).join('')+'</div>':'<div class="bj-court"><small>'+card.suit+'</small>'+card.rank+'<small>'+card.suit+'</small></div>';
@@ -82,6 +84,14 @@
     return d;
   }
 
+  // Keep dealt cards in the DOM: score updates must not restart their flight.
+  function reconcile(parent, nodes) {
+    nodes.forEach(function (node, index) {
+      if (parent.children[index] !== node) parent.insertBefore(node, parent.children[index] || null);
+    });
+    while (parent.children.length > nodes.length) parent.lastElementChild.remove();
+  }
+
   function render() {
     /* El cartel de la mesa se pinta en cada render y no vive fijo en el
        HTML: con el retorno bajado, "paga 3:2" sería falso. */
@@ -89,29 +99,28 @@
     if (sub) sub.textContent = 'Blackjack paga ' + pagoNatural();
 
     // Crupier
-    el.dealerHand.innerHTML = '';
-    dealer.forEach(function (c, i) {
+    reconcile(el.dealerHand, dealer.map(function (c, i) {
       var hidden = (i === 1 && (phase === 'player' || phase === 'dealing'));
-      el.dealerHand.appendChild(cardEl(c, hidden));
-    });
+      return cardEl(c, hidden);
+    }));
     var dealerVisible = (phase === 'player' || phase === 'dealing') ? dealer.slice(0, 1) : dealer;
     el.dealerScore.textContent = dealer.length ? scoreOf(dealerVisible) + (dealerVisible.length < dealer.length ? ' + ?' : '') : '';
 
     // Jugador
-    el.playerHands.innerHTML = '';
-    hands.forEach(function (h, i) {
-      var box = document.createElement('div');
+    reconcile(el.playerHands, hands.map(function (h, i) {
+      var box = h.node || document.createElement('div');
+      h.node = box;
       box.className = 'hand-box' + (i === activeHand && phase === 'player' ? ' active' : '');
-      var row = document.createElement('div');
+      var row = box.querySelector('.hand') || document.createElement('div');
       row.className = 'hand';
-      h.cards.forEach(function (c) { row.appendChild(cardEl(c, false)); });
-      box.appendChild(row);
-      var betLine = document.createElement('div');
+      reconcile(row, h.cards.map(function (c) { return cardEl(c, false); }));
+      if (!row.parentNode) box.appendChild(row);
+      var betLine = box.querySelector('.hand-bet') || document.createElement('div');
       betLine.className = 'hand-bet';
       betLine.textContent = MC.fmt(h.bet) + ' fichas' + (h.result ? ' · ' + h.result : '');
-      box.appendChild(betLine);
-      el.playerHands.appendChild(box);
-    });
+      if (!betLine.parentNode) box.appendChild(betLine);
+      return box;
+    }));
 
     var main = hands[activeHand] || (hands.length===1 ? hands[0] : null);
     el.playerScore.textContent = main ? scoreOf(main.cards) : '';

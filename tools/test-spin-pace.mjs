@@ -30,7 +30,7 @@ try {
       return page.evaluate(()=>performance.now()-spinStart);
     }
     const normal=await spin(false), turbo=await spin(true), skipped=await spin(false,true);
-    assert.ok(normal>=1400&&normal<3200,game+' fluid normal duration: '+normal);
+    assert.ok(normal>=3000&&normal<4500,game+' fluid normal duration: '+normal);
     assert.ok(turbo<normal*.85,game+' keeps an optional faster mode');
     assert.ok(skipped<normal*.5,game+' still responds to an explicit stop');
     assert.deepEqual(errors,[]);
@@ -44,7 +44,7 @@ try {
       await page.waitForFunction(()=>!__maverick.reelSet.running);
       const expectation=await page.evaluate(()=>({events:anticipationEvents,duration:performance.now()-anticipationStart}));
       assert.ok(expectation.events>0,'Two scatters produce a visible anticipation phase');
-      assert.ok(expectation.duration>normal&&expectation.duration<4500,'Anticipation creates a short extra wait: '+expectation.duration);
+      assert.ok(expectation.duration>normal+1000&&expectation.duration<8500,'Anticipation gives the final symbols time to land: '+expectation.duration);
       console.log('Anticipation',Math.round(expectation.duration));
     }
     if(game==='feria') {
@@ -79,7 +79,7 @@ try {
     await page.evaluate(game=>{MC.closeModal();MC.showView(game);},game);
     await page.locator(button).click();
     const transitions=await page.locator(strip).evaluateAll(els=>els.map(el=>parseFloat(getComputedStyle(el).transitionDuration)));
-    assert.ok(transitions.length>=3&&Math.max(...transitions)>=1.8&&Math.max(...transitions)<3.5,'House reels stay fluid with a short final wait: '+game+' '+transitions);
+    assert.ok(transitions.length>=3&&Math.max(...transitions)>=3.1&&Math.max(...transitions)<=7,'House reels keep the longer final approach: '+game+' '+transitions);
     assert.ok(transitions.at(-1)-transitions.at(-2)>=.25,'The final reel has a distinct stopping interval');
     await page.close();
   }

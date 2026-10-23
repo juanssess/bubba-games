@@ -8,12 +8,12 @@ export type { Palette, Timing } from '@casino/math';
 export function setActiveTheme(palette: Palette, timing: Timing): void {
   setBaseTheme(palette, {
     ...timing,
-    firstReelStop: 700,
-    reelStagger: 190,
+    firstReelStop: 1400,
+    reelStagger: 380,
     // Keep the symbols moving freely; expectation comes from the final stop.
-    spinSpeed: timing.spinSpeed * 0.9,
-    anticipationExtra: Math.min(650, timing.anticipationExtra),
-    anticipationSpeed: timing.anticipationSpeed * 0.85,
+    spinSpeed: timing.spinSpeed * 0.85,
+    anticipationExtra: 1800,
+    anticipationSpeed: Math.max(280, timing.anticipationSpeed * 0.5),
     freeSpinGap: Math.max(380, timing.freeSpinGap),
   });
 }

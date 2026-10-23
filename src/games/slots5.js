@@ -25,9 +25,9 @@ window.MCSlots5 = (function () {
   var LINE_BETS = [1, 2, 5, 10, 25, 50];
   var betIndex = 2;
 
-  var REEL_MS = [950, 1175, 1400, 1650, 1950]; // el último rodillo se hace esperar un poco
+  var REEL_MS = [2300, 2700, 3100, 3500, 4000];
   // La función mantiene un ritmo propio, con tiempo para ver los símbolos.
-  var REEL_MS_FREE = [650, 825, 1000, 1200, 1450];
+  var REEL_MS_FREE = [1800, 2100, 2400, 2750, 3100];
   var REEL_MS_TURBO = [350, 450, 550, 650, 800];
   var STOP_AT = 18;                              // símbolos que "pasan" antes de frenar
   var WIN_STEP_MS = 620;                         // cuánto dura cada línea encendida
@@ -38,9 +38,9 @@ window.MCSlots5 = (function () {
 
      Con dos bolsas, los rodillos que faltan sostienen la expectativa con
      una demora breve. La mayor pausa va en el primero; los demás acompañan. */
-  var ANTICIPA_1 = 600;
-  var ANTICIPA_N = 350;
-  var ANTICIPA_TOPE = 1300;
+  var ANTICIPA_1 = 1700;
+  var ANTICIPA_N = 450;
+  var ANTICIPA_TOPE = 2600;
 
   /* Los escalones del premio y el conteo viven en MCPremio: los usan
      los ocho juegos y tienen que verse igual en todos. */
@@ -116,7 +116,11 @@ window.MCSlots5 = (function () {
   function animateReel(reel, column, duration) {
     var strip = el.strips[reel];
     var cells = [];
-    for (var i = 0; i < STOP_AT; i++) cells.push(cellHTML(randomSymbol(reel)));
+    for (var i = 0; i < STOP_AT; i++) {
+      var visual = randomSymbol(reel);
+      if (visual === M.SCATTER) visual = M.STRIPS[reel].find(function (s) { return s !== M.SCATTER; });
+      cells.push(cellHTML(visual));
+    }
     for (var r = 0; r < M.ROWS; r++) cells.push(cellHTML(column[r]));
     cells.push(cellHTML(randomSymbol(reel)));
 
@@ -125,7 +129,7 @@ window.MCSlots5 = (function () {
     strip.innerHTML = cells.join('');
     void strip.offsetWidth;   // reflow: que la transición arranque desde 0
 
-    strip.style.transition = 'transform ' + duration + 'ms cubic-bezier(.16,.32,.36,1)';
+    strip.style.transition = 'transform ' + duration + 'ms cubic-bezier(.12,.62,.22,1)';
     strip.style.transform = 'translateY(' + (-STOP_AT * cellHeight()) + 'px)';
     MCCinema.reel(strip, duration);
     setTimeout(function () { MC.sound.event('reelStop'); }, duration);
@@ -191,13 +195,15 @@ window.MCSlots5 = (function () {
        que se estira es el rato que el jugador pasa sin saberlo. Sin
        esto, que caigan dos bolsas y que caigan tres se ven igual. */
     var base = turbo ? REEL_MS_TURBO : (freeLeft > 0 ? REEL_MS_FREE : REEL_MS);
+    var reduced = window.MCMotion && MCMotion.reduced();
+    if (reduced) base = [100, 130, 160, 190, 220];
     var extra = 0;
     var vistos = 0;          // bolsas en los rodillos YA resueltos
     var cuantasAnticiparon = 0;
     var fin = 0;
 
     for (var reel = 0; reel < M.REELS; reel++) {
-      var anticipa = reel >= 2 && vistos >= 2;
+      var anticipa = !turbo && !reduced && vistos === 2;
       if (anticipa) {
         var suma = cuantasAnticiparon === 0 ? ANTICIPA_1 : ANTICIPA_N;
         if (turbo) suma *= 0.4;

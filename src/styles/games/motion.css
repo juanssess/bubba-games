@@ -13,7 +13,7 @@
 .pl-chip.girando{animation:chip-toss 1.2s cubic-bezier(.25,.1,.2,1)}
 .pl-chip.red,.pl-chip.black{animation:chip-land .32s ease-out}
 .pl-dot:first-child{animation:tile-reveal .35s ease-out}
-.wheel-wrap.motion-spinning .wheel-pointer{animation:pointer-tick .13s linear 38}
+.wheel-wrap.motion-spinning .wheel-pointer{animation:none}
 .wheel-wrap.motion-spinning{filter:drop-shadow(0 0 20px #dfac4528)}
 .win-flash{animation:winning-number .7s ease-out 3!important}
 .slip-item{animation:slip-enter .28s ease-out}
@@ -34,3 +34,34 @@
 @keyframes slip-enter{from{transform:translateX(14px);opacity:0}to{transform:none;opacity:1}}
 @keyframes symbol-lift{50%{transform:scale(1.08);filter:drop-shadow(0 0 10px #f8ce69)}}
 @media(prefers-reduced-motion:reduce){.tile,.tile::after,.tile .illustrated-symbol,.card,.pl-chip,.pl-dot,.wheel-pointer,.slip-item,.simbolo,.win-flash{animation:none!important;transition:none!important}}
+
+/* Table motion is driven by the same clock as the final result. */
+.room-roulette .wheel,.room-roulette .roulette-ball-track,.room-roulette .roulette-ball-track i{transition:none}
+.room-roulette .wheel-wrap.motion-spinning .wheel,.room-roulette .wheel-wrap.motion-spinning .roulette-ball-track{will-change:transform}
+.room-roulette .wheel-wrap{transition:filter .4s ease}
+.room-roulette .wheel-wrap.motion-landed .roulette-ball-track i{box-shadow:0 1px 3px #000,0 0 9px #fff5}
+.room-roulette .motion-landed .wheel-hub{animation:motion-hub-land .65s cubic-bezier(.16,1,.3,1)}
+.room-roulette .history-strip .hs-num:first-child{animation:motion-history .4s cubic-bezier(.16,1,.3,1)}
+.room-roulette .chip{transition:transform .22s cubic-bezier(.16,1,.3,1),box-shadow .22s,outline-color .22s}
+.room-roulette .chip:active{transform:translateY(0) scale(.96)}
+.room-roulette .chip:focus-visible{outline:3px solid #fff;outline-offset:5px}
+.room-blackjack .hand{perspective:900px}
+.room-blackjack .card{animation:none;transform-origin:50% 65%}
+.motion-card-back{position:absolute;inset:-1px;z-index:3;border:5px solid #ebdfc4;border-radius:inherit;background:repeating-conic-gradient(#264465 0 25%,#182f4c 0 50%) 0 0/10px 10px;box-shadow:inset 0 0 0 1px #b89c68;pointer-events:none}
+.motion-card-back::after{content:'◆';position:absolute;inset:10px;display:grid;place-items:center;border:1px solid #cfb57966;color:#dabd83;font:34px Georgia,serif}
+.room-blackjack .hand-box{transition:border-color .3s,background .3s,box-shadow .3s}
+.room-blackjack .hand-box.active{box-shadow:0 0 24px #e9bc4b20,inset 0 0 16px #e9bc4b09}
+.motion-flying-chip{position:fixed;z-index:110;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:3px dashed #ffedbd;background:radial-gradient(circle at 35% 25%,#ffe9ac,#b77b22);box-shadow:0 5px 12px #0006;color:#39270e;font:800 10px sans-serif;pointer-events:none}
+.motion-sparks{position:absolute;inset:0;display:block;pointer-events:none;border-radius:inherit}
+.motion-sparks i{position:absolute;left:50%;top:50%;width:6px;height:10px;border-radius:2px;background:linear-gradient(#fff6ca,#dca142);box-shadow:0 0 8px #f7cc6770;opacity:0;animation:motion-spark 1s var(--spark-delay) cubic-bezier(.16,.65,.3,1) both}
+.motion-sparks i:nth-child(3n){width:4px;height:4px;border-radius:50%;background:#fff5d8}
+.g5-cell.ganadora{animation:g5Latir .72s ease-in-out 3}
+.g5-cell.ganadora .simbolo,.reel.win .simbolo{animation:symbol-lift .85s cubic-bezier(.37,0,.2,1) 2}
+@keyframes motion-spark{0%{transform:translate(0,0) rotate(0) scale(.2);opacity:0}15%{opacity:1}100%{transform:translate(var(--spark-x),var(--spark-y)) rotate(220deg) scale(.35);opacity:0}}
+@keyframes motion-hub-land{0%{filter:brightness(1)}45%{filter:brightness(1.5)}100%{filter:brightness(1)}}
+@keyframes motion-history{from{opacity:0;translate:0 -10px;scale:.7}to{opacity:1;translate:0 0;scale:1}}
+@media(prefers-reduced-motion:reduce){
+  .room-roulette .wheel,.room-roulette .roulette-ball-track,.room-roulette .chip,.room-blackjack .card,.room-blackjack .hand-box{transition:none!important;animation:none!important}
+  .room-roulette .motion-landed .wheel-hub,.room-roulette .history-strip .hs-num:first-child,.g5-cell.ganadora,.reel.win{animation:none}
+  .motion-flying-chip,.motion-sparks{display:none}
+}

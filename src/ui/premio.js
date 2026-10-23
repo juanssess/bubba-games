@@ -49,7 +49,7 @@ window.MCPremio = (function () {
     detener(el);
     var t0 = performance.now();
     var ultimoTick = 0;
-    if (window.MCCinema && MCCinema.reduced()) ms = 0;
+    if ((window.MCMotion && MCMotion.reduced()) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) ms = 0;
     function frame(now) {
       var p = ms ? Math.min(1, (now - t0) / ms) : 1;
       var suave = 1 - Math.pow(1 - p, 3);   // frena al final, como un contador
@@ -122,14 +122,20 @@ window.MCPremio = (function () {
     if (capa) return capa;
     capa = document.createElement('div');
     capa.className = 'festejo';
+    capa.setAttribute('role', 'status');
+    capa.setAttribute('aria-live', 'polite');
     capa.innerHTML =
       '<div class="festejo-caja">' +
         '<span class="festejo-rotulo"></span>' +
         '<strong class="festejo-cifra"></strong>' +
         '<span class="festejo-pie"></span>' +
+        '<button class="festejo-cerrar" type="button" aria-label="Cerrar festejo">Continuar <span aria-hidden="true">×</span></button>' +
       '</div>';
     // Tocar en cualquier lado lo cierra: nunca bloquear al jugador.
     capa.addEventListener('click', ocultarFestejo);
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') ocultarFestejo();
+    });
     document.body.appendChild(capa);
     return capa;
   }
@@ -146,6 +152,8 @@ window.MCPremio = (function () {
     if (!esc || !esc.festejo) return;
 
     var c = caja();
+    clearTimeout(festejoTimer);
+    c.querySelectorAll('.motion-sparks').forEach(function (layer) { layer.remove(); });
     c.querySelector('.festejo-rotulo').textContent = esc.nombre;
     c.querySelector('.festejo-pie').textContent =
       (nombreJuego ? nombreJuego + ' · ' : '') +
@@ -154,6 +162,7 @@ window.MCPremio = (function () {
     var cifra = c.querySelector('.festejo-cifra');
     cifra.textContent = '+0';
     c.classList.add('visible');
+    if (window.MCMotion) MCMotion.burst(c.querySelector('.festejo-caja'), esc.min >= 60 ? 32 : 20);
     MC.sound.jackpot();
 
     contar(cifra, neto, esc.ms, function () {
@@ -167,6 +176,7 @@ window.MCPremio = (function () {
     clearTimeout(festejoTimer);
     detener(capa.querySelector('.festejo-cifra'));
     capa.classList.remove('visible');
+    capa.querySelectorAll('.motion-sparks').forEach(function (layer) { layer.remove(); });
   }
 
   return {

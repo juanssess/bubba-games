@@ -29,6 +29,7 @@
   var lastBets = [];    // la ronda anterior, para el botón Repetir
   var spinning = false;
   var wheelAngle = 0;   // acumulado, para que siempre gire hacia adelante
+  var ballAngle = 0;
 
   var el = {};
 
@@ -99,9 +100,14 @@
       c.className = 'chip chip-' + v + (v === chipValue ? ' active' : '');
       c.textContent = v >= 1000 ? (v / 1000) + 'K' : v;
       c.onclick = function () {
+        if (spinning) return;
         chipValue = v;
         MC.sound.chip();
-        buildChipRack();
+        el.rack.querySelectorAll('.chip').forEach(function (button) {
+          var selected = button === c;
+          button.classList.toggle('active', selected);
+          button.setAttribute('aria-pressed', String(selected));
+        });
       };
       el.rack.appendChild(c);
     });
@@ -162,6 +168,9 @@
     });
     MC.sound.chip();
     renderBets();
+    if (window.MCMotion) MCMotion.chip(
+      el.table.querySelector('[data-cell="' + cellId + '"]'),
+      el.rack.querySelector('.active'), chipValue >= 1000 ? chipValue / 1000 + 'K' : chipValue);
     marcarCubiertos(nums, true);
   }
 
@@ -244,7 +253,6 @@
   }
 
   function renderBets() {
-    el.table.querySelectorAll('.cell-chip').forEach(function (c) { c.remove(); });
     // Se agrupa por apuesta (tipo + ancla) pero la ficha se dibuja en la
     // celda que se tocó: un cuadro se ve sobre su número de referencia.
     var byCell = {};
@@ -256,11 +264,26 @@
     Object.keys(byCell).forEach(function (id) {
       var target = el.table.querySelector('[data-cell="' + donde[id] + '"]');
       if (!target) return;
-      var chip = document.createElement('span');
-      chip.className = 'cell-chip';
+      var chip = Array.from(target.querySelectorAll('.cell-chip')).find(function (c) { return c.dataset.bet === id; });
+      var fresh = !chip;
+      if (!chip) {
+        chip = document.createElement('span');
+        chip.className = 'cell-chip';
+        chip.dataset.bet = id;
+      }
       var v = byCell[id];
+      var changed = chip.dataset.amount !== String(v);
+      chip.dataset.amount = String(v);
       chip.textContent = v >= 1000 ? (Math.round(v / 100) / 10) + 'K' : v;
-      target.appendChild(chip);
+      if (fresh) target.appendChild(chip);
+      if (changed && window.MCMotion) MCMotion.animate(chip, [
+        { transform: 'translateY(-12px) scale(.7)', opacity: .3 },
+        { transform: 'translateY(2px) scale(1.12)', opacity: 1, offset: .7 },
+        { transform: 'none', opacity: 1 }
+      ], { duration: 380, easing: 'cubic-bezier(.16,1,.3,1)' });
+    });
+    el.table.querySelectorAll('.cell-chip').forEach(function (c) {
+      if (!Object.prototype.hasOwnProperty.call(byCell, c.dataset.bet)) c.remove();
     });
     el.staked.textContent = MC.fmt(totalStaked());
     el.spin.disabled = spinning || bets.length === 0;
@@ -380,15 +403,51 @@
     var target = -(index * SECTOR + SECTOR / 2);
     var turns = 6 + MC.randInt(0, 3);
     wheelAngle = wheelAngle + turns * 360 + (((target - wheelAngle) % 360) + 360) % 360;
-    el.wheel.style.transform = 'rotate(' + wheelAngle + 'deg)';
-    el.wheel.parentElement.classList.add('motion-spinning');
-    el.ball.style.transform = 'rotate(' + (-360 * (10 + Math.ceil(wheelAngle / 360))) + 'deg)';
+    var fromWheel = parseFloat(el.wheel.dataset.angle || '0');
+    var fromBall = ballAngle;
+    ballAngle -= 360 * 9;
+    var wrap = el.wheel.parentElement;
+    wrap.classList.remove('motion-landed');
+    wrap.classList.add('motion-spinning');
     el.status.textContent = 'No va más…';
     el.repeat.disabled = true;
     el.table.querySelectorAll('.bet-cell').forEach(function(c) { c.disabled=true; });
     el.result.textContent = '';
 
-    setTimeout(function () { settle(number); }, 4950);
+    var reduced = window.MCMotion && MCMotion.reduced();
+    var duration = reduced ? 180 : 4800;
+    var start = performance.now(), frameId, finished = false;
+    var pointer = wrap.querySelector('.wheel-pointer');
+    var ball = el.ball.querySelector('i');
+    function drawFrame(p) {
+      var ease = 1 - Math.pow(1 - p, 4);
+      var angle = fromWheel + (wheelAngle - fromWheel) * ease;
+      el.wheel.style.transform = 'rotate(' + angle + 'deg)';
+      el.ball.style.transform = 'rotate(' + (fromBall + (ballAngle - fromBall) * (1 - Math.pow(1 - p, 3))) + 'deg)';
+      // The ball drops into the winning pocket as the wheel comes to rest.
+      var drop = Math.max(0, Math.min(1, (p - .68) / .32));
+      ball.style.top = (1 + 23 * drop + (p < 1 ? Math.sin(drop * Math.PI * 6) * 3 * drop : 0)) + 'px';
+      pointer.style.transform = 'translateX(-50%) rotate(' + (p < .98 ? -Math.abs(Math.sin(angle / SECTOR * Math.PI)) * 9 * (1 - p) : 0) + 'deg)';
+    }
+    function complete() {
+      if (finished) return;
+      finished = true;
+      clearTimeout(fallback);
+      cancelAnimationFrame(frameId);
+      drawFrame(1);
+      el.wheel.dataset.angle = String(wheelAngle);
+      wrap.classList.add('motion-landed');
+      settle(number);
+    }
+    function frame(now) {
+      var p = Math.min(1, (now - start) / duration);
+      if (reduced || p >= 1) { complete(); return; }
+      drawFrame(p);
+      frameId = requestAnimationFrame(frame);
+    }
+    // Background tabs still settle exactly once, even when RAF is suspended.
+    var fallback = setTimeout(complete, duration + 80);
+    frameId = requestAnimationFrame(frame);
   }
 
   function settle(n) {
@@ -412,6 +471,11 @@
     returned = MC.rtp.fichas(returned);
 
     el.result.textContent = n;
+    if (window.MCMotion) MCMotion.animate(el.result, [
+      { transform: 'scale(.65)', opacity: 0 },
+      { transform: 'scale(1.12)', opacity: 1, offset: .65 },
+      { transform: 'scale(1)', opacity: 1 }
+    ], { duration: 500, easing: 'cubic-bezier(.16,1,.3,1)' });
     el.result.style.color = colorOf(n) === 'black' ? '#f2f1ef' : (colorOf(n) === 'red' ? '#ff6b74' : '#4bbf7a');
     pushHistory(n);
 
