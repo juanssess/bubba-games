@@ -1,5 +1,25 @@
 /* Generado por Juegos Casinos/tools/art-export.ts al compilar el proveedor. No editar. */
 window.MCProviderArt = {
+  "asado": {
+    "title": "El Asado",
+    "verified": true,
+    "rtpValue": 0.9639756555460226,
+    "volatility": "media",
+    "symbols": "asado-symbols.png",
+    "scene": "asado-scene.jpg",
+    "cols": 6,
+    "rows": 2,
+    "cover": 1,
+    "detail": "Las brasas multiplican cada caída que paga: suman su valor al final.",
+    "tint": 16763040,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 16742954,
+    "gold": 15770186
+  },
   "carnaval": {
     "title": "El Carnaval",
     "verified": true,
@@ -159,6 +179,26 @@ window.MCProviderArt = {
     ],
     "accent": 15221818,
     "gold": 15317090
+  },
+  "hinchada": {
+    "title": "La Hinchada",
+    "verified": true,
+    "rtpValue": 0.9659290403307391,
+    "volatility": "muy alta",
+    "symbols": "hinchada-symbols.png",
+    "scene": "hinchada-scene.jpg",
+    "cols": 6,
+    "rows": 2,
+    "cover": 1,
+    "detail": "Las bengalas se acumulan: cada secuencia que gana con bengalas suma al total, de hasta ×1000.",
+    "tint": 16761008,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 16730682,
+    "gold": 15265532
   },
   "kermes": {
     "title": "La Kermés",

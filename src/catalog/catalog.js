@@ -196,6 +196,24 @@ window.MCCatalog = (function () {
       desc: 'Cada cascada sube la escalera',
       frameUrl: 'games/slots/index.html?game=milonga'
     },
+    {
+      id: 'asado', engine: 'proveedor', name: 'El Asado', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Media',
+      tag: '8 en cualquier lado · brasas hasta x50 · tope 2.500x', rtpValue: 0.9640, rtp: 'RTP 96,4%',
+      maxWin: 2500, badge: 'new',
+      art: 'linear-gradient(135deg,#0e0604,#5a2a14 55%,#f0a24a)',
+      desc: 'Las brasas multiplican la caida',
+      frameUrl: 'games/slots/index.html?game=asado'
+    },
+    {
+      id: 'hinchada', engine: 'proveedor', name: 'La Hinchada', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Muy alta',
+      tag: 'Bengalas que se acumulan · hasta x1000 · tope 15.000x', rtpValue: 0.9659, rtp: 'RTP 96,6%',
+      maxWin: 15000, badge: 'new',
+      art: 'linear-gradient(135deg,#050812,#26346a 55%,#ff4a3a)',
+      desc: 'Las bengalas se acumulan',
+      frameUrl: 'games/slots/index.html?game=hinchada'
+    },
     /* Los originales del proveedor: Crash, Mines y Plinko con arte pintado.
        Su RTP es el mismo para cualquier estrategia (ver la ficha del juego). */
     {

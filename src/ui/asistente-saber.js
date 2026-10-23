@@ -184,6 +184,26 @@ window.MCAsistenteSaber = (function () {
       consejo: 'Volatilidad alta: las columnas altas y las cascadas largas de la función son las que pagan. ' +
         'La apuesta ante pone un medallón más por columna.'
     },
+    asado: {
+      alias: ['asado', 'el asado', 'parrilla', 'brasas', 'brasa', 'chorizo'],
+      como: 'Grilla de 6×5 que paga con <strong>ocho o más</strong> iguales en cualquier lado, con cascadas. ' +
+        'En los giros gratis caen <em>brasas</em> de ×2 a ×50: si la caída gana, el premio se multiplica por la suma de todas.',
+      paga: function (g) {
+        return 'Cuatro parrillas dan 10 giros gratis. Es la versión pareja de El Kiosco: brasas más chicas y el bonus ' +
+          'el doble de seguido. Máximo ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Volatilidad media: premios seguidos y un bonus que sale más o menos 1 de cada 180 giros.'
+    },
+    hinchada: {
+      alias: ['hinchada', 'la hinchada', 'tribuna', 'cancha', 'futbol', 'fútbol', 'bengala', 'bengalas'],
+      como: 'Grilla de 6×5 que paga con <strong>ocho o más</strong> iguales en cualquier lado, con cascadas. ' +
+        'Las <em>bengalas</em> traen multiplicadores de ×2 a ×1000.',
+      paga: function (g) {
+        return 'Cuatro copas dan 15 giros gratis. Ahí las bengalas se <strong>acumulan</strong>: cada secuencia que gana ' +
+          'con bengalas suma al total, y el total no vuelve a cero. Máximo ' + x(g.maxWin) + '.';
+      },
+      consejo: 'Es de las más volátiles del salón: rachas secas largas y funciones que pueden explotar. Apostá chico.'
+    },
     glaciar: {
       alias: ['glaciar', 'el glaciar', 'perito moreno', 'hielo', 'monedas de hielo'],
       como: 'El Hold & Win de La Feria en el Perito Moreno: 20 líneas, y con <strong>seis o más monedas de hielo</strong> ' +
