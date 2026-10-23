@@ -214,6 +214,15 @@ window.MCCatalog = (function () {
       desc: 'Las bengalas se acumulan',
       frameUrl: 'games/slots/index.html?game=hinchada'
     },
+    {
+      id: 'aconcagua', engine: 'proveedor', name: 'El Aconcagua', kind: 'Tragamonedas',
+      studio: 'Bubba Studios', volatility: 'Media',
+      tag: '20 líneas · El Ascenso · el más parejo del salón', rtpValue: 0.9644, rtp: 'RTP 96,4%',
+      maxWin: 1281, badge: 'new',
+      art: 'linear-gradient(135deg,#0c0c1e,#4a4a7a 55%,#ff9a4a)',
+      desc: 'Subí de campamento hasta la cumbre',
+      frameUrl: 'games/slots/index.html?game=aconcagua'
+    },
     /* Los originales del proveedor: Crash, Mines y Plinko con arte pintado.
        Su RTP es el mismo para cualquier estrategia (ver la ficha del juego). */
     {

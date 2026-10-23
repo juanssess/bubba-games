@@ -1,5 +1,25 @@
 /* Generado por Juegos Casinos/tools/art-export.ts al compilar el proveedor. No editar. */
 window.MCProviderArt = {
+  "aconcagua": {
+    "title": "El Aconcagua",
+    "verified": true,
+    "rtpValue": 0.9643907184375,
+    "volatility": "media",
+    "symbols": "aconcagua-symbols.png",
+    "scene": "aconcagua-scene.jpg",
+    "cols": 6,
+    "rows": 2,
+    "cover": 1,
+    "detail": "El Ascenso: el campamento al que llegás decide los giros gratis y su multiplicador.",
+    "tint": 16767160,
+    "hero": [
+      2,
+      1,
+      0
+    ],
+    "accent": 16751178,
+    "gold": 16045744
+  },
   "asado": {
     "title": "El Asado",
     "verified": true,

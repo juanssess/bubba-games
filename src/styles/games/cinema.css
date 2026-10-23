@@ -71,6 +71,7 @@ body[data-bonus-theme] #stage canvas{filter:saturate(1.16)}
 .cinema--lafamilia{--cinema-gold:#ffe0a6;--cinema-accent:#e1b66d;background:radial-gradient(ellipse at 50% 36%,#492030eb,#120910f5 75%)}
 .cinema--dunas{--cinema-gold:#ffd2a0;--cinema-accent:#e8803c;background:radial-gradient(ellipse at 50% 36%,#4a2416eb,#140a08f5 75%)}
 .cinema--asado{--cinema-gold:#ffd0a0;--cinema-accent:#ff7a2a;background:radial-gradient(ellipse at 50% 36%,#4a1e0eeb,#0e0604f5 75%)}
+.cinema--aconcagua{--cinema-gold:#ffe2d0;--cinema-accent:#ff9a4a;background:radial-gradient(ellipse at 50% 36%,#2a2a52eb,#0c0c1ef5 75%)}
 .cinema--hinchada{--cinema-gold:#e8eefc;--cinema-accent:#ff4a3a;background:radial-gradient(ellipse at 50% 36%,#1a2450eb,#050812f5 75%)}
 .cinema--glaciar{--cinema-gold:#e6f4ff;--cinema-accent:#7fc8f0;background:radial-gradient(ellipse at 50% 36%,#163450eb,#06101cf5 75%)}
 .cinema--milonga{--cinema-gold:#f2c14e;--cinema-accent:#c8303c;background:radial-gradient(ellipse at 50% 36%,#4a1018eb,#0e0406f5 75%)}

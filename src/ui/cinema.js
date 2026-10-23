@@ -22,7 +22,8 @@
     glaciar: ['EL GLACIAR', 'HOLD & WIN'],
     milonga: ['LA MILONGA', 'LA TANDA'],
     asado: ['EL ASADO', 'ASADO COMPLETO'],
-    hinchada: ['LA HINCHADA', 'EL CLÁSICO']
+    hinchada: ['LA HINCHADA', 'EL CLÁSICO'],
+    aconcagua: ['EL ACONCAGUA', 'LA CUMBRE']
   };
   var reduced = function () { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; };
   var features = {
@@ -39,6 +40,7 @@
     dunas: ['Pilotos que se plantan', 'Cada piloto que cae se queda con su multiplicador hasta el final de la travesía.'],
     glaciar: ['Monedas de hielo', 'Las monedas se quedan: cada una nueva vuelve los re-giros a tres. Llenar la pantalla paga el Grand.'],
     asado: ['Brasas multiplicadoras', 'Al final de cada caída que paga, las brasas suman su valor y multiplican el premio.'],
+    aconcagua: ['El Ascenso', 'Cada bandera puede subirte de campamento: el más alto que alcances fija los giros y el multiplicador.'],
     hinchada: ['Bengalas que se acumulan', 'Cada secuencia que gana con bengalas suma al total, y el total no vuelve a cero en toda la función.'],
     milonga: ['La escalera de la milonga', 'Cada cascada sube la escalera, de ×1 a ×100, y en la función no vuelve atrás.'],
     granpremio: ['La marcha que no baja', 'Cada cascada que gana sube una marcha: el multiplicador suma uno y no vuelve atrás en toda la carrera.']

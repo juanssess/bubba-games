@@ -194,6 +194,16 @@ window.MCAsistenteSaber = (function () {
       },
       consejo: 'Volatilidad media: premios seguidos y un bonus que sale más o menos 1 de cada 180 giros.'
     },
+    aconcagua: {
+      alias: ['aconcagua', 'el aconcagua', 'montaña', 'montana', 'cumbre', 'ascenso', 'campamento', 'andinismo'],
+      como: 'Tragamonedas de 5 rodillos y <strong>20 líneas</strong>. Tres banderas abren <em>El Ascenso</em>: ' +
+        'cada bandera que cae puede subirte de campamento, y el más alto que alcances fija los giros gratis y el multiplicador.',
+      paga: function (g) {
+        return 'Los campamentos van de 8 giros ×2 a 20 giros ×4. Es la Escalinata de Maverick en versión pareja: ' +
+          'multiplicadores más chicos y subir es más fácil.';
+      },
+      consejo: 'Volatilidad media, la más baja del salón: premio en 3 de cada 10 giros. Ideal para jugar largo con poco saldo.'
+    },
     hinchada: {
       alias: ['hinchada', 'la hinchada', 'tribuna', 'cancha', 'futbol', 'fútbol', 'bengala', 'bengalas'],
       como: 'Grilla de 6×5 que paga con <strong>ocho o más</strong> iguales en cualquier lado, con cascadas. ' +
